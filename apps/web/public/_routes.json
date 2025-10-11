@@ -1,0 +1,5 @@
+{
+  "exclude": [],
+  "include": ["/u/*", "/g/*", "/posts/*"],
+  "version": 1
+}

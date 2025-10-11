@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "CommonJS",
+    "noEmit": false,
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "extends": "@hey/config/base.tsconfig.json",
+  "include": ["**/*.ts", "src"]
+}
