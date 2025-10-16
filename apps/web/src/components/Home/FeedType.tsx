@@ -8,7 +8,7 @@ const FeedType = () => {
 
   const tabs = [
     { name: "Following", type: HomeFeedType.FOLLOWING },
-    { name: "Highlights", type: HomeFeedType.HIGHLIGHTS },
+    // { name: "Highlights", type: HomeFeedType.HIGHLIGHTS }, // Ẩn Highlights tab
     { name: "For You", suffix: <New />, type: HomeFeedType.FORYOU }
   ];
 

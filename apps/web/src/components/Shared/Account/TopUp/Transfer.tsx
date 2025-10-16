@@ -138,7 +138,7 @@ const Transfer = ({ token }: TransferProps) => {
           <Skeleton className="h-2.5 w-20 rounded-full" />
         ) : (
           <span className="text-gray-500 text-sm dark:text-gray-200">
-            Balance: {tokenBalance} {symbol}
+            Balance : {tokenBalance} {symbol}
           </span>
         )}
       </div>
@@ -212,7 +212,7 @@ const Transfer = ({ token }: TransferProps) => {
               window.open(`https://oku.trade/?${params.toString()}`, "_blank");
             }}
           >
-            <span>Buy on Oku.trade</span>
+            <span>Buy on Polgon</span>
             <ArrowUpRightIcon className="size-4" />
           </Button>
         ) : (
