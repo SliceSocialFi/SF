@@ -25,7 +25,7 @@ const pageview = async (ctx: Context) => {
   if (host.includes("localhost")) {
     return ctx.json({
       data: { ok: true, skipped: true },
-      status: Status.Success
+      status: Status.Success,
     });
   }
 
@@ -52,14 +52,14 @@ const pageview = async (ctx: Context) => {
       fields,
       thumbnail: { url: "https://github.com/heyverse.png" },
       timestamp: payload.ts,
-      title: body.path || "Pageview"
+      title: body.path || "Pageview",
     };
 
     const item = {
       createdAt: Date.now(),
       kind: "pageview" as const,
       payload: { embeds: [embed] },
-      retries: 0
+      retries: 0,
     };
     void enqueueDiscordWebhook(item);
   } catch (err) {

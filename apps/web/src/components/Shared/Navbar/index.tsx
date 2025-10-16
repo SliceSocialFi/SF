@@ -4,14 +4,16 @@ import {
   GlobeAltIcon as GlobeOutline,
   HomeIcon as HomeOutline,
   UserCircleIcon,
-  UserGroupIcon as UserGroupOutline
+  UserGroupIcon as UserGroupOutline,
+  ClipboardDocumentListIcon as TasksOutline
 } from "@heroicons/react/24/outline";
 import {
   BellIcon as BellSolid,
   BookmarkIcon as BookmarkSolid,
   GlobeAltIcon as GlobeSolid,
   HomeIcon as HomeSolid,
-  UserGroupIcon as UserGroupSolid
+  UserGroupIcon as UserGroupSolid,
+  ClipboardDocumentListIcon as TasksSolid
 } from "@heroicons/react/24/solid";
 import { STATIC_IMAGES_URL } from "@hey/data/constants";
 import { type MouseEvent, memo, type ReactNode, useCallback } from "react";
@@ -44,6 +46,11 @@ const navigationItems = {
     solid: <UserGroupSolid className="size-6" />,
     title: "Groups"
   },
+  "/tasks": {
+    outline: <TasksOutline className="size-6" />,
+    solid: <TasksSolid className="size-6" />,
+    title: "Tasks"
+  },
   "/notifications": {
     outline: <BellOutline className="size-6" />,
     solid: <BellSolid className="size-6" />,
@@ -63,6 +70,7 @@ const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
   const routes = [
     "/",
     "/explore",
+    "/tasks",
     ...(isLoggedIn ? ["/notifications", "/groups", "/bookmarks"] : [])
   ];
 
@@ -118,14 +126,14 @@ const Navbar = () => {
           alt="Logo"
           className="size-8"
           height={32}
-          src={`${STATIC_IMAGES_URL}/app-icon/0.png`}
+          src="/favicon.png" /* Chỉnh logo ở đây */
           width={32}
         />
       </Link>
       <NavItems isLoggedIn={!!currentAccount} />
       {currentAccount ? (
         <>
-          <Pro />
+          {/*<Pro /> */}
           <SignedAccount />
         </>
       ) : (

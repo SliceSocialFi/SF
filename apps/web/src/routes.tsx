@@ -19,6 +19,7 @@ import Terms from "@/components/Pages/Terms";
 import ViewPost from "@/components/Post";
 import Search from "@/components/Search";
 import AccountSettings from "@/components/Settings";
+import Tasks from "@/components/Tasks";
 import BlockedSettings from "@/components/Settings/Blocked";
 import DeveloperSettings from "@/components/Settings/Developer";
 import FundsSettings from "@/components/Settings/Funds";
@@ -42,6 +43,7 @@ const Routes = () => {
           <Route element={<Groups />} path="groups" />
           <Route element={<Bookmarks />} path="bookmarks" />
           <Route element={<Notification />} path="notifications" />
+          <Route element={<Tasks />} path="tasks" />
           <Route element={<ViewAccount />} path="account/:address" />
           <Route element={<ViewAccount />} path="u/:username" />
           <Route path="g/:address">

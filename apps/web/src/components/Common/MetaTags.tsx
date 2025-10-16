@@ -6,8 +6,8 @@ interface MetaTagsProps {
 }
 
 const MetaTags = ({
-  title = "Hey",
-  description = "Hey is a social network for the open web"
+  title = "Slice",
+  description = "Slice is a social network for the open web"
 }: MetaTagsProps) => {
   return (
     <Helmet>
