@@ -1,6 +1,11 @@
-import { MapPinIcon, UserIcon, PhoneIcon, EnvelopeIcon, CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import {
+  CurrencyDollarIcon,
+  EnvelopeIcon,
+  MapPinIcon,
+  PhoneIcon
+} from "@heroicons/react/24/outline";
 import { useCallback, useState } from "react";
-import { Card, H5, Modal, Button } from "@/components/Shared/UI";
+import { Button, Card, H5, Modal } from "@/components/Shared/UI";
 
 interface TaskOwner {
   id: string;
@@ -28,84 +33,86 @@ interface TaskItem {
 
 const mockTasks: TaskItem[] = [
   {
-    id: "1",
     companyLogo: "WCE",
     companyName: "Hồng Ngọc",
-    jobTitle: "QA Engineer",
     description: "Làm 996",
-    skills: ["Postman", "DevTools", "Developer / Programmer"],
+    id: "1",
+    jobTitle: "QA Engineer",
     location: "Remote",
-    salary: "100.000/h",
-    postedDays: 1,
     owner: {
-      id: "user1",
-      name: "Nguyễn Văn A",
       avatar: "NV",
       contact: {
         email: "nguyenvana@email.com",
         phone: "+84 123 456 789"
-      }
+      },
+      id: "user1",
+      name: "Nguyễn Văn A"
     },
-    rewardTokens: 50
+    postedDays: 1,
+    rewardTokens: 50,
+    salary: "100.000/h",
+    skills: ["Postman", "DevTools", "Developer / Programmer"]
   },
   {
-    id: "2", 
     companyLogo: "TECH",
     companyName: "Tech Solutions Inc",
+    description:
+      "Looking for React expert with TypeScript experience and modern web development skills",
+    id: "2",
     jobTitle: "Frontend Developer",
-    description: "Looking for React expert with TypeScript experience and modern web development skills",
-    skills: ["React", "TypeScript", "Frontend"],
     location: "Hybrid",
-    salary: "200.000/h",
-    postedDays: 2,
     owner: {
-      id: "user2",
-      name: "Trần Thị B",
       avatar: "TB",
       contact: {
         email: "tranthib@email.com",
         phone: "+84 987 654 321"
-      }
+      },
+      id: "user2",
+      name: "Trần Thị B"
     },
-    rewardTokens: 100
+    postedDays: 2,
+    rewardTokens: 100,
+    salary: "200.000/h",
+    skills: ["React", "TypeScript", "Frontend"]
   },
   {
-    id: "3",
     companyLogo: "AI",
     companyName: "AI Innovations",
-    jobTitle: "Machine Learning Engineer", 
-    description: "Join our team to build cutting-edge AI solutions with Python, TensorFlow and PyTorch",
-    skills: ["Python", "TensorFlow", "ML Engineer"],
+    description:
+      "Join our team to build cutting-edge AI solutions with Python, TensorFlow and PyTorch",
+    id: "3",
+    jobTitle: "Machine Learning Engineer",
     location: "On-site",
-    salary: "100.000/h",
-    postedDays: 5,
     owner: {
-      id: "user3",
-      name: "Lê Văn C",
       avatar: "LC",
       contact: {
         email: "levanc@email.com",
         phone: "+84 555 123 456"
-      }
+      },
+      id: "user3",
+      name: "Lê Văn C"
     },
-    rewardTokens: 75
+    postedDays: 5,
+    rewardTokens: 75,
+    salary: "100.000/h",
+    skills: ["Python", "TensorFlow", "ML Engineer"]
   }
 ];
 
 const TaskCard = ({ task }: { task: TaskItem }) => {
   return (
-    <Card className="p-4 space-y-3 hover:shadow-md transition-shadow cursor-pointer">
+    <Card className="cursor-pointer space-y-3 p-4 transition-shadow hover:shadow-md">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
             {task.companyLogo}
           </div>
           <div>
-            <div className="font-medium text-sm text-gray-900 dark:text-white">
+            <div className="font-medium text-gray-900 text-sm dark:text-white">
               {task.companyName}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-gray-500 text-xs dark:text-gray-400">
               {task.postedDays} days ago
             </div>
           </div>
@@ -118,7 +125,7 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
       </div>
 
       {/* Description */}
-      <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+      <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
         {task.description}
       </div>
 
@@ -126,8 +133,8 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
       <div className="flex flex-wrap gap-2">
         {task.skills.map((skill, index) => (
           <span
+            className="rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-xs dark:bg-gray-800 dark:text-gray-300"
             key={index}
-            className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-full"
           >
             {skill}
           </span>
@@ -135,12 +142,12 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-          <MapPinIcon className="w-4 h-4" />
+      <div className="flex items-center justify-between border-gray-200 border-t pt-2 dark:border-gray-700">
+        <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
+          <MapPinIcon className="h-4 w-4" />
           <span>{task.location}</span>
         </div>
-        <div className="text-sm font-medium text-gray-900 dark:text-white">
+        <div className="font-medium text-gray-900 text-sm dark:text-white">
           {task.salary}
         </div>
       </div>
@@ -148,7 +155,15 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
   );
 };
 
-const TaskDetailModal = ({ task, isOpen, onClose }: { task: TaskItem | null; isOpen: boolean; onClose: () => void }) => {
+const TaskDetailModal = ({
+  task,
+  isOpen,
+  onClose
+}: {
+  task: TaskItem | null;
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
   if (!task) return null;
 
   const handleAcceptTask = () => {
@@ -158,29 +173,31 @@ const TaskDetailModal = ({ task, isOpen, onClose }: { task: TaskItem | null; isO
   };
 
   return (
-    <Modal show={isOpen} onClose={onClose} size="md" title="Chi tiết công việc">
-      <div className="p-6 space-y-6">
+    <Modal onClose={onClose} show={isOpen} size="md" title="Chi tiết công việc">
+      <div className="space-y-6 p-6">
         {/* Task Info */}
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-lg text-white">
               {task.companyLogo}
             </div>
             <div>
               <H5 className="text-gray-900 dark:text-white">{task.jobTitle}</H5>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{task.companyName}</p>
+              <p className="text-gray-600 text-sm dark:text-gray-400">
+                {task.companyName}
+              </p>
             </div>
           </div>
 
-          <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
             {task.description}
           </div>
 
           <div className="flex flex-wrap gap-2">
             {task.skills.map((skill, index) => (
               <span
+                className="rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-xs dark:bg-gray-800 dark:text-gray-300"
                 key={index}
-                className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded-full"
               >
                 {skill}
               </span>
@@ -188,49 +205,57 @@ const TaskDetailModal = ({ task, isOpen, onClose }: { task: TaskItem | null; isO
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-              <MapPinIcon className="w-4 h-4" />
+            <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
+              <MapPinIcon className="h-4 w-4" />
               <span>{task.location}</span>
             </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
+            <div className="font-medium text-gray-900 text-sm dark:text-white">
               {task.salary}
             </div>
           </div>
         </div>
 
         {/* Owner Info */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+        <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-sm text-white">
               {task.owner.avatar}
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">{task.owner.name}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Người đăng task</p>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {task.owner.name}
+              </p>
+              <p className="text-gray-500 text-sm dark:text-gray-400">
+                Người đăng task
+              </p>
             </div>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <EnvelopeIcon className="w-5 h-5 text-gray-400" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">{task.owner.contact.email}</span>
+              <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+              <span className="text-gray-600 text-sm dark:text-gray-300">
+                {task.owner.contact.email}
+              </span>
             </div>
             <div className="flex items-center gap-3">
-              <PhoneIcon className="w-5 h-5 text-gray-400" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">{task.owner.contact.phone}</span>
+              <PhoneIcon className="h-5 w-5 text-gray-400" />
+              <span className="text-gray-600 text-sm dark:text-gray-300">
+                {task.owner.contact.phone}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Reward Info */}
-        <div className="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-4">
+        <div className="rounded-lg bg-brand-50 p-4 dark:bg-brand-900/20">
           <div className="flex items-center gap-3">
-            <CurrencyDollarIcon className="w-6 h-6 text-brand-500" />
+            <CurrencyDollarIcon className="h-6 w-6 text-brand-500" />
             <div>
               <p className="font-medium text-brand-600 dark:text-brand-400">
                 Phần thưởng khi hoàn thành
               </p>
-              <p className="text-2xl font-bold text-brand-600 dark:text-brand-400">
+              <p className="font-bold text-2xl text-brand-600 dark:text-brand-400">
                 {task.rewardTokens} tokens
               </p>
             </div>
@@ -239,17 +264,10 @@ const TaskDetailModal = ({ task, isOpen, onClose }: { task: TaskItem | null; isO
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4">
-          <Button
-            className="flex-1"
-            onClick={handleAcceptTask}
-          >
+          <Button className="flex-1" onClick={handleAcceptTask}>
             Nhận task
           </Button>
-          <Button
-            outline
-            className="flex-1"
-            onClick={onClose}
-          >
+          <Button className="flex-1" onClick={onClose} outline>
             Đóng
           </Button>
         </div>
@@ -276,11 +294,11 @@ const TaskSystem = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <H5 className="text-gray-900 dark:text-white">Available Tasks</H5>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-gray-500 text-sm dark:text-gray-400">
           {mockTasks.length} tasks
         </div>
       </div>
-      
+
       <div className="space-y-3">
         {mockTasks.map((task) => (
           <div key={task.id} onClick={() => handleTaskClick(task)}>
@@ -289,16 +307,19 @@ const TaskSystem = () => {
         ))}
       </div>
 
-      <div className="text-center pt-2">
-        <button className="text-sm text-brand-500 hover:text-brand-600 font-medium">
+      <div className="pt-2 text-center">
+        <button
+          className="font-medium text-brand-500 text-sm hover:text-brand-600"
+          type="button"
+        >
           View All Tasks
         </button>
       </div>
 
-      <TaskDetailModal 
-        task={selectedTask}
+      <TaskDetailModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        task={selectedTask}
       />
     </div>
   );

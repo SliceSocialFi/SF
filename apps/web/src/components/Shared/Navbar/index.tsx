@@ -3,22 +3,20 @@ import {
   BookmarkIcon as BookmarkOutline,
   GlobeAltIcon as GlobeOutline,
   HomeIcon as HomeOutline,
+  ClipboardDocumentListIcon as TasksOutline,
   UserCircleIcon,
-  UserGroupIcon as UserGroupOutline,
-  ClipboardDocumentListIcon as TasksOutline
+  UserGroupIcon as UserGroupOutline
 } from "@heroicons/react/24/outline";
 import {
   BellIcon as BellSolid,
   BookmarkIcon as BookmarkSolid,
   GlobeAltIcon as GlobeSolid,
   HomeIcon as HomeSolid,
-  UserGroupIcon as UserGroupSolid,
-  ClipboardDocumentListIcon as TasksSolid
+  ClipboardDocumentListIcon as TasksSolid,
+  UserGroupIcon as UserGroupSolid
 } from "@heroicons/react/24/solid";
-import { STATIC_IMAGES_URL } from "@hey/data/constants";
 import { type MouseEvent, memo, type ReactNode, useCallback } from "react";
 import { Link, useLocation } from "react-router";
-import Pro from "@/components/Shared/Navbar/NavItems/Pro";
 import { Image, Tooltip } from "@/components/Shared/UI";
 import useHasNewNotifications from "@/hooks/useHasNewNotifications";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
@@ -46,15 +44,15 @@ const navigationItems = {
     solid: <UserGroupSolid className="size-6" />,
     title: "Groups"
   },
-  "/tasks": {
-    outline: <TasksOutline className="size-6" />,
-    solid: <TasksSolid className="size-6" />,
-    title: "Tasks"
-  },
   "/notifications": {
     outline: <BellOutline className="size-6" />,
     solid: <BellSolid className="size-6" />,
     title: "Notifications"
+  },
+  "/tasks": {
+    outline: <TasksOutline className="size-6" />,
+    solid: <TasksSolid className="size-6" />,
+    title: "Tasks"
   }
 };
 
