@@ -1,7 +1,7 @@
 import {
   BRAND_COLOR,
   STATIC_IMAGES_URL,
-  TRANSFORMS,
+  TRANSFORMS
 } from "@hey/data/constants";
 import escapeHtml from "@hey/helpers/escapeHtml";
 import { default as getAccountData } from "@hey/helpers/getAccount";
@@ -66,7 +66,7 @@ const getAccount = async (ctx: Context) => {
     ctx,
     extractData: (data) => data.account,
     query: AccountDocument,
-    variables: { request: { username: { localName: username } } },
+    variables: { request: { username: { localName: username } } }
   });
 };
 

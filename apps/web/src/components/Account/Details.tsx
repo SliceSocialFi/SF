@@ -185,6 +185,9 @@ const Details = ({
           <MetaDetails icon={<CalendarIcon className="size-4" />}>
             Joined {dayjs(account.createdAt).format("MMM YYYY")}
           </MetaDetails>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            Your reputation points: 0
+          </div>
         </div>
       </div>
     </div>

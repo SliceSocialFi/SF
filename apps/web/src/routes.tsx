@@ -19,7 +19,6 @@ import Terms from "@/components/Pages/Terms";
 import ViewPost from "@/components/Post";
 import Search from "@/components/Search";
 import AccountSettings from "@/components/Settings";
-import Tasks from "@/components/Tasks";
 import BlockedSettings from "@/components/Settings/Blocked";
 import DeveloperSettings from "@/components/Settings/Developer";
 import FundsSettings from "@/components/Settings/Funds";
@@ -29,6 +28,7 @@ import { default as AccountPersonalizeSettings } from "@/components/Settings/Per
 import SessionsSettings from "@/components/Settings/Sessions";
 import UsernameSettings from "@/components/Settings/Username";
 import Custom404 from "@/components/Shared/404";
+import Tasks from "@/components/Tasks";
 import RewardsSettings from "./components/Settings/Rewards";
 import Staff from "./components/Staff";
 
