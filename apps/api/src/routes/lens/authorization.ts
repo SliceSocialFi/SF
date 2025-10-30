@@ -1,4 +1,4 @@
-import { SUSPENDED_ACCOUNTS } from "@hey/data/accounts";
+import { SUSPENDED_ACCOUNTS } from "@slice/data/accounts";
 import type { Context } from "hono";
 import ApiError from "@/utils/apiError";
 import handleApiError from "@/utils/handleApiError";

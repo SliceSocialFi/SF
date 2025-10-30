@@ -1,4 +1,4 @@
-import { HEY_TREASURY } from "@hey/data/constants";
+import { HEY_TREASURY } from "@slice/data/constants";
 
 interface DomainParamConfig {
   name: string;

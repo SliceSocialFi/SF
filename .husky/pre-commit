@@ -1,2 +1,0 @@
-pnpm run biome:check
-pnpm typecheck

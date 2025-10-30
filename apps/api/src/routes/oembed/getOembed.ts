@@ -1,4 +1,4 @@
-import { Status } from "@hey/data/enums";
+import { Status } from "@slice/data/enums";
 import type { Context } from "hono";
 import { CACHE_AGE_1_DAY } from "@/utils/constants";
 import handleApiError from "@/utils/handleApiError";

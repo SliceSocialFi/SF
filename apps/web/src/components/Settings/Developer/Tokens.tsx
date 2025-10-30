@@ -1,6 +1,6 @@
-import { ERRORS } from "@hey/data/errors";
-import { useAuthenticateMutation, useChallengeMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { ERRORS } from "@slice/data/errors";
+import { useAuthenticateMutation, useChallengeMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useSignMessage } from "wagmi";

@@ -1,8 +1,8 @@
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
-import getAccount from "@hey/helpers/getAccount";
-import getAvatar from "@hey/helpers/getAvatar";
-import { type AccountStats, useFullAccountLazyQuery } from "@hey/indexer";
 import * as HoverCard from "@radix-ui/react-hover-card";
+import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
+import { type AccountStats, useFullAccountLazyQuery } from "@slice/indexer";
 import plur from "plur";
 import type { ReactNode } from "react";
 import Markup from "@/components/Shared/Markup";

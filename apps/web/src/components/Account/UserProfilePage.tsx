@@ -247,10 +247,10 @@ const UserProfilePage = ({
           Expertise & Level
         </H6>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {profile.expertise.map((skill, index) => (
+          {profile.expertise.map((skill, i) => (
             <div
               className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
-              key={index}
+              key={i}
             >
               <span className="font-medium text-gray-900 text-sm dark:text-white">
                 {skill.name}

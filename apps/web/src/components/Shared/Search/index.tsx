@@ -1,12 +1,12 @@
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import getAccount from "@hey/helpers/getAccount";
+import getAccount from "@slice/helpers/getAccount";
 import {
   type AccountFragment,
   AccountsOrderBy,
   type AccountsRequest,
   PageSize,
   useAccountsLazyQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useClickAway, useDebounce } from "@uidotdev/usehooks";
 import type { MutableRefObject } from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -93,7 +93,7 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
         }
       });
     }
-  }, [debouncedSearchText]);
+  }, [debouncedSearchText, pathname, searchAccounts, showDropdown]);
 
   return (
     <div className="w-full">

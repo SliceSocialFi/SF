@@ -6,7 +6,7 @@ import {
   useAccountsAvailableQuery,
   useHideManagedAccountMutation,
   useUnhideManagedAccountMutation
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { WindowVirtualizer } from "virtua";
@@ -48,7 +48,7 @@ const List = ({ managed = false }: ListProps) => {
 
   useEffect(() => {
     refetch();
-  }, [managed, refetch]);
+  }, [refetch]);
 
   const accountsAvailable = data?.accountsAvailable.items;
   const pageInfo = data?.accountsAvailable?.pageInfo;

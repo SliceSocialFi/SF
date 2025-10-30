@@ -1,8 +1,8 @@
 import { useApolloClient } from "@apollo/client";
-import { ERRORS } from "@hey/data/errors";
-import getAccount from "@hey/helpers/getAccount";
-import { useMuteMutation, useUnmuteMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { ERRORS } from "@slice/data/errors";
+import getAccount from "@slice/helpers/getAccount";
+import { useMuteMutation, useUnmuteMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { Alert } from "@/components/Shared/UI";

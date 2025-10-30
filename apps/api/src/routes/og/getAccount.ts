@@ -2,12 +2,12 @@ import {
   BRAND_COLOR,
   STATIC_IMAGES_URL,
   TRANSFORMS
-} from "@hey/data/constants";
-import escapeHtml from "@hey/helpers/escapeHtml";
-import { default as getAccountData } from "@hey/helpers/getAccount";
-import getAvatar from "@hey/helpers/getAvatar";
-import normalizeDescription from "@hey/helpers/normalizeDescription";
-import { AccountDocument, type AccountFragment } from "@hey/indexer";
+} from "@slice/data/constants";
+import escapeHtml from "@slice/helpers/escapeHtml";
+import { default as getAccountData } from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
+import normalizeDescription from "@slice/helpers/normalizeDescription";
+import { AccountDocument, type AccountFragment } from "@slice/indexer";
 import type { Context } from "hono";
 import { html } from "hono/html";
 import generateOg from "./ogUtils";

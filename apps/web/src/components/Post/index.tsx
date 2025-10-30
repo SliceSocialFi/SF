@@ -1,12 +1,12 @@
-import getAccount from "@hey/helpers/getAccount";
-import { isRepost } from "@hey/helpers/postHelpers";
+import getAccount from "@slice/helpers/getAccount";
+import { isRepost } from "@slice/helpers/postHelpers";
 import {
   PageSize,
   PostReferenceType,
   PostVisibilityFilter,
   useHiddenCommentsQuery,
   usePostQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useLocation, useParams } from "react-router";
 import { createTrackedSelector } from "react-tracked";
 import { create } from "zustand";

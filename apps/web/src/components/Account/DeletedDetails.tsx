@@ -1,6 +1,6 @@
-import { STATIC_IMAGES_URL } from "@hey/data/constants";
-import getAccount from "@hey/helpers/getAccount";
-import type { AccountFragment } from "@hey/indexer";
+import { STATIC_IMAGES_URL } from "@slice/data/constants";
+import getAccount from "@slice/helpers/getAccount";
+import type { AccountFragment } from "@slice/indexer";
 import Slug from "@/components/Shared/Slug";
 import { H3, Image } from "@/components/Shared/UI";
 

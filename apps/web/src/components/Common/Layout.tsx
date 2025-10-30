@@ -1,6 +1,6 @@
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
-import { BANNER_IDS } from "@hey/data/constants";
-import { useMeQuery } from "@hey/indexer";
+import { BANNER_IDS } from "@slice/data/constants";
+import { useMeQuery } from "@slice/indexer";
 import { useIsClient } from "@uidotdev/usehooks";
 import { memo, useCallback, useEffect } from "react";
 import { Outlet, useLocation } from "react-router";
@@ -21,7 +21,7 @@ import PageviewTracker from "./PageviewTracker";
 import ReloadTabsWatcher from "./ReloadTabsWatcher";
 
 const Layout = () => {
-  const { pathname } = useLocation();
+  useLocation();
   const { theme } = useTheme();
   const { currentAccount, setCurrentAccount } = useAccountStore();
   const { setProBannerDismissed } = useProStore();
@@ -31,7 +31,7 @@ const Layout = () => {
   // Disable scroll restoration on route change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, []);
 
   const onError = useCallback(() => {
     signOut();

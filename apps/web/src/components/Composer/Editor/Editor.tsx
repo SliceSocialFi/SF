@@ -1,4 +1,4 @@
-import getAvatar from "@hey/helpers/getAvatar";
+import getAvatar from "@slice/helpers/getAvatar";
 import { Image } from "@/components/Shared/UI";
 import { defineEditorExtension } from "@/helpers/prosekit/extension";
 import { htmlFromMarkdown } from "@/helpers/prosekit/markdown";

@@ -1,4 +1,4 @@
-import { useAccountQuery } from "@hey/indexer";
+import { useAccountQuery } from "@slice/indexer";
 import SmallSingleAccountShimmer from "@/components/Shared/Shimmer/SmallSingleAccountShimmer";
 import SmallSingleAccount from "./SmallSingleAccount";
 

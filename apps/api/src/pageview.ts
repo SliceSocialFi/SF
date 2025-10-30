@@ -1,5 +1,5 @@
-import { Status } from "@hey/data/enums";
-import { withPrefix } from "@hey/helpers/logger";
+import { Status } from "@slice/data/enums";
+import { withPrefix } from "@slice/helpers/logger";
 import type { Context } from "hono";
 import enqueueDiscordWebhook from "./utils/discordQueue";
 import getIpData from "./utils/getIpData";

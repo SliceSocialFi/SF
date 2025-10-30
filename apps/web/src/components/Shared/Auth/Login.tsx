@@ -1,13 +1,13 @@
 import { KeyIcon } from "@heroicons/react/24/outline";
-import { HEY_APP, IS_MAINNET } from "@hey/data/constants";
-import { ERRORS } from "@hey/data/errors";
+import { HEY_APP, IS_MAINNET } from "@slice/data/constants";
+import { ERRORS } from "@slice/data/errors";
 import {
   type ChallengeRequest,
   ManagedAccountsVisibility,
   useAccountsAvailableQuery,
   useAuthenticateMutation,
   useChallengeMutation
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { AnimatePresence, motion } from "motion/react";
 import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useState } from "react";

@@ -1,4 +1,4 @@
-import { STATIC_IMAGES_URL } from "@hey/data/constants";
+import { STATIC_IMAGES_URL } from "@slice/data/constants";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { H4, Image } from "@/components/Shared/UI";
@@ -15,7 +15,7 @@ const Success = () => {
         setScreen("details");
       }
     }, 3000);
-  }, [groupAddress]);
+  }, [groupAddress, navigate, setScreen]);
 
   return (
     <div className="m-8 flex flex-col items-center justify-center">

@@ -1,5 +1,5 @@
-import { LENS_MAINNET_RPCS } from "@hey/data/rpcs";
 import { chains } from "@lens-chain/sdk/viem";
+import { LENS_MAINNET_RPCS } from "@slice/data/rpcs";
 import { createWalletClient, type Hex, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 

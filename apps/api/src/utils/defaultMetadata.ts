@@ -1,4 +1,4 @@
-import { BRAND_COLOR, STATIC_IMAGES_URL } from "@hey/data/constants";
+import { BRAND_COLOR, STATIC_IMAGES_URL } from "@slice/data/constants";
 import { html } from "hono/html";
 
 const defaultMetadata = html`

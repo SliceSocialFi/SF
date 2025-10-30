@@ -1,4 +1,4 @@
-import { LENS_MAINNET_RPCS, LENS_TESTNET_RPCS } from "@hey/data/rpcs";
+import { LENS_MAINNET_RPCS, LENS_TESTNET_RPCS } from "@slice/data/rpcs";
 import type { FallbackTransport } from "viem";
 import { fallback, http } from "viem";
 

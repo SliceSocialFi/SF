@@ -93,7 +93,14 @@ const usePostMetadata = () => {
 
       return null;
     },
-    [attachments, videoDurationInSeconds, audioPost, videoThumbnail, license]
+    [
+      attachments,
+      videoDurationInSeconds,
+      audioPost,
+      videoThumbnail,
+      license,
+      formatAttachments
+    ]
   );
 
   return getMetadata;

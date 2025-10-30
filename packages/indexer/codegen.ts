@@ -1,5 +1,5 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
-import { LENS_ENDPOINT } from "@hey/data/lens-endpoints";
+import { LENS_ENDPOINT } from "@slice/data/lens-endpoints";
 
 const config: CodegenConfig = {
   config: {

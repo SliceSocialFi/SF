@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import "dotenv/config";
-import { Status } from "@hey/data/enums";
-import { withPrefix } from "@hey/helpers/logger";
+import { Status } from "@slice/data/enums";
+import { withPrefix } from "@slice/helpers/logger";
 import { Hono } from "hono";
 import authContext from "./context/authContext";
 import authMiddleware from "./middlewares/authMiddleware";
@@ -9,12 +9,17 @@ import cors from "./middlewares/cors";
 import rateLimiter from "./middlewares/rateLimiter";
 import pageview from "./pageview";
 import posts from "./posts";
-import cronRouter from "./routes/cron";
+
+import customRouter from "./routes/custom/mock"; // Sử dụng mock version để test
 import lensRouter from "./routes/lens";
 import metadataRouter from "./routes/metadata";
 import oembedRouter from "./routes/oembed";
 import ogRouter from "./routes/og";
 import ping from "./routes/ping";
+import taskApplicationsRouter from "./routes/taskApplications";
+import tasksRouter from "./routes/tasks";
+import usersRouter from "./routes/users";
+
 import startDiscordWebhookWorker from "./workers/discordWebhook";
 
 const log = withPrefix("[API]");
@@ -26,12 +31,16 @@ app.use(authContext);
 
 app.get("/ping", ping);
 app.route("/lens", lensRouter);
-app.route("/cron", cronRouter);
+
 app.route("/metadata", metadataRouter);
 app.route("/oembed", oembedRouter);
 app.route("/og", ogRouter);
 app.post("/pageview", rateLimiter({ requests: 10 }), authMiddleware, pageview);
 app.post("/posts", rateLimiter({ requests: 10 }), authMiddleware, posts);
+app.route("/custom", customRouter);
+app.route("/users", usersRouter);
+app.route("/tasks", tasksRouter);
+app.route("/applications", taskApplicationsRouter);
 
 app.notFound((ctx) =>
   ctx.json({ error: "Not Found", status: Status.Error }, 404)

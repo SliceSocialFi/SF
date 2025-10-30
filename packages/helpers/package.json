@@ -1,5 +1,5 @@
 {
-  "name": "@hey/helpers",
+  "name": "@slice/helpers",
   "version": "0.0.0",
   "private": true,
   "license": "AGPL-3.0",
@@ -7,13 +7,13 @@
     "typecheck": "tsc --pretty"
   },
   "dependencies": {
-    "@hey/data": "workspace:*",
-    "@hey/indexer": "workspace:*",
-    "@hey/types": "workspace:*",
+    "@slice/data": "workspace:*",
+    "@slice/indexer": "workspace:*",
+    "@slice/types": "workspace:*",
     "viem": "^2.37.8"
   },
   "devDependencies": {
-    "@hey/config": "workspace:*",
+    "@slice/config": "workspace:*",
     "@types/node": "^24.5.2",
     "typescript": "^5.9.2"
   }

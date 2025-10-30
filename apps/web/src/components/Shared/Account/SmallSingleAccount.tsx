@@ -1,7 +1,7 @@
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
-import getAccount from "@hey/helpers/getAccount";
-import getAvatar from "@hey/helpers/getAvatar";
-import type { AccountFragment } from "@hey/indexer";
+import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
+import type { AccountFragment } from "@slice/indexer";
 import { memo } from "react";
 import Slug from "@/components/Shared/Slug";
 import { Image } from "@/components/Shared/UI";

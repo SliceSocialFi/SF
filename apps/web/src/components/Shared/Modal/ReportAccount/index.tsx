@@ -3,7 +3,7 @@ import {
   type AccountFragment,
   AccountReportReason,
   useReportAccountMutation
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useState } from "react";
 import { z } from "zod";
 import SingleAccount from "@/components/Shared/Account/SingleAccount";

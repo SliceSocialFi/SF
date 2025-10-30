@@ -1,6 +1,6 @@
 import { AtSymbolIcon } from "@heroicons/react/24/outline";
-import getPostData from "@hey/helpers/getPostData";
-import type { MentionNotificationFragment } from "@hey/indexer";
+import getPostData from "@slice/helpers/getPostData";
+import type { MentionNotificationFragment } from "@slice/indexer";
 import { NotificationAccountAvatar } from "@/components/Notification/Account";
 import AggregatedNotificationTitle from "@/components/Notification/AggregatedNotificationTitle";
 import Markup from "@/components/Shared/Markup";

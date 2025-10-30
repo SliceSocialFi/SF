@@ -1,7 +1,7 @@
-import { STATIC_IMAGES_URL } from "@hey/data/constants";
-import { ERRORS } from "@hey/data/errors";
-import { useSwitchAccountMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { STATIC_IMAGES_URL } from "@slice/data/constants";
+import { ERRORS } from "@slice/data/errors";
+import { useSwitchAccountMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useEffect } from "react";
 import { H4, Image } from "@/components/Shared/UI";
 import errorToast from "@/helpers/errorToast";
@@ -41,7 +41,7 @@ const Success = () => {
 
   useEffect(() => {
     handleAuth();
-  }, []);
+  }, [handleAuth]);
 
   return (
     <div className="m-8 flex flex-col items-center justify-center">

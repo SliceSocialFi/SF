@@ -1,7 +1,7 @@
 import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { NATIVE_TOKEN_SYMBOL, NULL_ADDRESS } from "@hey/data/constants";
-import { useBalancesBulkQuery, useDepositMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { NATIVE_TOKEN_SYMBOL, NULL_ADDRESS } from "@slice/data/constants";
+import { useBalancesBulkQuery, useDepositMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import {
   type ChangeEvent,
   type RefObject,
@@ -76,7 +76,7 @@ const Transfer = ({ token }: TransferProps) => {
     if (transactionReceipt?.status === "success") {
       onCompleted();
     }
-  }, [transactionReceipt]);
+  }, [transactionReceipt, onCompleted]);
 
   const [deposit] = useDepositMutation({
     onCompleted: async ({ deposit }) => {

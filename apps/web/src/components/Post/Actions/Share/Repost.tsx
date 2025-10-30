@@ -1,9 +1,9 @@
 import { useApolloClient } from "@apollo/client";
 import { MenuItem } from "@headlessui/react";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-import { ERRORS } from "@hey/data/errors";
-import { type PostFragment, useRepostMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { ERRORS } from "@slice/data/errors";
+import { type PostFragment, useRepostMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCounter } from "@uidotdev/usehooks";
 import { type Dispatch, type SetStateAction, useCallback } from "react";
 import { toast } from "sonner";
@@ -65,10 +65,13 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
     toast.success("Post has been reposted!");
   };
 
-  const onError = useCallback((error: ApolloClientError) => {
-    setIsSubmitting(false);
-    errorToast(error);
-  }, []);
+  const onError = useCallback(
+    (error: ApolloClientError) => {
+      setIsSubmitting(false);
+      errorToast(error);
+    },
+    [setIsSubmitting]
+  );
 
   const [repost] = useRepostMutation({
     onCompleted: async ({ repost }) => {

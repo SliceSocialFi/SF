@@ -1,5 +1,5 @@
 import { STSClient } from "@aws-sdk/client-sts";
-import { EVER_API, EVER_REGION } from "@hey/data/constants";
+import { EVER_API, EVER_REGION } from "@slice/data/constants";
 
 const stsClient = new STSClient({
   credentials: {

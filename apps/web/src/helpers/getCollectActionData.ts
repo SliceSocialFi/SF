@@ -1,7 +1,7 @@
 import type {
   RecipientPercent,
   SimpleCollectActionFragment
-} from "@hey/indexer";
+} from "@slice/indexer";
 
 interface CollectActionData {
   price?: number;

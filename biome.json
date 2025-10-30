@@ -1,91 +1,55 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on",
-        "useSortedAttributes": "on",
-        "useSortedKeys": "on",
-        "useSortedProperties": "on"
-      }
-    }
-  },
+  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
   "files": {
     "includes": [
       "**",
-      "!**/.pnpm-store/**/*",
-      "!**/.expo",
-      "!**/.claude",
-      "!**/dist",
-      "!**/artifacts",
       "!**/node_modules",
-      "!**/.git",
-      "!**/cache",
-      "!**/generated.ts",
-      "!**/expo-env.d.ts",
-      "!**/package.json"
+      "!**/dist",
+      "!**/apps/api/dist",
+      "!**/apps/web/dist",
+      "!**/packages/indexer/generated.ts"
     ]
   },
   "formatter": {
-    "indentStyle": "space"
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
   },
-  "javascript": {
-    "formatter": {
-      "trailingCommas": "none"
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
     }
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "a11y": {
-        "noStaticElementInteractions": "off",
-        "useKeyWithClickEvents": "off",
-        "useMediaCaption": "off"
-      },
-      "complexity": {
-        "noForEach": "warn",
-        "noUselessFragments": "error",
-        "useDateNow": "off",
-        "useLiteralKeys": "off"
-      },
-      "correctness": {
-        "noNestedComponentDefinitions": "off",
-        "noUnusedImports": {
-          "fix": "safe",
-          "level": "error"
-        },
-        "noUnusedVariables": "error",
-        "useExhaustiveDependencies": "off"
-      },
-      "nursery": {
-        "useSortedClasses": {
-          "fix": "safe",
-          "level": "error",
-          "options": {}
-        }
-      },
-      "recommended": true,
-      "security": {
-        "noDangerouslySetInnerHtml": "off"
+      "recommended": false,
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noArrayIndexKey": "warn"
       },
       "style": {
-        "noInferrableTypes": "error",
-        "noNegationElse": "error",
-        "noUnusedTemplateLiteral": "error",
-        "noUselessElse": "error",
-        "useAsConstAssertion": "error",
-        "useDefaultParameterLast": "error",
-        "useEnumInitializers": "error",
-        "useNumberNamespace": "error",
-        "useSelfClosingElements": "error",
-        "useSingleVarDeclarator": "error"
+        "noNonNullAssertion": "off"
       },
-      "suspicious": {
-        "noArrayIndexKey": "off",
-        "noAssignInExpressions": "off",
-        "noExplicitAny": "off",
-        "noUnknownAtRules": "off"
+      "correctness": {
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "warn",
+        "noUnusedFunctionParameters": "warn"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off",
+        "noStaticElementInteractions": "off",
+        "useMediaCaption": "warn"
       }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "none"
     }
   }
 }

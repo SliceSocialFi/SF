@@ -1,5 +1,5 @@
-import { PERMISSIONS } from "@hey/data/constants";
-import { type GroupFragment, useGroupStatsQuery } from "@hey/indexer";
+import { PERMISSIONS } from "@slice/data/constants";
+import { type GroupFragment, useGroupStatsQuery } from "@slice/indexer";
 import { useState } from "react";
 import Members from "@/components/Shared/Modal/Members";
 import GraphStatsShimmer from "@/components/Shared/Shimmer/GraphStatsShimmer";

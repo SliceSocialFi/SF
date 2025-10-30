@@ -1,5 +1,5 @@
-import getAccount from "@hey/helpers/getAccount";
-import type { AccountFragment } from "@hey/indexer";
+import getAccount from "@slice/helpers/getAccount";
+import type { AccountFragment } from "@slice/indexer";
 import type { ComponentProps, ReactNode } from "react";
 import { Link } from "react-router";
 import { useAccountLinkStore } from "@/store/non-persisted/navigation/useAccountLinkStore";

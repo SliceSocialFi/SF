@@ -1,4 +1,4 @@
-import getURLs from "@hey/helpers/getURLs";
+import getURLs from "@slice/helpers/getURLs";
 import { memo } from "react";
 import Oembed from "@/components/Shared/Post/Oembed";
 import { usePostAttachmentStore } from "@/store/non-persisted/post/usePostAttachmentStore";

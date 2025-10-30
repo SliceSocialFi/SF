@@ -1,9 +1,9 @@
 import {
   DEFAULT_COLLECT_TOKEN,
   NATIVE_TOKEN_SYMBOL
-} from "@hey/data/constants";
-import { tokens } from "@hey/data/tokens";
-import { useBalancesBulkQuery } from "@hey/indexer";
+} from "@slice/data/constants";
+import { tokens } from "@slice/data/tokens";
+import { useBalancesBulkQuery } from "@slice/indexer";
 import type { Address } from "viem";
 import TopUpButton from "@/components/Shared/Account/TopUp/Button";
 import Loader from "@/components/Shared/Loader";

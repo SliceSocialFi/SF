@@ -3,7 +3,7 @@ import {
   type AccountFragment,
   PageSize,
   useAccountRecommendationsQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { memo, useState } from "react";
 import Suggested from "@/components/Home/Suggested";
 import DismissRecommendedAccount from "@/components/Shared/Account/DismissRecommendedAccount";

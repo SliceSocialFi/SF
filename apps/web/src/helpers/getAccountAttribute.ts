@@ -1,4 +1,4 @@
-import type { Maybe, MetadataAttributeFragment } from "@hey/indexer";
+import type { Maybe, MetadataAttributeFragment } from "@slice/indexer";
 
 type Key = "location" | "website" | "x";
 

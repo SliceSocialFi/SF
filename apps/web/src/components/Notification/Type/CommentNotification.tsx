@@ -1,6 +1,6 @@
 import { ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
-import getPostData from "@hey/helpers/getPostData";
-import type { CommentNotificationFragment } from "@hey/indexer";
+import getPostData from "@slice/helpers/getPostData";
+import type { CommentNotificationFragment } from "@slice/indexer";
 import { NotificationAccountAvatar } from "@/components/Notification/Account";
 import AggregatedNotificationTitle from "@/components/Notification/AggregatedNotificationTitle";
 import Markup from "@/components/Shared/Markup";

@@ -1,4 +1,4 @@
-import { Regex } from "@hey/data/regex";
+import { Regex } from "@slice/data/regex";
 
 const getURLs = (text: string): string[] => {
   if (!text) {

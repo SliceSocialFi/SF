@@ -1,5 +1,5 @@
-import { GIPHY_KEY } from "@hey/data/constants";
-import type { Category } from "@hey/types/giphy";
+import { GIPHY_KEY } from "@slice/data/constants";
+import type { Category } from "@slice/types/giphy";
 import { useQuery } from "@tanstack/react-query";
 import type { Dispatch, SetStateAction } from "react";
 import { H5 } from "@/components/Shared/UI";

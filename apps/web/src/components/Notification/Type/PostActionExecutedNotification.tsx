@@ -1,6 +1,6 @@
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
-import getPostData from "@hey/helpers/getPostData";
-import type { PostActionExecutedNotificationFragment } from "@hey/indexer";
+import getPostData from "@slice/helpers/getPostData";
+import type { PostActionExecutedNotificationFragment } from "@slice/indexer";
 import plur from "plur";
 import { NotificationAccountAvatar } from "@/components/Notification/Account";
 import AggregatedNotificationTitle from "@/components/Notification/AggregatedNotificationTitle";

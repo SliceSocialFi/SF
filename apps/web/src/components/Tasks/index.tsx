@@ -4,12 +4,17 @@ import {
   MapPinIcon,
   PhoneIcon
 } from "@heroicons/react/24/outline";
+import type { Task as ApiTask } from "@slice/types/api";
 import { useCallback, useState } from "react";
 import { Button, Card, H5, Modal } from "@/components/Shared/UI";
+import { useQuery } from "@/hooks/useQuery";
+import { fetcher } from "@/lib/api";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import MetaDetails from "../Shared/MetaDetails";
 import PageLayout from "../Shared/PageLayout";
 import NewTask from "./NewTask";
 
+// This can be removed if you have a real user object with relations
 interface TaskOwner {
   id: string;
   name: string;
@@ -28,126 +33,46 @@ interface TaskApplicant {
   appliedAt: string;
 }
 
-interface TaskItem {
-  id: string;
+// We will use the `Task` type from `@slice/types`, but we need to add some mock data for the UI
+// that is not yet available from the API (like owner details, applicants, etc.)
+interface UITask extends ApiTask {
   companyLogo: string;
   companyName: string;
-  jobTitle: string;
-  description: string;
   skills: string[];
   location: string;
   salary: string;
   postedDays: number;
   owner: TaskOwner;
-  rewardTokens: number;
-  objective?: string;
-  deliverables?: string;
-  acceptanceCriteria?: string;
-  status: "open" | "in_progress" | "completed" | "cancelled";
-  assigneeId?: string;
   applicants: TaskApplicant[];
 }
 
-const mockTasks: TaskItem[] = [
-  {
-    acceptanceCriteria: "Tất cả test cases đã pass, không còn critical bugs",
-    applicants: [
-      {
-        appliedAt: "2024-01-20",
-        avatar: "JD",
-        level: 3,
-        username: "John Doe",
-        walletAddress: "0x1234567890abcdef1234567890abcdef12345678"
-      },
-      {
-        appliedAt: "2024-01-19",
-        avatar: "JS",
-        level: 4,
-        username: "Jane Smith",
-        walletAddress: "0xabcdef1234567890abcdef1234567890abcdef12"
-      }
-    ],
-    companyLogo: "WCE",
-    companyName: "Hồng Ngọc",
-    deliverables: "Báo cáo test cases, Bug reports, Test documentation",
-    description: "Làm 996",
-    id: "1",
-    jobTitle: "QA Engineer",
-    location: "Remote",
-    objective: "Đảm bảo chất lượng phần mềm thông qua việc kiểm thử toàn diện",
-    owner: {
-      avatar: "NV",
-      contact: {
-        email: "nguyenvana@email.com",
-        phone: "+84 123 456 789"
-      },
-      id: "user1",
-      name: "Nguyễn Văn A"
-    },
-    postedDays: 1,
-    rewardTokens: 50,
-    salary: "100.000/h",
-    skills: ["Postman", "DevTools", "Developer / Programmer"],
-    status: "open"
-  },
-  {
-    acceptanceCriteria: "UI responsive trên tất cả thiết bị, code quality tốt",
-    applicants: [],
-    assigneeId: "0x9876543210fedcba9876543210fedcba98765432",
-    companyLogo: "TECH",
-    companyName: "Tech Solutions Inc",
-    deliverables: "Source code React/TypeScript, UI components, Documentation",
-    description:
-      "Looking for React expert with TypeScript experience and modern web development skills",
-    id: "2",
-    jobTitle: "Frontend Developer",
-    location: "Hybrid",
-    objective: "Xây dựng giao diện người dùng hiện đại và responsive",
-    owner: {
-      avatar: "TB",
-      contact: {
-        email: "tranthib@email.com",
-        phone: "+84 987 654 321"
-      },
-      id: "user2",
-      name: "Trần Thị B"
-    },
-    postedDays: 2,
-    rewardTokens: 100,
-    salary: "200.000/h",
-    skills: ["React", "TypeScript", "Frontend"],
-    status: "in_progress"
-  },
-  {
-    acceptanceCriteria: "Model accuracy > 90%, API response time < 200ms",
-    applicants: [],
-    companyLogo: "AI",
-    companyName: "AI Innovations",
-    deliverables: "Trained model, API endpoints, Model documentation",
-    description:
-      "Join our team to build cutting-edge AI solutions with Python, TensorFlow and PyTorch",
-    id: "3",
-    jobTitle: "Machine Learning Engineer",
-    location: "On-site",
-    objective: "Phát triển mô hình AI tiên tiến cho ứng dụng thực tế",
-    owner: {
-      avatar: "LC",
-      contact: {
-        email: "levanc@email.com",
-        phone: "+84 555 123 456"
-      },
-      id: "user3",
-      name: "Lê Văn C"
-    },
-    postedDays: 5,
-    rewardTokens: 75,
-    salary: "100.000/h",
-    skills: ["Python", "TensorFlow", "ML Engineer"],
-    status: "open"
+const getTasks = async (): Promise<UITask[]> => {
+  const response = await fetcher("/tasks");
+  if (!response.ok) {
+    throw new Error("Failed to fetch tasks");
   }
-];
+  const tasks = (await response.json()) as ApiTask[];
 
-const TaskCard = ({ task }: { task: TaskItem }) => {
+  // Mocking additional UI data until the API provides it
+  return tasks.map((task, index) => ({
+    ...task,
+    companyLogo: "WCE",
+    companyName: `Employer ${task.employerProfileId.slice(0, 6)}`,
+    skills: ["React", "TypeScript", "Drizzle"],
+    location: "Remote",
+    salary: "Competitive",
+    postedDays: index + 1,
+    owner: {
+      id: task.employerProfileId,
+      name: `User ${task.employerProfileId.slice(0, 6)}`,
+      avatar: "U",
+      contact: { email: "test@example.com", phone: "123-456-7890" }
+    },
+    applicants: []
+  }));
+};
+
+const TaskCard = ({ task }: { task: UITask }) => {
   return (
     <Card className="cursor-pointer gap-4 p-4 transition-shadow hover:shadow-md md:flex md:items-center md:justify-between md:p-5">
       {/* Left: Company + details */}
@@ -166,10 +91,10 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
           </div>
         </div>
 
-        <H5 className="text-gray-900 dark:text-white">{task.jobTitle}</H5>
+        <H5 className="text-gray-900 dark:text-white">{task.title}</H5>
 
         <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-          {task.description}
+          {task.objective}
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -203,7 +128,7 @@ const TaskDetailModal = ({
   isOpen,
   onClose
 }: {
-  task: TaskItem | null;
+  task: UITask | null;
   isOpen: boolean;
   onClose: () => void;
 }) => {
@@ -228,7 +153,7 @@ const TaskDetailModal = ({
 
     setIsApplying(true);
     try {
-      // Simulate API call to apply for task
+      // TODO: Replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log(
         "Applying for task:",
@@ -236,7 +161,6 @@ const TaskDetailModal = ({
         "with wallet:",
         currentAccount.address
       );
-      // Here you would call your API to add the user to applicants list
     } catch (error) {
       console.error("Failed to apply for task:", error);
     } finally {
@@ -247,7 +171,7 @@ const TaskDetailModal = ({
   const handleAcceptApplicant = async (applicantWalletAddress: string) => {
     setIsAcceptingApplicant(applicantWalletAddress);
     try {
-      // Simulate API call to accept applicant
+      // TODO: Replace with actual API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log(
         "Accepting applicant:",
@@ -255,10 +179,6 @@ const TaskDetailModal = ({
         "for task:",
         task.id
       );
-      // Here you would call your API to:
-      // 1. Set assigneeId
-      // 2. Update status to 'in_progress'
-      // 3. Send notification to applicant
     } catch (error) {
       console.error("Failed to accept applicant:", error);
     } finally {
@@ -267,9 +187,7 @@ const TaskDetailModal = ({
   };
 
   const handleViewProfile = (walletAddress: string) => {
-    // Navigate to user profile page
     console.log("Navigate to profile:", walletAddress);
-    // You would use your routing logic here
   };
 
   return (
@@ -282,7 +200,7 @@ const TaskDetailModal = ({
               {task.companyLogo}
             </div>
             <div>
-              <H5 className="text-gray-900 dark:text-white">{task.jobTitle}</H5>
+              <H5 className="text-gray-900 dark:text-white">{task.title}</H5>
               <p className="text-gray-600 text-sm dark:text-gray-400">
                 {task.companyName}
               </p>
@@ -290,7 +208,7 @@ const TaskDetailModal = ({
           </div>
 
           <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-            {task.description}
+            {task.objective}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -399,7 +317,7 @@ const TaskDetailModal = ({
                 Completion Reward
               </p>
               <p className="font-bold text-2xl text-brand-600 dark:text-brand-400">
-                {task.rewardTokens} tokens
+                {task.rewardPoints} points
               </p>
             </div>
           </div>
@@ -471,7 +389,7 @@ const TaskDetailModal = ({
         )}
 
         {/* Task Status Info */}
-        {task.status === "in_progress" && task.assigneeId && (
+        {task.status === "in_progress" && (
           <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
             <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
               <div className="flex items-center gap-3">
@@ -535,10 +453,11 @@ const TaskDetailModal = ({
 };
 
 const Tasks = () => {
-  const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
+  const { data: tasks, loading, error } = useQuery(getTasks);
+  const [selectedTask, setSelectedTask] = useState<UITask | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleTaskClick = useCallback((task: TaskItem) => {
+  const handleTaskClick = useCallback((task: UITask) => {
     setSelectedTask(task);
     setIsModalOpen(true);
   }, []);
@@ -549,46 +468,59 @@ const Tasks = () => {
   }, []);
 
   return (
-    <PageLayout hideSearch sidebar={<NewTask />}>
-      <div className="mx-auto max-w-4xl p-6">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <H5 className="text-gray-900 dark:text-white">Task Listings</H5>
-              <p className="mt-1 text-gray-500 text-sm dark:text-gray-400">
-                Discover job opportunities that match your skills
-              </p>
-            </div>
-            <div className="text-gray-500 text-sm dark:text-gray-400">
-              {mockTasks.length} tasks
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {mockTasks.map((task) => (
-              <div key={task.id} onClick={() => handleTaskClick(task)}>
-                <TaskCard task={task} />
+    <>
+      <MetaDetails title="Tasks" />
+      <PageLayout hideSearch sidebar={<NewTask />}>
+        <div className="mx-auto max-w-4xl p-6">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <H5 className="text-gray-900 dark:text-white">Task Listings</H5>
+                <p className="mt-1 text-gray-500 text-sm dark:text-gray-400">
+                  Discover job opportunities that match your skills
+                </p>
               </div>
-            ))}
+              {tasks && (
+                <div className="text-gray-500 text-sm dark:text-gray-400">
+                  {tasks.length} tasks
+                </div>
+              )}
+            </div>
+
+            {loading && <div>Loading tasks...</div>}
+            {error && <div className="text-red-500">Error: {error}</div>}
+            {tasks && (
+              <div className="space-y-4">
+                {tasks.length > 0 ? (
+                  tasks.map((task) => (
+                    <div key={task.id} onClick={() => handleTaskClick(task)}>
+                      <TaskCard task={task} />
+                    </div>
+                  ))
+                ) : (
+                  <div>No tasks available at the moment.</div>
+                )}
+              </div>
+            )}
+
+            <div className="pt-4 text-center">
+              <button
+                className="font-medium text-brand-500 text-sm hover:text-brand-600"
+                type="button"
+              >
+                Load More Tasks
+              </button>
+            </div>
           </div>
 
-          <div className="pt-4 text-center">
-            <button
-              className="font-medium text-brand-500 text-sm hover:text-brand-600"
-              type="button"
-            >
-              Load More Tasks
-            </button>
-          </div>
+          <TaskDetailModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            task={selectedTask}
+          />
         </div>
-
-        <TaskDetailModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          task={selectedTask}
-        />
-      </div>
-    </PageLayout>
+      </PageLayout>
+    </>
   );
 };
 
