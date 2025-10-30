@@ -9,8 +9,6 @@ import cors from "./middlewares/cors";
 import rateLimiter from "./middlewares/rateLimiter";
 import pageview from "./pageview";
 import posts from "./posts";
-
-import customRouter from "./routes/custom/mock"; // Sử dụng mock version để test
 import lensRouter from "./routes/lens";
 import metadataRouter from "./routes/metadata";
 import oembedRouter from "./routes/oembed";
@@ -37,7 +35,6 @@ app.route("/oembed", oembedRouter);
 app.route("/og", ogRouter);
 app.post("/pageview", rateLimiter({ requests: 10 }), authMiddleware, pageview);
 app.post("/posts", rateLimiter({ requests: 10 }), authMiddleware, posts);
-app.route("/custom", customRouter);
 app.route("/users", usersRouter);
 app.route("/tasks", tasksRouter);
 app.route("/applications", taskApplicationsRouter);
