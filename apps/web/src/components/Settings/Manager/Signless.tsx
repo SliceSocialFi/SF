@@ -1,5 +1,5 @@
-import { useEnableSignlessMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { useEnableSignlessMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { Button, H6 } from "@/components/Shared/UI";

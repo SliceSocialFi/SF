@@ -1,7 +1,7 @@
 import { CheckBadgeIcon, XCircleIcon } from "@heroicons/react/24/solid";
-import { BANNER_IDS } from "@hey/data/constants";
-import { useAddPostNotInterestedMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { BANNER_IDS } from "@slice/data/constants";
+import { useAddPostNotInterestedMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { Button, Card, H5 } from "@/components/Shared/UI";

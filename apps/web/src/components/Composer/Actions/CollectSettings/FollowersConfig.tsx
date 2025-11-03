@@ -1,5 +1,5 @@
 import { UserGroupIcon } from "@heroicons/react/24/outline";
-import type { CollectActionType } from "@hey/types/hey";
+import type { CollectActionType } from "@slice/types/hey";
 import ToggleWithHelper from "@/components/Shared/ToggleWithHelper";
 import { useCollectActionStore } from "@/store/non-persisted/post/useCollectActionStore";
 

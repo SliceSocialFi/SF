@@ -1,8 +1,8 @@
-import { ERRORS } from "@hey/data/errors";
-import getAccount from "@hey/helpers/getAccount";
-import type { PostFragment } from "@hey/indexer";
-import type { IGif } from "@hey/types/giphy";
-import type { NewAttachment } from "@hey/types/misc";
+import { ERRORS } from "@slice/data/errors";
+import getAccount from "@slice/helpers/getAccount";
+import type { PostFragment } from "@slice/indexer";
+import type { IGif } from "@slice/types/giphy";
+import type { NewAttachment } from "@slice/types/misc";
 import { useCallback, useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
@@ -141,7 +141,7 @@ const NewPublication = ({ className, post, feed }: NewPublicationProps) => {
 
   useEffect(() => {
     setPostContentError("");
-  }, [audioPost]);
+  }, []);
 
   useEffect(() => {
     if (postContent.length > 25000) {

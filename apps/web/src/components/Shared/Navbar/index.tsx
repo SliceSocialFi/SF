@@ -115,7 +115,7 @@ const Navbar = () => {
 
   const handleAuthClick = useCallback(() => {
     setShowAuthModal(true);
-  }, []);
+  }, [setShowAuthModal]);
 
   return (
     <aside className="sticky top-5 mt-5 hidden w-10 shrink-0 flex-col items-center gap-y-5 md:flex">

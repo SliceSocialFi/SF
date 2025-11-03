@@ -1,12 +1,12 @@
 import { useApolloClient } from "@apollo/client";
-import { HEY_TREASURY } from "@hey/data/constants";
+import { HEY_TREASURY } from "@slice/data/constants";
 import {
   type PostFragment,
   type SimpleCollectActionFragment,
   useBalancesBulkQuery,
   useExecutePostActionMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import type { Address } from "viem";
@@ -47,7 +47,7 @@ const CollectActionButton = ({
   const assetSymbol = collectAction?.assetSymbol as string;
   const isAllCollected = collectLimit ? collects >= collectLimit : false;
   const isSaleEnded = endTimestamp
-    ? new Date(endTimestamp).getTime() / 1000 < new Date().getTime() / 1000
+    ? new Date(endTimestamp).getTime() / 1000 < Date.now() / 1000
     : false;
   const canCollect = !hasSimpleCollected;
 

@@ -1,9 +1,9 @@
 import { useApolloClient } from "@apollo/client";
 import { MenuItem } from "@headlessui/react";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-import { ERRORS } from "@hey/data/errors";
-import { isRepost } from "@hey/helpers/postHelpers";
-import { type AnyPostFragment, useDeletePostMutation } from "@hey/indexer";
+import { ERRORS } from "@slice/data/errors";
+import { isRepost } from "@slice/helpers/postHelpers";
+import { type AnyPostFragment, useDeletePostMutation } from "@slice/indexer";
 import { type Dispatch, type SetStateAction, useCallback } from "react";
 import { toast } from "sonner";
 import cn from "@/helpers/cn";
@@ -46,10 +46,13 @@ const UndoRepost = ({
     toast.success("Undone repost");
   };
 
-  const onError = useCallback((error?: unknown) => {
-    setIsSubmitting(false);
-    errorToast(error);
-  }, []);
+  const onError = useCallback(
+    (error?: unknown) => {
+      setIsSubmitting(false);
+      errorToast(error);
+    },
+    [setIsSubmitting]
+  );
 
   const [undoRepost] = useDeletePostMutation({
     onCompleted: async ({ deletePost }) => {

@@ -2,11 +2,11 @@ import {
   DEFAULT_AVATAR,
   STATIC_IMAGES_URL,
   type TRANSFORMS
-} from "@hey/data/constants";
-import { ERRORS } from "@hey/data/errors";
-import imageKit from "@hey/helpers/imageKit";
-import sanitizeDStorageUrl from "@hey/helpers/sanitizeDStorageUrl";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/data/constants";
+import { ERRORS } from "@slice/data/errors";
+import imageKit from "@slice/helpers/imageKit";
+import sanitizeDStorageUrl from "@slice/helpers/sanitizeDStorageUrl";
+import type { ApolloClientError } from "@slice/types/errors";
 import type { ChangeEvent } from "react";
 import { useCallback, useState } from "react";
 import type { Area } from "react-easy-crop";

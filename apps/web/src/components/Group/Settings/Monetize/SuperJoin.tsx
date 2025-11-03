@@ -3,14 +3,14 @@ import {
   IS_MAINNET,
   STATIC_IMAGES_URL,
   WRAPPED_NATIVE_TOKEN_SYMBOL
-} from "@hey/data/constants";
+} from "@slice/data/constants";
 import {
   type GroupFragment,
   type GroupRules,
   GroupRuleType,
   useUpdateGroupRulesMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import {
   type RefObject,
   useCallback,

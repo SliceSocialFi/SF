@@ -1,6 +1,6 @@
-import { PLACEHOLDER_IMAGE } from "@hey/data/constants";
-import type { PostMetadataFragment } from "@hey/indexer";
-import type { AttachmentData, MetadataAsset } from "@hey/types/misc";
+import { PLACEHOLDER_IMAGE } from "@slice/data/constants";
+import type { PostMetadataFragment } from "@slice/indexer";
+import type { AttachmentData, MetadataAsset } from "@slice/types/misc";
 import getAttachmentsData from "./getAttachmentsData";
 import sanitizeDStorageUrl from "./sanitizeDStorageUrl";
 

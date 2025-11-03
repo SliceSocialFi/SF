@@ -1,6 +1,6 @@
-import { TRANSFORMS } from "@hey/data/constants";
-import getAvatar from "@hey/helpers/getAvatar";
-import type { GroupFragment } from "@hey/indexer";
+import { TRANSFORMS } from "@slice/data/constants";
+import getAvatar from "@slice/helpers/getAvatar";
+import type { GroupFragment } from "@slice/indexer";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import JoinLeaveButton from "@/components/Shared/Group/JoinLeaveButton";

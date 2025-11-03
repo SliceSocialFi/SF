@@ -1,9 +1,9 @@
 import { EyeIcon } from "@heroicons/react/24/outline";
-import getPostData from "@hey/helpers/getPostData";
-import getURLs from "@hey/helpers/getURLs";
-import { isRepost } from "@hey/helpers/postHelpers";
-import type { AnyPostFragment } from "@hey/indexer";
 import { getSrc } from "@livepeer/react/external";
+import getPostData from "@slice/helpers/getPostData";
+import getURLs from "@slice/helpers/getURLs";
+import { isRepost } from "@slice/helpers/postHelpers";
+import type { AnyPostFragment } from "@slice/indexer";
 import { memo } from "react";
 import Quote from "@/components/Shared/Embed/Quote";
 import Markup from "@/components/Shared/Markup";

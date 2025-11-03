@@ -3,7 +3,7 @@ import {
   PageSize,
   type PostReactionsRequest,
   usePostReactionsQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { motion } from "motion/react";
 import { useCallback } from "react";
 import { Virtualizer } from "virtua";

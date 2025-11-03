@@ -1,4 +1,4 @@
-import type { MetadataLicenseType } from "@hey/indexer";
+import type { MetadataLicenseType } from "@slice/indexer";
 import { createTrackedStore } from "@/store/createTrackedStore";
 
 interface State {

@@ -1,5 +1,5 @@
-import { isRepost } from "@hey/helpers/postHelpers";
-import type { AnyPostFragment } from "@hey/indexer";
+import { isRepost } from "@slice/helpers/postHelpers";
+import type { AnyPostFragment } from "@slice/indexer";
 import { memo } from "react";
 import CollectAction from "@/components/Post/OpenAction/CollectAction";
 import SmallCollectButton from "@/components/Post/OpenAction/CollectAction/SmallCollectButton";

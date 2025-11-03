@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
-import { TRANSFORMS } from "@hey/data/constants";
-import getAvatar from "@hey/helpers/getAvatar";
+import { TRANSFORMS } from "@slice/data/constants";
+import getAvatar from "@slice/helpers/getAvatar";
 import {
   PageSize,
   type PostReferencesRequest,
@@ -9,7 +9,7 @@ import {
   type ReferencedPostFragment,
   ReferenceRelevancyFilter,
   usePostReferencesQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useCallback, useState } from "react";
 import { useHiddenCommentFeedStore } from "@/components/Post";
 import SinglePost from "@/components/Post/SinglePost";

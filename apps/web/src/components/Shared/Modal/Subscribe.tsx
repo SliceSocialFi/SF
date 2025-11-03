@@ -5,13 +5,13 @@ import {
   STATIC_IMAGES_URL,
   SUBSCRIPTION_AMOUNT,
   WRAPPED_NATIVE_TOKEN_SYMBOL
-} from "@hey/data/constants";
+} from "@slice/data/constants";
 import {
   type AccountFragment,
   useBalancesBulkQuery,
   useJoinGroupMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import SingleAccount from "@/components/Shared/Account/SingleAccount";
 import TopUpButton from "@/components/Shared/Account/TopUp/Button";

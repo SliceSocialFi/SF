@@ -1,6 +1,6 @@
-import { HEY_API_URL } from "@hey/data/constants";
-import { Status } from "@hey/data/enums";
-import type { Oembed, STS } from "@hey/types/api";
+import { HEY_API_URL } from "@slice/data/constants";
+import { Status } from "@slice/data/enums";
+import type { Oembed, STS } from "@slice/types/api";
 import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 import { isTokenExpiringSoon, refreshTokens } from "./tokenManager";
 

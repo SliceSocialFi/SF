@@ -6,16 +6,16 @@ import {
   PuzzlePieceIcon,
   UsersIcon
 } from "@heroicons/react/24/outline";
-import { BLOCK_EXPLORER_URL } from "@hey/data/constants";
-import { tokens } from "@hey/data/tokens";
-import formatAddress from "@hey/helpers/formatAddress";
-import getAccount from "@hey/helpers/getAccount";
-import { isRepost } from "@hey/helpers/postHelpers";
+import { BLOCK_EXPLORER_URL } from "@slice/data/constants";
+import { tokens } from "@slice/data/tokens";
+import formatAddress from "@slice/helpers/formatAddress";
+import getAccount from "@slice/helpers/getAccount";
+import { isRepost } from "@slice/helpers/postHelpers";
 import {
   type AnyPostFragment,
   type SimpleCollectActionFragment,
   useCollectActionQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useCounter } from "@uidotdev/usehooks";
 import dayjs from "dayjs";
 import plur from "plur";
@@ -97,7 +97,7 @@ const CollectActionBody = ({
 
   const isSaleEnded = useMemo(() => {
     return endTimestamp
-      ? new Date(endTimestamp).getTime() / 1000 < new Date().getTime() / 1000
+      ? new Date(endTimestamp).getTime() / 1000 < Date.now() / 1000
       : false;
   }, [endTimestamp]);
 

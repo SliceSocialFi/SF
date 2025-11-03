@@ -4,16 +4,16 @@ import {
   FaceFrownIcon,
   FaceSmileIcon
 } from "@heroicons/react/24/outline";
-import { HEY_APP, IS_MAINNET } from "@hey/data/constants";
-import { ERRORS } from "@hey/data/errors";
-import { Regex } from "@hey/data/regex";
+import { account as accountMetadata } from "@lens-protocol/metadata";
+import { HEY_APP, IS_MAINNET } from "@slice/data/constants";
+import { ERRORS } from "@slice/data/errors";
+import { Regex } from "@slice/data/regex";
 import {
   useAccountQuery,
   useAuthenticateMutation,
   useChallengeMutation,
   useCreateAccountWithUsernameMutation
-} from "@hey/indexer";
-import { account as accountMetadata } from "@lens-protocol/metadata";
+} from "@slice/indexer";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useSignMessage } from "wagmi";

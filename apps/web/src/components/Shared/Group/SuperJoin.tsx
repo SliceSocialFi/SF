@@ -1,10 +1,10 @@
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
-import { tokens } from "@hey/data/tokens";
+import { tokens } from "@slice/data/tokens";
 import {
   type GroupFragment,
   type GroupRules,
   useBalancesBulkQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import TopUpButton from "@/components/Shared/Account/TopUp/Button";
 import Loader from "@/components/Shared/Loader";
 import LoginButton from "@/components/Shared/LoginButton";

@@ -1,4 +1,4 @@
-import type { PostFragment } from "@hey/indexer";
+import type { PostFragment } from "@slice/indexer";
 import { createTrackedStore } from "@/store/createTrackedStore";
 
 interface State {

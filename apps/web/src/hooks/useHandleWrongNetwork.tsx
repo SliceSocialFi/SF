@@ -1,5 +1,5 @@
-import { CHAIN } from "@hey/data/constants";
-import logger from "@hey/helpers/logger";
+import { CHAIN } from "@slice/data/constants";
+import logger from "@slice/helpers/logger";
 import { useConnections, useSwitchChain } from "wagmi";
 
 const useHandleWrongNetwork = () => {

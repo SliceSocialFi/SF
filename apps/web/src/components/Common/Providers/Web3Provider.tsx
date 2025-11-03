@@ -2,7 +2,7 @@ import {
   CHAIN,
   IS_MAINNET,
   WALLETCONNECT_PROJECT_ID
-} from "@hey/data/constants";
+} from "@slice/data/constants";
 import { familyAccountsConnector } from "family";
 import type { ReactNode } from "react";
 import { createConfig, WagmiProvider } from "wagmi";

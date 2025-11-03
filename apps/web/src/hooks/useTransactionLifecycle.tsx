@@ -1,11 +1,11 @@
-import { ERRORS } from "@hey/data/errors";
-import getTransactionData from "@hey/helpers/getTransactionData";
+import { ERRORS } from "@slice/data/errors";
+import getTransactionData from "@slice/helpers/getTransactionData";
 import type {
   SelfFundedTransactionRequestFragment,
   SponsoredTransactionRequestFragment,
   TransactionWillFailFragment
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { sendEip712Transaction, sendTransaction } from "viem/zksync";
 import { useWalletClient } from "wagmi";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";

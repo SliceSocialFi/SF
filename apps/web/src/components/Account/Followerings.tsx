@@ -1,5 +1,5 @@
-import getAccount from "@hey/helpers/getAccount";
-import { type AccountFragment, useAccountStatsQuery } from "@hey/indexer";
+import getAccount from "@slice/helpers/getAccount";
+import { type AccountFragment, useAccountStatsQuery } from "@slice/indexer";
 import plur from "plur";
 import { type FC, useEffect, useState } from "react";
 import { useLocation } from "react-router";
@@ -14,14 +14,14 @@ interface FolloweringsProps {
 }
 
 const Followerings = ({ account }: FolloweringsProps) => {
-  const location = useLocation();
+  const _location = useLocation();
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
 
   useEffect(() => {
     setShowFollowersModal(false);
     setShowFollowingModal(false);
-  }, [location.key]);
+  }, []);
 
   const { data, loading } = useAccountStatsQuery({
     variables: { request: { account: account.address } }

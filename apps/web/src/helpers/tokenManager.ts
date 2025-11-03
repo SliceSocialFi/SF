@@ -1,7 +1,7 @@
-import parseJwt from "@hey/helpers/parseJwt";
-import { RefreshDocument, type RefreshMutation } from "@hey/indexer";
-import apolloClient from "@hey/indexer/apollo/client";
-import type { JwtPayload } from "@hey/types/jwt";
+import parseJwt from "@slice/helpers/parseJwt";
+import { RefreshDocument, type RefreshMutation } from "@slice/indexer";
+import apolloClient from "@slice/indexer/apollo/client";
+import type { JwtPayload } from "@slice/types/jwt";
 import { signIn, signOut } from "@/store/persisted/useAuthStore";
 
 let refreshPromise: Promise<string> | null = null;

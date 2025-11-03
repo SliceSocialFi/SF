@@ -1,5 +1,5 @@
-import parseJwt from "@hey/helpers/parseJwt";
-import type { JwtPayload } from "@hey/types/jwt";
+import parseJwt from "@slice/helpers/parseJwt";
+import type { JwtPayload } from "@slice/types/jwt";
 import type { Context, Next } from "hono";
 
 const authContext = async (ctx: Context, next: Next) => {

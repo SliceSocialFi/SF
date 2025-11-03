@@ -1,4 +1,4 @@
-import { useGroupQuery } from "@hey/indexer";
+import { useGroupQuery } from "@slice/indexer";
 import { H4, Spinner } from "@/components/Shared/UI";
 import { useCreateGroupStore } from "./CreateGroup";
 

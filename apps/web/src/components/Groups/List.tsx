@@ -1,11 +1,11 @@
 import { UserGroupIcon } from "@heroicons/react/24/outline";
-import { GroupsFeedType } from "@hey/data/enums";
+import { GroupsFeedType } from "@slice/data/enums";
 import {
   GroupsOrderBy,
   type GroupsRequest,
   PageSize,
   useGroupsQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useCallback } from "react";
 import { WindowVirtualizer } from "virtua";
 import SingleGroup from "@/components/Shared/Group/SingleGroup";

@@ -16,7 +16,7 @@ const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
   const targetTimeRef = useRef<number>(new Date(targetDate).getTime() - 30000);
 
   const calculateTimeLeft = useCallback((): TimeLeft => {
-    const now = new Date().getTime();
+    const now = Date.now();
     const timeDiff = targetTimeRef.current - now;
 
     if (timeDiff <= 0) {

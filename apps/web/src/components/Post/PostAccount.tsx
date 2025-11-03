@@ -1,12 +1,12 @@
 import { CheckBadgeIcon } from "@heroicons/react/24/solid";
-import { TRANSFORMS } from "@hey/data/constants";
-import getAccount from "@hey/helpers/getAccount";
-import getAvatar from "@hey/helpers/getAvatar";
+import { TRANSFORMS } from "@slice/data/constants";
+import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
 import type {
   AccountFragment,
   AnyPostFragment,
   PostGroupInfoFragment
-} from "@hey/indexer";
+} from "@slice/indexer";
 import type { ReactNode } from "react";
 import { memo } from "react";
 import { Link } from "react-router";

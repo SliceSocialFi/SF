@@ -1,6 +1,6 @@
-import { LENS_NAMESPACE } from "@hey/data/constants";
-import { Regex } from "@hey/data/regex";
-import type { AccountFragment } from "@hey/indexer";
+import { LENS_NAMESPACE } from "@slice/data/constants";
+import { Regex } from "@slice/data/regex";
+import type { AccountFragment } from "@slice/indexer";
 import formatAddress from "./formatAddress";
 import isAccountDeleted from "./isAccountDeleted";
 

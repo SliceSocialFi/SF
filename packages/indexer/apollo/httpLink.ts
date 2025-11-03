@@ -1,5 +1,5 @@
 import { HttpLink } from "@apollo/client";
-import { LENS_API_URL } from "@hey/data/constants";
+import { LENS_API_URL } from "@slice/data/constants";
 
 const httpLink = new HttpLink({
   fetch,

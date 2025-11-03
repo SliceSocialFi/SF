@@ -1,4 +1,4 @@
-import type { MarkupLinkProps } from "@hey/types/misc";
+import type { MarkupLinkProps } from "@slice/types/misc";
 import { Link } from "react-router";
 import AccountPreview from "@/components/Shared/Account/AccountPreview";
 import Slug from "@/components/Shared/Slug";

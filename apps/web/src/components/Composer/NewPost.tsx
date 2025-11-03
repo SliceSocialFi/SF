@@ -1,4 +1,4 @@
-import getAvatar from "@hey/helpers/getAvatar";
+import getAvatar from "@slice/helpers/getAvatar";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Card, Image } from "@/components/Shared/UI";
@@ -30,7 +30,7 @@ const NewPost = ({ feed }: NewPostProps) => {
       handleOpenComposer();
       setPostContent(content);
     }
-  }, [text, url, via]);
+  }, [text, url, via, handleOpenComposer, setPostContent]);
 
   if (showComposer) {
     return <NewPublication feed={feed} />;

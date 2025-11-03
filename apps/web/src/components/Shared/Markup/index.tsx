@@ -1,6 +1,6 @@
-import { Regex } from "@hey/data/regex";
-import trimify from "@hey/helpers/trimify";
-import type { PostMentionFragment } from "@hey/indexer";
+import { Regex } from "@slice/data/regex";
+import trimify from "@slice/helpers/trimify";
+import type { PostMentionFragment } from "@slice/indexer";
 import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";

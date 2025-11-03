@@ -1,4 +1,4 @@
-import { PLACEHOLDER_IMAGE } from "@hey/data/constants";
+import { PLACEHOLDER_IMAGE } from "@slice/data/constants";
 import type {
   DetailedHTMLProps,
   ImgHTMLAttributes,
@@ -27,12 +27,12 @@ const Image = forwardRef(
           onError(event);
         }
       },
-      [imageLoadFailed, setImageLoadFailed, onError]
+      [imageLoadFailed, onError]
     );
 
     useEffect(() => {
       setImageLoadFailed(false);
-    }, [props.src]);
+    }, []);
 
     return (
       <img
