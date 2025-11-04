@@ -11,14 +11,12 @@
     "dep:check": "pnpm dlx sherif@latest",
     "dep:fix": "pnpm dlx sherif@latest --fix",
     "dev": "pnpm --recursive --parallel run dev",
-    "prepare": "husky install",
     "start": "pnpm --recursive --parallel run start",
     "sync": "node ./script/sync-public.mjs",
     "typecheck": "pnpm --recursive --parallel run typecheck"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.4",
-    "husky": "^9.1.7"
+    "@biomejs/biome": "^2.2.4"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
