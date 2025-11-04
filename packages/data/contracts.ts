@@ -5,5 +5,6 @@ export const MAINNET_CONTRACTS = {
 
 export const TESTNET_CONTRACTS = {
   app: "0x688419B0299f3Ed8E80eBCa71ad05Ac23d20822b",
-  defaultToken: "0xeee5a340Cdc9c179Db25dea45AcfD5FE8d4d3eB8"
+  // defaultToken: "0xeee5a340Cdc9c179Db25dea45AcfD5FE8d4d3eB8"
+  defaultToken: "0x50B4B400AbEcb21d8DCCEB74bd7E0d4C9b3F028d" // tRYF on lens testnet
 } as const;
