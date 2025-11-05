@@ -16,6 +16,7 @@ import errorToast from "@/helpers/errorToast";
 import uploadMetadata from "@/helpers/uploadMetadata";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import { useCreateGroupStore } from "./CreateGroup";
+// import type { SimplePaymentGroupRuleConfig, GroupRulesConfigInput, GroupRuleConfig } from "@hey/indexer/generated"
 
 const ValidationSchema = z.object({
   description: z.string().max(260, {
@@ -65,7 +66,7 @@ const CreateGroupModal = () => {
     onError
   });
 
-  const handleCreateGroup = async (data: z.infer<typeof ValidationSchema>) => {
+  const handleCreateGroup = async (data: any) => {
     setIsSubmitting(true);
 
     const metadataUri = await uploadMetadata(
@@ -76,7 +77,46 @@ const CreateGroupModal = () => {
       })
     );
 
-    return await createGroup({ variables: { request: { metadataUri } } });
+    // const simplePaymentRuleData: SimplePaymentGroupRuleConfig = {
+    //   erc20: {
+    //     currency: "0x50B4B400AbEcb21d8DCCEB74bd7E0d4C9b3F028d",
+    //     value: "100"
+    //   },
+    //   recipient: "0x58BD27EecD3f6Bdf6f962846D954E471da47FbF4"
+    // };
+
+    // const requireds: Array<GroupRuleConfig> = [
+    //   {
+    //     simplePaymentRule: simplePaymentRuleData
+    //   }
+    // ];
+
+    // const rulesData: GroupRulesConfigInput = {
+    //   required: requireds,
+    // };
+
+    // const createGroupData = {
+    //   variables: {
+    //     request: {
+    //       metadataUri,
+    //       owner: "0x58BD27EecD3f6Bdf6f962846D954E471da47FbF4",
+    //       rules: rulesData
+    //     }
+    //   }
+    // }
+
+    // console.log("createGroupData:", createGroupData);
+
+    // const result = await createGroup(createGroupData);
+    // console.log("createGroup result:", result);
+    // return result;
+    return await createGroup({
+      variables: {
+        request: {
+          metadataUri
+        }
+      }
+    });
   };
 
   return (

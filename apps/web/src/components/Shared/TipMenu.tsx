@@ -10,7 +10,7 @@ import {
 } from "@hey/indexer";
 import type { ApolloClientError } from "@hey/types/errors";
 import type { ChangeEvent, RefObject } from "react";
-import { memo, use, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import TopUpButton from "@/components/Shared/Account/TopUp/Button";
 import LoginButton from "@/components/Shared/LoginButton";
@@ -45,7 +45,11 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     pollInterval: 3000,
     skip: !currentAccount?.address,
     variables: {
-      request: { address: currentAccount?.address, tokens: [DEFAULT_COLLECT_TOKEN], includeNative: true },
+      request: {
+        address: currentAccount?.address,
+        tokens: [DEFAULT_COLLECT_TOKEN],
+        includeNative: true
+      },
     }
   });
 
@@ -137,17 +141,8 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     setAmount(value);
   };
 
-  useEffect(() => {
-    console.log("currentAccount:", currentAccount);
-  }, [currentAccount]);
-
   const handleTip = async () => {
     setIsSubmitting(true);
-
-    console.log("handleTip called");
-    console.log("handleTip called with amount:", amount);
-    console.log("cryptoRate:", cryptoRate);
-    console.log("post.id:", post?.id);
 
     const tipping: TippingAmountInput = {
       // native: cryptoRate.toString(),
@@ -162,8 +157,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     if (post) {
       const variables = {
         request: { action: { tipping }, post: post.id }
-      }
-      console.log("handleTip variables", variables);
+      };
       return executePostAction({
         variables
       });
@@ -198,14 +192,14 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           </span>
         </div>
       </div>
-      {/* <div className="space-x-4">
+      <div className="space-x-4">
         <Button
           disabled={amountDisabled}
           onClick={() => handleSetAmount(1)}
           outline={amount !== 1}
           size="sm"
         >
-          $1
+          1
         </Button>
         <Button
           disabled={amountDisabled}
@@ -213,7 +207,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           outline={amount !== 2}
           size="sm"
         >
-          $2
+          2
         </Button>
         <Button
           disabled={amountDisabled}
@@ -221,7 +215,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           outline={amount !== 5}
           size="sm"
         >
-          $5
+          5
         </Button>
         <Button
           disabled={amountDisabled}
@@ -234,8 +228,8 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
         >
           Other
         </Button>
-      </div> */}
-      {/* {other ? ( */}
+      </div>
+      {other ? (
         <div>
           <Input
             className="no-spinner"
@@ -248,7 +242,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
             value={amount}
           />
         </div>
-      {/* ) : null} */}
+      ) : null}
       {isSubmitting || balanceLoading ? (
         <Button
           className={cn("flex justify-center", submitButtonClassName)}

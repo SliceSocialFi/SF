@@ -1,9 +1,7 @@
 import {
   BANNER_IDS,
   DEFAULT_COLLECT_TOKEN,
-  IS_MAINNET,
-  STATIC_IMAGES_URL,
-  WRAPPED_NATIVE_TOKEN_SYMBOL
+  ERC20_TOKEN_SYMBOL
 } from "@hey/data/constants";
 import {
   type AccountFollowRules,
@@ -35,6 +33,7 @@ import usePreventScrollOnNumberInput from "@/hooks/usePreventScrollOnNumberInput
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import useWaitForTransactionToComplete from "@/hooks/useWaitForTransactionToComplete";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import getTokenImage from "@/helpers/getTokenImage";
 
 const SuperFollow = () => {
   const { currentAccount, setCurrentAccount } = useAccountStore();
@@ -134,15 +133,13 @@ const SuperFollow = () => {
           placeholder="1"
           prefix={
             <Tooltip
-              content={`Payable in ${WRAPPED_NATIVE_TOKEN_SYMBOL}`}
+              content={`Payable in ${ERC20_TOKEN_SYMBOL}`}
               placement="top"
             >
               <Image
-                alt={WRAPPED_NATIVE_TOKEN_SYMBOL}
+                alt={ERC20_TOKEN_SYMBOL}
                 className="size-5 rounded-full"
-                src={`${STATIC_IMAGES_URL}/tokens/${
-                  IS_MAINNET ? "gho.svg" : "grass.svg"
-                }`}
+                src={getTokenImage(ERC20_TOKEN_SYMBOL)}
               />
             </Tooltip>
           }
