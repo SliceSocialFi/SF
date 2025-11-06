@@ -12,10 +12,7 @@ interface ApiConfig {
 
 const config: ApiConfig = {
   // Prefer Vite-exposed env var for client builds, fallback to package constant
-  baseUrl:
-    (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SLICE_API_URL as string)) ||
-    (typeof import.meta !== 'undefined' && (import.meta.env?.SLICE_API_URL as string)) ||
-    SLICE_API_URL,
+  baseUrl: SLICE_API_URL,
   headers: {
     "Content-Type": "application/json"
   }

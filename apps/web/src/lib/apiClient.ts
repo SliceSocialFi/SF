@@ -8,7 +8,7 @@
 
 type Json = Record<string, any>
 import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
-import { ca, tr } from "zod/v4/locales";
+import { SLICE_API_URL } from "@slice/data/constants";
 
 class ApiError extends Error {
   status: number
@@ -36,7 +36,7 @@ export default class ApiClient {
 
   constructor(baseUrl?: string) {
     // Use Vite-exposed env var for client builds, fallback to SLICE_API_URL
-    this.baseUrl = baseUrl || (import.meta.env?.VITE_SLICE_API_URL as string) || (import.meta.env?.SLICE_API_URL as string) || ''
+    this.baseUrl = baseUrl || SLICE_API_URL
     if (!this.baseUrl) console.warn('[ApiClient] SLICE_API_URL not set')
   }
 
