@@ -5,7 +5,7 @@
 - `apps/api`: Hono-based API server (entry `src/index.ts`, routes in `src/routes/`).
 - `packages/*`: Shared code (`helpers`, `data`, `types`, `indexer`, `config`).
 - `script/*`: Maintenance utilities (e.g., sorting `package.json`, cleaning branches).
-- Tooling: PNPM workspaces (`pnpm-workspace.yaml`), Biome config (`biome.json`), Husky hooks (`.husky/`).
+- Tooling: PNPM workspaces (`pnpm-workspace.yaml`), Biome config (`biome.json`).
 
 ## Build, Test, and Development
 - Root dev: `pnpm dev` — run all workspaces in watch mode.

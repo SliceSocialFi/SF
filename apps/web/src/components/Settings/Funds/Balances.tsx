@@ -1,7 +1,4 @@
-import {
-  DEFAULT_COLLECT_TOKEN,
-  NATIVE_TOKEN_SYMBOL
-} from "@slice/data/constants";
+import { NATIVE_TOKEN_SYMBOL } from "@slice/data/constants";
 import { tokens } from "@slice/data/tokens";
 import { useBalancesBulkQuery } from "@slice/indexer";
 import type { Address } from "viem";
@@ -10,9 +7,9 @@ import Loader from "@/components/Shared/Loader";
 import { ErrorMessage, Image } from "@/components/Shared/UI";
 import getTokenImage from "@/helpers/getTokenImage";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import Unwrap from "./Unwrap";
+// import Unwrap from "./Unwrap";
 import Withdraw from "./Withdraw";
-import Wrap from "./Wrap";
+// import Wrap from "./Wrap";
 
 const Balances = () => {
   const { currentAccount } = useAccountStore();
@@ -22,7 +19,7 @@ const Balances = () => {
     variables: {
       request: {
         address: currentAccount?.address,
-        includeNative: true,
+        //includeNative: true,
         tokens: tokens.map((token) => token.contractAddress)
       }
     }
@@ -48,10 +45,10 @@ const Balances = () => {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Withdraw currency={currency} refetch={refetch} value={value} />
-          {!currency && <Wrap refetch={refetch} value={value} />}
+          {/* {!currency && <Wrap refetch={refetch} value={value} />}
           {currency === DEFAULT_COLLECT_TOKEN && (
             <Unwrap refetch={refetch} value={value} />
-          )}
+          )} */}
           <TopUpButton
             label="Top-up"
             outline

@@ -5,8 +5,8 @@
   "license": "AGPL-3.0",
   "scripts": {
     "build": "vite build",
-    "dev": "vite dev --port 4783",
-    "start": "vite preview --port 4783",
+    "dev": "vite dev",
+    "start": "vite preview",
     "typecheck": "tsc --pretty"
   },
   "dependencies": {

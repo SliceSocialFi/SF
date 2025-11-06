@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:4000"; // Hoặc có thể lấy từ biến môi trường
+const API_URL = (typeof import.meta !== 'undefined' && (import.meta.env?.SLICE_API_URL as string)) || "http://localhost:4000"; // Hoặc có thể lấy từ biến môi trường
 
 /**
  * A simple fetcher function that appends the API URL.
@@ -7,6 +7,8 @@ const API_URL = "http://localhost:4000"; // Hoặc có thể lấy từ biến m
  * @returns The fetch response.
  */
 export const fetcher = (endpoint: string, options?: RequestInit) => {
-  const url = `${API_URL}${endpoint}`;
+  const base = API_URL.replace(/\/$/, '');
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${base}${path}`;
   return fetch(url, options);
 };

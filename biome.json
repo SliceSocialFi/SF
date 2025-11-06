@@ -5,7 +5,6 @@
       "**",
       "!**/node_modules",
       "!**/dist",
-      "!**/apps/api/dist",
       "!**/apps/web/dist",
       "!**/packages/indexer/generated.ts"
     ]

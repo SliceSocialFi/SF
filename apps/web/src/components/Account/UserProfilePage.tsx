@@ -6,6 +6,7 @@ import {
   UserIcon
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/apiClient";
 import { Button, Card, H5, H6, Modal } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 
@@ -84,52 +85,24 @@ const UserProfilePage = ({
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const { currentAccount } = useAccountStore();
 
-  // Mock data - replace with actual API call
   useEffect(() => {
     const fetchUserProfile = async () => {
       setLoading(true);
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const res = await apiClient.getUser(walletAddress);
+        // Map server response to local UserProfile shape if necessary
+        const mapped: UserProfile = {
+          walletAddress: res.walletAddress || res.address || walletAddress,
+          username: res.username || res.name || (walletAddress === currentAccount?.address ? 'You' : undefined),
+          avatar: res.avatar || res.displayName || undefined,
+          reputationScore: res.reputationScore ?? res.reputation ?? 100,
+          rewardPoints: res.rewardPoints ?? res.points ?? 0,
+          expertise: res.expertise || [],
+          completedTasks: res.completedTasks || []
+        } as UserProfile;
 
-        const mockProfile: UserProfile = {
-          avatar: "JD",
-          completedTasks: [
-            {
-              completedAt: "2024-01-15",
-              id: "1",
-              reward: 150,
-              title: "Design Landing Page for E-commerce"
-            },
-            {
-              completedAt: "2024-01-10",
-              id: "2",
-              reward: 200,
-              title: "Implement User Authentication"
-            },
-            {
-              completedAt: "2024-01-05",
-              id: "3",
-              reward: 100,
-              title: "Database Optimization"
-            }
-          ],
-          expertise: [
-            { level: 3, name: "UI/UX Designer" },
-            { level: 2, name: "DevOps" },
-            { level: 4, name: "Frontend Developer" },
-            { level: 2, name: "QA Engineer" }
-          ],
-          reputationScore: 85,
-          rewardPoints: 1250,
-          username:
-            walletAddress === currentAccount?.address ? "You" : "John Doe",
-          walletAddress
-        };
+        setProfile(mapped);
 
-        setProfile(mockProfile);
-
-        // Show welcome modal for new users (first time visiting their own profile)
         if (isOwnProfile && walletAddress === currentAccount?.address) {
           const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
           if (!hasSeenWelcome) {

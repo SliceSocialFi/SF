@@ -117,7 +117,7 @@ const Guidelines = () => {
               <p className="linkify leading-7">
                 If you have any feedback on these rules or if you have any
                 questions, please{" "}
-                <Link to="mailto:support@hey.xyz">contact us</Link>.
+                <Link to="mailto:support@slice.xyz">contact us</Link>.
               </p>
               {/* Feedback ends */}
             </div>

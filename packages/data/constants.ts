@@ -9,7 +9,7 @@ export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;
 export const HEY_APP = getEnvConfig().appAddress;
 export const HEY_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
-export const HEY_API_URL = process.env.HEY_API_URL || "https://api.hey.xyz";
+export const SLICE_API_URL = process.env.SLICE_API_URL || "https://localhost:3000/";
 
 export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;
 export const CHAIN = IS_MAINNET ? chains.mainnet : chains.testnet;
@@ -17,7 +17,7 @@ export const ADDRESS_PLACEHOLDER = "0x03Ba3...7EF";
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 // Subscription
-export const SUBSCRIPTION_AMOUNT = 20;
+export const SUBSCRIPTION_AMOUNT = 100;
 
 // Application
 export const BRAND_COLOR = "#FB3A5D";
@@ -44,8 +44,10 @@ export const WALLETCONNECT_PROJECT_ID = "cd542acc70c2b548030f9901a52e70c8";
 export const GIPHY_KEY = "yNwCXMKkiBrxyyFduF56xCbSuJJM8cMd"; // Read only safe key
 
 export const LENS_NAMESPACE = "lens/";
-export const NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "GHO" : "RYF";
-export const WRAPPED_NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "WGHO" : "WRYF";
+export const NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "GHO" : "GRASS";
+export const WRAPPED_NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "WGHO" : "WGRASS";
+
+export const ERC20_TOKEN_SYMBOL = IS_MAINNET ? "RYF" : "tRYF";
 
 export const MAX_IMAGE_UPLOAD = 8;
 
@@ -65,5 +67,5 @@ export const BANNER_IDS = {
 
 export const PERMISSIONS = {
   STAFF: "0xA7f2835e54998c6d7d4A0126eC0ebE91b5E43c69",
-  SUBSCRIPTION: "0x4BE5b4519814A57E6f9AaFC6afBB37eAEeE35aA3"
+  SUBSCRIPTION: "0x780B6Db2237677554faDe2b20fC68005a9FD2064"
 } as const;

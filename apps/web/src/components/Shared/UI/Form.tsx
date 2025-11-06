@@ -41,11 +41,18 @@ export const FieldError = ({ name }: FieldErrorProps) => {
 
   const error = errors[name];
 
-  if (!error) {
+  // support nested paths like 'contact.email'
+  function getNestedError(obj: any, path: string) {
+    return path.split('.').reduce((acc: any, key: string) => (acc && acc[key] ? acc[key] : undefined), obj);
+  }
+
+  const resolvedError = name && (error || getNestedError(errors, name));
+
+  if (!resolvedError) {
     return null;
   }
 
-  return <H6 className="mt-2 text-red-500">{error.message as string}</H6>;
+  return <H6 className="mt-2 text-red-500">{(resolvedError as any).message as string}</H6>;
 };
 
 interface FormProps<T extends FieldValues = Record<string, unknown>>
@@ -53,17 +60,20 @@ interface FormProps<T extends FieldValues = Record<string, unknown>>
   className?: string;
   form: UseFormReturn<T, any, any>;
   onSubmit: SubmitHandler<T>;
+  // optional error handler when validation fails
+  onError?: (errors: any) => void;
 }
 
 export const Form = <T extends FieldValues>({
   children,
   className = "",
   form,
-  onSubmit
+  onSubmit,
+  onError
 }: FormProps<T>) => {
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit, onError)}>
         <fieldset
           className={cn("flex flex-col", className)}
           disabled={form.formState.isSubmitting}

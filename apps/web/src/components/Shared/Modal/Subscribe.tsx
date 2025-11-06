@@ -4,7 +4,7 @@ import {
   PERMISSIONS,
   STATIC_IMAGES_URL,
   SUBSCRIPTION_AMOUNT,
-  WRAPPED_NATIVE_TOKEN_SYMBOL
+  ERC20_TOKEN_SYMBOL
 } from "@slice/data/constants";
 import {
   type AccountFragment,
@@ -35,7 +35,8 @@ const Subscribe = () => {
     variables: {
       request: {
         address: currentAccount?.address,
-        tokens: [DEFAULT_COLLECT_TOKEN]
+        tokens: [DEFAULT_COLLECT_TOKEN],
+        includeNative: true
       }
     }
   });
@@ -50,12 +51,17 @@ const Subscribe = () => {
     errorToast(error);
   }, []);
 
-  const tokenBalance =
-    balance?.balancesBulk[0].__typename === "Erc20Amount"
-      ? Number(balance.balancesBulk[0].value).toFixed(2)
+  // const tokenBalance =
+  //   balance?.balancesBulk[0].__typename === "Erc20Amount"
+  //     ? Number(balance.balancesBulk[0].value).toFixed(2)
+  //     : 0;
+
+  const erc20Balance =
+    balance?.balancesBulk[1].__typename === "Erc20Amount"
+      ? Number(balance.balancesBulk[1].value).toFixed(2)
       : 0;
 
-  const canSubscribe = Number(tokenBalance) >= SUBSCRIPTION_AMOUNT;
+  const canSubscribe = Number(erc20Balance) >= SUBSCRIPTION_AMOUNT;
 
   const [joinGroup] = useJoinGroupMutation({
     onCompleted: async ({ joinGroup }) => {
@@ -93,14 +99,14 @@ const Subscribe = () => {
           </div>
         ) : (
           <>
-            Join Hey Pro for for{" "}
+            Join Hey Pro for {" "}
             <b className="inline-flex items-center gap-x-1">
               {SUBSCRIPTION_AMOUNT}{" "}
-              <Tooltip content={WRAPPED_NATIVE_TOKEN_SYMBOL} placement="top">
+              <Tooltip content={ERC20_TOKEN_SYMBOL} placement="top">
                 <img
-                  alt={WRAPPED_NATIVE_TOKEN_SYMBOL}
+                  alt={ERC20_TOKEN_SYMBOL}
                   className="size-5"
-                  src={getTokenImage(WRAPPED_NATIVE_TOKEN_SYMBOL)}
+                  src={getTokenImage(ERC20_TOKEN_SYMBOL)}
                 />
               </Tooltip>
               /year
@@ -148,20 +154,20 @@ const Subscribe = () => {
               loading={isSubmitting}
               onClick={handleSubscribe}
             >
-              Subscribe for ${SUBSCRIPTION_AMOUNT}/year
+              Subscribe for {SUBSCRIPTION_AMOUNT} {ERC20_TOKEN_SYMBOL}/year
             </Button>
           ) : (
             <TopUpButton
               amountToTopUp={
-                Math.ceil((SUBSCRIPTION_AMOUNT - Number(tokenBalance)) * 20) /
+                Math.ceil((SUBSCRIPTION_AMOUNT - Number(erc20Balance)) * 20) /
                 20
               }
               className="w-sm"
-              label={`Top-up ${SUBSCRIPTION_AMOUNT} ${WRAPPED_NATIVE_TOKEN_SYMBOL} to your account`}
+              label={`Top-up ${SUBSCRIPTION_AMOUNT} ${ERC20_TOKEN_SYMBOL} to your account`}
               outline
               token={{
                 contractAddress: DEFAULT_COLLECT_TOKEN,
-                symbol: WRAPPED_NATIVE_TOKEN_SYMBOL
+                symbol: ERC20_TOKEN_SYMBOL
               }}
             />
           )}

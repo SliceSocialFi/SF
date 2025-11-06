@@ -1,5 +1,10 @@
 import { useApolloClient } from "@apollo/client";
-import { HEY_TREASURY, NATIVE_TOKEN_SYMBOL } from "@slice/data/constants";
+import {
+  HEY_TREASURY,
+  NATIVE_TOKEN_SYMBOL,
+  DEFAULT_COLLECT_TOKEN,
+  ERC20_TOKEN_SYMBOL
+} from "@slice/data/constants";
 import {
   type AccountFragment,
   type PostFragment,
@@ -45,7 +50,11 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     pollInterval: 3000,
     skip: !currentAccount?.address,
     variables: {
-      request: { address: currentAccount?.address, includeNative: true }
+      request: {
+        address: currentAccount?.address,
+        tokens: [DEFAULT_COLLECT_TOKEN],
+        includeNative: true
+      },
     }
   });
 
@@ -88,7 +97,14 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     balance?.balancesBulk[0].__typename === "NativeAmount"
       ? Number(balance.balancesBulk[0].value).toFixed(2)
       : 0;
-  const canTip = Number(nativeBalance) >= cryptoRate;
+
+  const erc20Balance =
+    balance?.balancesBulk[1].__typename === "Erc20Amount"
+      ? Number(balance.balancesBulk[1].value).toFixed(2)
+      : 0;
+
+  // const canTip = Number(nativeBalance) >= cryptoRate;
+  const canTip = Number(erc20Balance) >= cryptoRate;
 
   const [executePostAction] = useExecutePostActionMutation({
     onCompleted: async ({ executePostAction }) => {
@@ -134,14 +150,21 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     setIsSubmitting(true);
 
     const tipping: TippingAmountInput = {
-      native: cryptoRate.toString(),
+      // native: cryptoRate.toString(),
       // 11 is a calculated value based on the referral pool of 20% and the Lens fee of 2.1% after the 1.5% lens fees cut
+      erc20: {
+        currency: DEFAULT_COLLECT_TOKEN,
+        value: cryptoRate.toString()
+      },
       referrals: [{ address: HEY_TREASURY, percent: 11 }]
     };
 
     if (post) {
+      const variables = {
+        request: { action: { tipping }, post: post.id }
+      };
       return executePostAction({
-        variables: { request: { action: { tipping }, post: post.id } }
+        variables
       });
     }
 
@@ -166,8 +189,8 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
         <div className="flex items-center space-x-1 text-gray-500 text-xs dark:text-gray-200">
           <span>Balance :</span>
           <span>
-            {nativeBalance ? (
-              `${nativeBalance} ${NATIVE_TOKEN_SYMBOL}`
+            {erc20Balance ? (
+              `${erc20Balance} ${ERC20_TOKEN_SYMBOL}`
             ) : (
               <Skeleton className="h-2.5 w-14 rounded-full" />
             )}
@@ -181,7 +204,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           outline={amount !== 1}
           size="sm"
         >
-          $1
+          1
         </Button>
         <Button
           disabled={amountDisabled}
@@ -189,7 +212,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           outline={amount !== 2}
           size="sm"
         >
-          $2
+          2
         </Button>
         <Button
           disabled={amountDisabled}
@@ -197,7 +220,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           outline={amount !== 5}
           size="sm"
         >
-          $5
+          5
         </Button>
         <Button
           disabled={amountDisabled}
@@ -237,7 +260,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           disabled={!amount || isSubmitting || !canTip}
           onClick={handleTip}
         >
-          <b>Tip ${amount}</b>
+          <b>Tip {amount} {ERC20_TOKEN_SYMBOL}</b>
         </Button>
       ) : (
         <TopUpButton

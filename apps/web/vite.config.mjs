@@ -75,8 +75,8 @@ export default defineConfig({
     // Expose env vars to client-side code (process.env.*)
     // Provide a safe default for HEY_API_URL to avoid build-time errors.
     EnvironmentPlugin({
-      HEY_API_URL: "https://api.hey.xyz",
-      LENS_NETWORK: undefined
+      SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
+      LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet"
     })
   ]
 });
