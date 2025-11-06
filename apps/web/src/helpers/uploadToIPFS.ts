@@ -1,8 +1,13 @@
 import { S3 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import { CHAIN, EVER_API, EVER_BUCKET, EVER_REGION } from "@hey/data/constants";
-import generateUUID from "@hey/helpers/generateUUID";
 import { immutable } from "@lens-chain/storage-client";
+import {
+  CHAIN,
+  EVER_API,
+  EVER_BUCKET,
+  EVER_REGION
+} from "@slice/data/constants";
+import generateUUID from "@slice/helpers/generateUUID";
 import { hono } from "./fetcher";
 import { storageClient } from "./storageClient";
 

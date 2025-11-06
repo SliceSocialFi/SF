@@ -1,16 +1,21 @@
-import { HEY_API_URL } from "@hey/data/constants";
-import { Status } from "@hey/data/enums";
-import type { Oembed, STS } from "@hey/types/api";
+import { SLICE_API_URL } from "@slice/data/constants";
+import { Status } from "@slice/data/enums";
+import type { Oembed, STS } from "@slice/types/api";
 import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 import { isTokenExpiringSoon, refreshTokens } from "./tokenManager";
 
+// Cấu hình API chung cho ứng dụng web
 interface ApiConfig {
   baseUrl?: string;
   headers?: HeadersInit;
 }
 
 const config: ApiConfig = {
-  baseUrl: HEY_API_URL,
+  // Prefer Vite-exposed env var for client builds, fallback to package constant
+  baseUrl:
+    (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_SLICE_API_URL as string)) ||
+    (typeof import.meta !== 'undefined' && (import.meta.env?.SLICE_API_URL as string)) ||
+    SLICE_API_URL,
   headers: {
     "Content-Type": "application/json"
   }
@@ -35,13 +40,20 @@ const fetchApi = async <T>(
   let response: Response;
 
   try {
-    response = await fetch(`${config.baseUrl}${endpoint}`, {
+    const base = (config.baseUrl || '').replace(/\/$/, '');
+    const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const baseHeaders = (config.headers as Record<string, string>) || {};
+    const headers: Record<string, string> = {
+      ...baseHeaders
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    response = await fetch(`${base}${path}`, {
       ...options,
       credentials: "include",
-      headers: {
-        ...{ "X-Access-Token": token || "" },
-        ...config.headers
-      },
+      headers,
       signal: controller.signal
     });
   } finally {
@@ -73,11 +85,16 @@ export const hono = {
     }
   },
   pageview: {
-    create: async (path: string) =>
-      fetchApi<{ ok: boolean; skipped?: boolean }>("/pageview", {
-        body: JSON.stringify({ path }),
-        method: "POST"
-      })
+    create: async (path: string) => {
+      try {
+        await fetchApi<{ ok: boolean }>("/pageview", {
+          body: JSON.stringify({ path }),
+          method: "POST"
+        });
+      } catch (error) {
+        console.error("Failed to track pageview:", error);
+      }
+    }
   },
   posts: {
     create: async (payload: { slug: string; type?: string }) =>

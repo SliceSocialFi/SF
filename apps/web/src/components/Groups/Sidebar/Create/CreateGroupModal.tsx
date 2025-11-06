@@ -1,7 +1,7 @@
-import { Regex } from "@hey/data/regex";
-import { useCreateGroupMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
 import { group } from "@lens-protocol/metadata";
+import { Regex } from "@slice/data/regex";
+import { useCreateGroupMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { z } from "zod";
 import AvatarUpload from "@/components/Shared/AvatarUpload";
@@ -16,7 +16,7 @@ import errorToast from "@/helpers/errorToast";
 import uploadMetadata from "@/helpers/uploadMetadata";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import { useCreateGroupStore } from "./CreateGroup";
-// import type { SimplePaymentGroupRuleConfig, GroupRulesConfigInput, GroupRuleConfig } from "@hey/indexer/generated"
+// import type { SimplePaymentGroupRuleConfig, GroupRulesConfigInput, GroupRuleConfig } from "@slice/indexer/generated"
 
 const ValidationSchema = z.object({
   description: z.string().max(260, {

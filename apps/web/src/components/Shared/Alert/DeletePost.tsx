@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
-import { useDeletePostMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { useDeletePostMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { Alert } from "@/components/Shared/UI";

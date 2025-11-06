@@ -1,4 +1,4 @@
-import { Localstorage } from "@hey/data/storage";
+import { Localstorage } from "@slice/data/storage";
 
 const reloadAllTabs = (): void => {
   localStorage.setItem(Localstorage.ReloadTabs, Date.now().toString());

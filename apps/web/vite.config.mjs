@@ -17,7 +17,7 @@ const dependenciesToChunk = {
     "remark-stringify",
     "strip-markdown"
   ],
-  indexer: ["@hey/indexer"],
+  indexer: ["@slice/indexer"],
   media: ["plyr-react", "@livepeer/react", "browser-image-compression"],
   misc: [
     "@lens-chain/storage-client",
@@ -75,7 +75,7 @@ export default defineConfig({
     // Expose env vars to client-side code (process.env.*)
     // Provide a safe default for HEY_API_URL to avoid build-time errors.
     EnvironmentPlugin({
-      HEY_API_URL: "https://api.hey.xyz",
+      SLICE_API_URL: "https://api.hey.xyz",
       LENS_NETWORK: undefined
     })
   ]

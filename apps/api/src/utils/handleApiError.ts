@@ -1,6 +1,6 @@
-import { Status } from "@hey/data/enums";
-import { ERRORS } from "@hey/data/errors";
-import { withPrefix } from "@hey/helpers/logger";
+import { Status } from "@slice/data/enums";
+import { ERRORS } from "@slice/data/errors";
+import { withPrefix } from "@slice/helpers/logger";
 import type { Context } from "hono";
 import ApiError from "@/utils/apiError";
 

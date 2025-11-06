@@ -1,5 +1,5 @@
-import type { PostActionConfigInput } from "@hey/indexer";
-import type { CollectActionType } from "@hey/types/hey";
+import type { PostActionConfigInput } from "@slice/indexer";
+import type { CollectActionType } from "@slice/types/hey";
 
 const collectActionParams = (
   collectAction: CollectActionType

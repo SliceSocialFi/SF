@@ -1,5 +1,5 @@
 # dependencies
-node_modules
+node_modules 
 .pnp
 .pnp.js
 
@@ -42,3 +42,4 @@ yarn-error.log*
 # Node build artifacts
 dist
 node-compile-cache/
+node_modules

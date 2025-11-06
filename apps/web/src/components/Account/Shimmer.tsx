@@ -32,8 +32,8 @@ const AccountPageShimmer = () => {
         </div>
       </div>
       <div className="mt-3 mb-5 flex gap-3 px-5 sm:mt-0 sm:px-0">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton className="h-8 w-14 rounded-lg sm:w-18" key={index} />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton className="h-8 w-14 rounded-lg sm:w-18" key={i} />
         ))}
       </div>
       <PostsShimmer />

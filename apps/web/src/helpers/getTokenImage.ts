@@ -1,4 +1,4 @@
-import { STATIC_IMAGES_URL, ERC20_TOKEN_SYMBOL } from "@hey/data/constants";
+import { STATIC_IMAGES_URL, ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
 
 const getTokenImage = (symbol?: string): string => {
   if (!symbol) {

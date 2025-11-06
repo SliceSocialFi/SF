@@ -5,8 +5,8 @@ import {
   type PostFragment,
   useHideReplyMutation,
   useUnhideReplyMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { useHiddenCommentFeedStore } from "@/components/Post";

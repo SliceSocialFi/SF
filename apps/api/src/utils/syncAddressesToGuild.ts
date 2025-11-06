@@ -1,6 +1,6 @@
 import { createGuildClient, createSigner } from "@guildxyz/sdk";
-import { Status } from "@hey/data/enums";
-import { withPrefix } from "@hey/helpers/logger";
+import { Status } from "@slice/data/enums";
+import { withPrefix } from "@slice/helpers/logger";
 import signer from "./signer";
 
 const guildClient = createGuildClient("heyxyz");

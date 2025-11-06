@@ -16,7 +16,7 @@ const PageviewTracker = (_props: PageviewTrackerProps) => {
 
   useEffect(() => {
     handleSendPageview(pathname);
-  }, []);
+  }, [handleSendPageview, pathname]);
 
   return null;
 };

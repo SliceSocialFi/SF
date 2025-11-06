@@ -1,4 +1,4 @@
-import type { AccountFragment } from "@hey/indexer";
+import type { AccountFragment } from "@slice/indexer";
 import { createTrackedStore } from "@/store/createTrackedStore";
 
 interface State {

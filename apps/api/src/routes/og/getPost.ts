@@ -2,13 +2,13 @@ import {
   BRAND_COLOR,
   STATIC_IMAGES_URL,
   TRANSFORMS
-} from "@hey/data/constants";
-import escapeHtml from "@hey/helpers/escapeHtml";
-import getAccount from "@hey/helpers/getAccount";
-import getAvatar from "@hey/helpers/getAvatar";
-import getPostData from "@hey/helpers/getPostData";
-import normalizeDescription from "@hey/helpers/normalizeDescription";
-import { PostDocument, type PostFragment } from "@hey/indexer";
+} from "@slice/data/constants";
+import escapeHtml from "@slice/helpers/escapeHtml";
+import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
+import getPostData from "@slice/helpers/getPostData";
+import normalizeDescription from "@slice/helpers/normalizeDescription";
+import { PostDocument, type PostFragment } from "@slice/indexer";
 import type { Context } from "hono";
 import { html } from "hono/html";
 import generateOg from "./ogUtils";
@@ -70,7 +70,7 @@ const getPost = async (ctx: Context) => {
             <meta name="twitter:title" content="${escTitle}" />
             <meta name="twitter:description" content="${escDescription}" />
             <meta name="twitter:image" content="${ogImageCandidates[0]}" />
-            <meta name="twitter:site" content="@heydotxyz" />
+            <meta name="twitter:site" content="@slicedotxyz" />
             <link rel="icon" href="https://hey.xyz/favicon.ico" />
             <link rel="canonical" href="https://hey.xyz/posts/${(post as any).slug}" />
           </head>

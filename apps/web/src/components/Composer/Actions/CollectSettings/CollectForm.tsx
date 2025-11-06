@@ -1,4 +1,4 @@
-import type { CollectActionType } from "@hey/types/hey";
+import type { CollectActionType } from "@slice/types/hey";
 import { motion } from "motion/react";
 import type { Dispatch, SetStateAction } from "react";
 import { isAddress } from "viem";

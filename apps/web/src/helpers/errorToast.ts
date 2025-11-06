@@ -1,4 +1,4 @@
-import { ERRORS } from "@hey/data/errors";
+import { ERRORS } from "@slice/data/errors";
 import { toast } from "sonner";
 
 const FORBIDDEN_ERROR_PREFIX =

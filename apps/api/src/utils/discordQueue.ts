@@ -1,4 +1,4 @@
-import { withPrefix } from "@hey/helpers/logger";
+import { withPrefix } from "@slice/helpers/logger";
 import { DISCORD_QUEUE_KEY, getRedis } from "./redis";
 
 export interface DiscordQueueItemBase {

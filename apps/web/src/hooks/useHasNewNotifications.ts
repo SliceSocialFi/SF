@@ -1,7 +1,7 @@
 import {
   NotificationOrderBy,
   useNotificationIndicatorQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useNotificationStore } from "@/store/persisted/useNotificationStore";
 

@@ -2,7 +2,7 @@ import type {
   Maybe,
   MetadataLicenseType,
   PostMentionFragment
-} from "@hey/indexer";
+} from "@slice/indexer";
 
 export interface NewAttachment {
   file?: File;

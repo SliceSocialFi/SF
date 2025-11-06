@@ -1,6 +1,7 @@
-import { Localstorage } from "@hey/data/storage";
+import { Localstorage } from "@slice/data/storage";
 import clearLocalStorage from "@/helpers/clearLocalStorage";
 import { createPersistedTrackedStore } from "@/store/createTrackedStore";
+import parseJwt from "@slice/helpers/parseJwt";
 
 interface Tokens {
   accessToken: null | string;
@@ -11,6 +12,7 @@ interface State {
   accessToken: Tokens["accessToken"];
   hydrateAuthTokens: () => Tokens;
   refreshToken: Tokens["refreshToken"];
+  profileId: string | null;
   signIn: (tokens: { accessToken: string; refreshToken: string }) => void;
   signOut: () => void;
 }
@@ -18,13 +20,23 @@ interface State {
 const { store } = createPersistedTrackedStore<State>(
   (set, get) => ({
     accessToken: null,
+    profileId: null,
     hydrateAuthTokens: () => {
-      const { accessToken, refreshToken } = get();
-      return { accessToken, refreshToken };
+      const { accessToken, refreshToken, profileId } = get();
+      return { accessToken, refreshToken, profileId };
     },
     refreshToken: null,
-    signIn: ({ accessToken, refreshToken }) =>
-      set({ accessToken, refreshToken }),
+    signIn: ({ accessToken, refreshToken }) => {
+      let profileId: string | null = null;
+      try {
+        const tokenData = parseJwt(accessToken);
+        profileId = tokenData.act?.sub || tokenData.sub || null;
+      } catch {
+        profileId = null;
+      }
+
+      set({ accessToken, refreshToken, profileId });
+    },
     signOut: async () => {
       clearLocalStorage();
     }

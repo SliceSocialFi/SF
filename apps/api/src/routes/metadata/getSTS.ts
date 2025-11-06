@@ -1,6 +1,6 @@
 import { AssumeRoleCommand } from "@aws-sdk/client-sts";
-import { EVER_BUCKET } from "@hey/data/constants";
-import { Status } from "@hey/data/enums";
+import { EVER_BUCKET } from "@slice/data/constants";
+import { Status } from "@slice/data/enums";
 import type { Context } from "hono";
 import handleApiError from "@/utils/handleApiError";
 import stsClient from "@/utils/stsClient";

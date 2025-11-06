@@ -2,21 +2,30 @@ import {
   CurrencyDollarIcon,
   EnvelopeIcon,
   MapPinIcon,
+  MagnifyingGlassIcon,
   PhoneIcon
 } from "@heroicons/react/24/outline";
-import { useCallback, useState } from "react";
-import { Button, Card, H5, Modal } from "@/components/Shared/UI";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button, Card, H5, H6, Input, Modal, Tabs } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import PageLayout from "../Shared/PageLayout";
 import NewTask from "./NewTask";
+
+// Task Feed Types
+enum TaskFeedType {
+  All = "all",
+  MyTasks = "my-tasks",
+  PostedTasks = "posted-tasks"
+}
 
 interface TaskOwner {
   id: string;
   name: string;
   avatar?: string;
-  contact: {
-    email: string;
-    phone: string;
+  contact?: {
+    email?: string;
+    phone?: string;
   };
 }
 
@@ -26,6 +35,8 @@ interface TaskApplicant {
   avatar?: string;
   level: number;
   appliedAt: string;
+  id?: string;
+  applicant?: string;
 }
 
 interface TaskItem {
@@ -40,6 +51,13 @@ interface TaskItem {
   postedDays: number;
   owner: TaskOwner;
   rewardTokens: number;
+  // Backend fields
+  employerProfileId?: string;
+  freelancerProfileId?: string | null;
+  title?: string;
+  rewardPoints?: number;
+  createdAt?: string;
+  deadline?: string;
   objective?: string;
   deliverables?: string;
   acceptanceCriteria?: string;
@@ -48,151 +66,81 @@ interface TaskItem {
   applicants: TaskApplicant[];
 }
 
-const mockTasks: TaskItem[] = [
-  {
-    acceptanceCriteria: "Tất cả test cases đã pass, không còn critical bugs",
-    applicants: [
-      {
-        appliedAt: "2024-01-20",
-        avatar: "JD",
-        level: 3,
-        username: "John Doe",
-        walletAddress: "0x1234567890abcdef1234567890abcdef12345678"
-      },
-      {
-        appliedAt: "2024-01-19",
-        avatar: "JS",
-        level: 4,
-        username: "Jane Smith",
-        walletAddress: "0xabcdef1234567890abcdef1234567890abcdef12"
-      }
-    ],
-    companyLogo: "WCE",
-    companyName: "Hồng Ngọc",
-    deliverables: "Báo cáo test cases, Bug reports, Test documentation",
-    description: "Làm 996",
-    id: "1",
-    jobTitle: "QA Engineer",
-    location: "Remote",
-    objective: "Đảm bảo chất lượng phần mềm thông qua việc kiểm thử toàn diện",
-    owner: {
-      avatar: "NV",
-      contact: {
-        email: "nguyenvana@email.com",
-        phone: "+84 123 456 789"
-      },
-      id: "user1",
-      name: "Nguyễn Văn A"
-    },
-    postedDays: 1,
-    rewardTokens: 50,
-    salary: "100.000/h",
-    skills: ["Postman", "DevTools", "Developer / Programmer"],
-    status: "open"
-  },
-  {
-    acceptanceCriteria: "UI responsive trên tất cả thiết bị, code quality tốt",
-    applicants: [],
-    assigneeId: "0x9876543210fedcba9876543210fedcba98765432",
-    companyLogo: "TECH",
-    companyName: "Tech Solutions Inc",
-    deliverables: "Source code React/TypeScript, UI components, Documentation",
-    description:
-      "Looking for React expert with TypeScript experience and modern web development skills",
-    id: "2",
-    jobTitle: "Frontend Developer",
-    location: "Hybrid",
-    objective: "Xây dựng giao diện người dùng hiện đại và responsive",
-    owner: {
-      avatar: "TB",
-      contact: {
-        email: "tranthib@email.com",
-        phone: "+84 987 654 321"
-      },
-      id: "user2",
-      name: "Trần Thị B"
-    },
-    postedDays: 2,
-    rewardTokens: 100,
-    salary: "200.000/h",
-    skills: ["React", "TypeScript", "Frontend"],
-    status: "in_progress"
-  },
-  {
-    acceptanceCriteria: "Model accuracy > 90%, API response time < 200ms",
-    applicants: [],
-    companyLogo: "AI",
-    companyName: "AI Innovations",
-    deliverables: "Trained model, API endpoints, Model documentation",
-    description:
-      "Join our team to build cutting-edge AI solutions with Python, TensorFlow and PyTorch",
-    id: "3",
-    jobTitle: "Machine Learning Engineer",
-    location: "On-site",
-    objective: "Phát triển mô hình AI tiên tiến cho ứng dụng thực tế",
-    owner: {
-      avatar: "LC",
-      contact: {
-        email: "levanc@email.com",
-        phone: "+84 555 123 456"
-      },
-      id: "user3",
-      name: "Lê Văn C"
-    },
-    postedDays: 5,
-    rewardTokens: 75,
-    salary: "100.000/h",
-    skills: ["Python", "TensorFlow", "ML Engineer"],
-    status: "open"
-  }
-];
+import { apiClient } from "@/lib/apiClient";
+
+let mockTasks: TaskItem[] = [];
 
 const TaskCard = ({ task }: { task: TaskItem }) => {
   return (
-    <Card className="cursor-pointer gap-4 p-4 transition-shadow hover:shadow-md md:flex md:items-center md:justify-between md:p-5">
-      {/* Left: Company + details */}
-      <div className="flex-1 space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
-            {task.companyLogo}
-          </div>
-          <div>
-            <div className="font-medium text-gray-900 text-sm dark:text-white">
-              {task.companyName}
+    <Card className="cursor-pointer gap-4 p-4 transition-shadow hover:shadow-md">
+      {/* Main content */}
+      <div className="space-y-3">
+        {/* Top row: Avatar + Name + Time */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
+              {task.companyLogo}
             </div>
-            <div className="text-gray-500 text-xs dark:text-gray-400">
-              {task.postedDays} days ago
+            <div>
+              <div className="font-medium text-gray-900 text-sm dark:text-white">
+                {task.companyName || task.employerProfileId || "Unknown"}
+              </div>
             </div>
+          </div>
+          <div className="text-gray-500 text-xs dark:text-gray-400">
+            {task.postedDays} days ago
           </div>
         </div>
 
-        <H5 className="text-gray-900 dark:text-white">{task.jobTitle}</H5>
+        {/* Title */}
+        <H5 className="text-gray-900 dark:text-white">
+          {task.title || task.jobTitle}
+        </H5>
 
-        <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-          {task.description}
-        </div>
+        {/* Objective (if available) */}
+        {task.objective && (
+          <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
+            {task.objective}
+          </div>
+        )}
 
-        <div className="flex flex-wrap gap-2">
-          {task.skills.map((skill, index) => (
-            <span
-              className="rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-xs dark:bg-gray-800 dark:text-gray-300"
-              key={index}
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-      </div>
+        {/* Description (fallback if no objective) */}
+        {!task.objective && task.description && (
+          <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
+            {task.description}
+          </div>
+        )}
 
-      {/* Right: Location + Salary */}
-      <div className="mt-3 flex shrink-0 items-center justify-between gap-6 md:mt-0 md:border-gray-200 md:border-l md:pl-4 md:dark:border-gray-700">
-        <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
-          <MapPinIcon className="h-4 w-4" />
-          <span>{task.location}</span>
-        </div>
-        <div className="font-medium text-gray-900 text-sm dark:text-white">
-          {task.salary}
-        </div>
+        {/* Skills */}
+        {task.skills && task.skills.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {task.skills.map((skill, index) => (
+              <span
+                className="rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-xs dark:bg-gray-800 dark:text-gray-300"
+                key={index}
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Location and Salary */}
+        {(task.location || task.salary) && (
+          <div className="flex items-center gap-4 pt-2">
+            {task.location && (
+              <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
+                <MapPinIcon className="h-4 w-4" />
+                <span>{task.location}</span>
+              </div>
+            )}
+            {task.salary && (
+              <div className="font-medium text-gray-900 text-sm dark:text-white">
+                {task.salary}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );
@@ -228,17 +176,30 @@ const TaskDetailModal = ({
 
     setIsApplying(true);
     try {
-      // Simulate API call to apply for task
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(
-        "Applying for task:",
-        task.id,
-        "with wallet:",
-        currentAccount.address
-      );
-      // Here you would call your API to add the user to applicants list
+      // Ensure applicant user exists on backend (db has FK to users.profileId)
+      const applicantProfileId = currentAccount.address;
+      try {
+        await apiClient.getUser(applicantProfileId);
+      } catch (err: any) {
+        // If user not found (404), create it silently so FK constraint won't fail
+        if (err?.status === 404) {
+          await apiClient.createUser({ profileId: applicantProfileId });
+        } else {
+          throw err;
+        }
+      }
+
+      // Call backend to create application
+      // Pass applicantProfileId (currentAccount.address) so backend receives
+      // { taskId, applicantProfileId, coverLetter }
+      await apiClient.applyForTask(task.id, undefined, applicantProfileId);
+        toast.success("Application submitted");
+        // Close modal after applying
+        onClose();
     } catch (error) {
-      console.error("Failed to apply for task:", error);
+      console.error("Failed to apply for task:", error, (error as any)?.body);
+      const msg = (error as any)?.body?.message || (error as any)?.body?.error || (error as any)?.message || "Failed to apply for task";
+      toast.error(msg);
     } finally {
       setIsApplying(false);
     }
@@ -247,20 +208,19 @@ const TaskDetailModal = ({
   const handleAcceptApplicant = async (applicantWalletAddress: string) => {
     setIsAcceptingApplicant(applicantWalletAddress);
     try {
-      // Simulate API call to accept applicant
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(
-        "Accepting applicant:",
-        applicantWalletAddress,
-        "for task:",
-        task.id
-      );
-      // Here you would call your API to:
-      // 1. Set assigneeId
-      // 2. Update status to 'in_progress'
-      // 3. Send notification to applicant
+      // Backend likely requires application id. Try to find application id from applicants list
+      const application = task.applicants.find((a: any) => a.walletAddress === applicantWalletAddress || a.applicant === applicantWalletAddress);
+      if (!application || !application.id) {
+        console.error('No application id found for applicant', applicantWalletAddress);
+        toast.error('Unable to accept applicant: missing application id');
+        return;
+      }
+      await apiClient.acceptApplication(application.id);
+      toast.success('Applicant accepted');
+        onClose();
     } catch (error) {
       console.error("Failed to accept applicant:", error);
+      toast.error('Failed to accept applicant');
     } finally {
       setIsAcceptingApplicant(null);
     }
@@ -282,10 +242,20 @@ const TaskDetailModal = ({
               {task.companyLogo}
             </div>
             <div>
-              <H5 className="text-gray-900 dark:text-white">{task.jobTitle}</H5>
+              <H5 className="text-gray-900 dark:text-white">{task.title || task.jobTitle}</H5>
               <p className="text-gray-600 text-sm dark:text-gray-400">
-                {task.companyName}
+                {task.companyName || task.employerProfileId || ""}
               </p>
+              {(task.createdAt || task.deadline) && (
+                <div className="mt-1 flex gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  {task.createdAt && (
+                    <span>Created: {new Date(task.createdAt).toLocaleString()}</span>
+                  )}
+                  {task.deadline && (
+                    <span>Deadline: {new Date(task.deadline).toLocaleDateString()}</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -378,13 +348,13 @@ const TaskDetailModal = ({
             <div className="flex items-center gap-3">
               <EnvelopeIcon className="h-5 w-5 text-gray-400" />
               <span className="text-gray-600 text-sm dark:text-gray-300">
-                {task.owner.contact.email}
+                {task.owner.contact?.email || "—"}
               </span>
             </div>
             <div className="flex items-center gap-3">
               <PhoneIcon className="h-5 w-5 text-gray-400" />
               <span className="text-gray-600 text-sm dark:text-gray-300">
-                {task.owner.contact.phone}
+                {task.owner.contact?.phone || "—"}
               </span>
             </div>
           </div>
@@ -399,7 +369,7 @@ const TaskDetailModal = ({
                 Completion Reward
               </p>
               <p className="font-bold text-2xl text-brand-600 dark:text-brand-400">
-                {task.rewardTokens} tokens
+                {(task.rewardPoints ?? task.rewardTokens) || 0} points
               </p>
             </div>
           </div>
@@ -427,10 +397,12 @@ const TaskDetailModal = ({
           <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
             <H5 className="mb-4 text-gray-900 dark:text-white">Applicants</H5>
             <div className="space-y-3">
-              {task.applicants.map((applicant) => (
+              {task.applicants.map((applicant, applicantIndex) => (
                 <div
                   className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
-                  key={applicant.walletAddress}
+                  key={
+                    applicant.walletAddress || applicant.id || applicant.applicant || applicantIndex
+                  }
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-sm text-white">
@@ -537,6 +509,56 @@ const TaskDetailModal = ({
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tasks, setTasks] = useState<TaskItem[]>(mockTasks);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TaskFeedType>(TaskFeedType.All);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await apiClient.listTasks();
+        if (!mounted) return;
+        // Attempt to map server task shape to local TaskItem
+        const mapped = (res || []).map((t: any) => ({
+          id: t.id || t.taskId,
+          companyLogo: t.companyLogo || t.company?.logo || "",
+          companyName: t.companyName || t.company?.name || t.ownerName || "",
+          jobTitle: t.title || t.jobTitle,
+          description: t.description || t.summary || "",
+          skills: t.skills || [],
+          location: t.location || "",
+          salary: t.salary || "",
+          postedDays: t.postedDays || 0,
+          owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
+          rewardTokens: t.rewardPoints || t.rewardTokens || 0,
+          // backend-compatible fields
+          employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
+          freelancerProfileId: t.freelancerProfileId ?? null,
+          title: t.title,
+          rewardPoints: t.rewardPoints || t.rewardTokens || 0,
+          createdAt: t.createdAt,
+          deadline: t.deadline,
+          objective: t.objective,
+          deliverables: t.deliverables,
+          acceptanceCriteria: t.acceptanceCriteria,
+          status: t.status || "open",
+          assigneeId: t.assigneeId,
+          applicants: t.applications || t.applicants || []
+        } as TaskItem));
+        setTasks(mapped);
+      } catch (err) {
+        console.error("Failed to load tasks:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+    return () => { mounted = false };
+  }, []);
 
   const handleTaskClick = useCallback((task: TaskItem) => {
     setSelectedTask(task);
@@ -549,27 +571,127 @@ const Tasks = () => {
   }, []);
 
   return (
-    <PageLayout hideSearch sidebar={<NewTask />}>
-      <div className="mx-auto max-w-4xl p-6">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <H5 className="text-gray-900 dark:text-white">Task Listings</H5>
-              <p className="mt-1 text-gray-500 text-sm dark:text-gray-400">
-                Discover job opportunities that match your skills
-              </p>
-            </div>
-            <div className="text-gray-500 text-sm dark:text-gray-400">
-              {mockTasks.length} tasks
-            </div>
+    <PageLayout
+      hideSearch
+      sidebar={
+        <div className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              className="w-full rounded-lg border border-gray-300 bg-white py-2 pr-3 pl-10 text-sm placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search tasks..."
+              type="text"
+              value={searchQuery}
+            />
           </div>
 
-          <div className="space-y-4">
-            {mockTasks.map((task) => (
-              <div key={task.id} onClick={() => handleTaskClick(task)}>
-                <TaskCard task={task} />
+          {/* New Task Button */}
+          <NewTask />
+
+          {/* Reputation Card */}
+          <Card className="p-5">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+                    <span className="text-xl text-yellow-600 dark:text-yellow-400">
+                      ⭐
+                    </span>
+                  </div>
+                  <H6 className="text-gray-900 dark:text-white">
+                    My Reputation
+                  </H6>
+                </div>
               </div>
-            ))}
+              
+              {/* Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Progress
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    70 / 100
+                  </span>
+                </div>
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
+                    style={{ width: "70%" }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Keep completing tasks to reach 100!
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Reward Points Card */}
+          <Card className="p-5">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                    <span className="text-xl text-green-600 dark:text-green-400">
+                      💎
+                    </span>
+                  </div>
+                  <H6 className="text-gray-900 dark:text-white">
+                    Reward Points
+                  </H6>
+                </div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  10,000
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Total points earned
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Footer */}
+          <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            © 2025 Slice GitHub
+          </div>
+        </div>
+      }
+    >
+      {/* Tabs navigation */}
+          <Tabs
+            active={activeTab}
+            className="mx-5 mb-5 md:mx-0"
+            layoutId="task_tabs"
+            setActive={(type) => setActiveTab(type as TaskFeedType)}
+            tabs={[
+              { name: "Tasks List", type: TaskFeedType.All },
+              { name: "My Tasks", type: TaskFeedType.MyTasks },
+              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
+            ]}
+          />
+        <div className="space-y-6">
+          <div className="space-y-4">
+            {loading ? (
+              <div>Loading tasks...</div>
+            ) : (
+              tasks.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500">
+                  <p className="mb-2">No tasks found.</p>
+                  <p className="text-sm">Create the first task agreement to get started.</p>
+                </div>
+              ) : (
+                tasks.map((task) => (
+                  <div key={task.id} onClick={() => handleTaskClick(task)}>
+                    <TaskCard task={task} />
+                  </div>
+                ))
+              )
+            )}
           </div>
 
           <div className="pt-4 text-center">
@@ -587,7 +709,6 @@ const Tasks = () => {
           onClose={handleCloseModal}
           task={selectedTask}
         />
-      </div>
     </PageLayout>
   );
 };

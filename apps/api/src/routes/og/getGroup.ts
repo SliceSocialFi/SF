@@ -2,11 +2,11 @@ import {
   BRAND_COLOR,
   STATIC_IMAGES_URL,
   TRANSFORMS
-} from "@hey/data/constants";
-import escapeHtml from "@hey/helpers/escapeHtml";
-import getAvatar from "@hey/helpers/getAvatar";
-import normalizeDescription from "@hey/helpers/normalizeDescription";
-import { GroupDocument, type GroupFragment } from "@hey/indexer";
+} from "@slice/data/constants";
+import escapeHtml from "@slice/helpers/escapeHtml";
+import getAvatar from "@slice/helpers/getAvatar";
+import normalizeDescription from "@slice/helpers/normalizeDescription";
+import { GroupDocument, type GroupFragment } from "@slice/indexer";
 import type { Context } from "hono";
 import { html } from "hono/html";
 import generateOg from "./ogUtils";
@@ -48,7 +48,7 @@ const getGroup = async (ctx: Context) => {
             <meta name="twitter:title" content="${escTitle}" />
             <meta name="twitter:description" content="${escDescription}" />
             <meta name="twitter:image" content="${avatar}" />
-            <meta name="twitter:site" content="@heydotxyz" />
+            <meta name="twitter:site" content="@slicedotxyz" />
             <link rel="icon" href="https://hey.xyz/favicon.ico" />
             <link rel="canonical" href="https://hey.xyz/g/${group.address}" />
           </head>

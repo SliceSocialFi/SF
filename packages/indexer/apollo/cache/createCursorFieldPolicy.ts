@@ -1,7 +1,8 @@
-import type { FieldPolicy } from '@apollo/client';
-import cursorBasedPagination from '../helpers/cursorBasedPagination';
+import type { FieldPolicy } from "@apollo/client";
+import cursorBasedPagination from "../helpers/cursorBasedPagination";
 
-const createCursorFieldPolicy = (keyArgs: FieldPolicy['keyArgs']): FieldPolicy =>
-  cursorBasedPagination(keyArgs);
+const createCursorFieldPolicy = (
+  keyArgs: FieldPolicy["keyArgs"]
+): FieldPolicy => cursorBasedPagination(keyArgs);
 
 export default createCursorFieldPolicy;

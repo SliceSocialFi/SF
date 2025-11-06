@@ -1,6 +1,6 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
-import { BLOCK_EXPLORER_URL, DEFAULT_AVATAR } from "@hey/data/constants";
-import formatAddress from "@hey/helpers/formatAddress";
+import { BLOCK_EXPLORER_URL, DEFAULT_AVATAR } from "@slice/data/constants";
+import formatAddress from "@slice/helpers/formatAddress";
 import { Link } from "react-router";
 import type { Address } from "viem";
 import { useEnsName } from "wagmi";

@@ -2,15 +2,15 @@ import {
   BANNER_IDS,
   DEFAULT_COLLECT_TOKEN,
   ERC20_TOKEN_SYMBOL
-} from "@hey/data/constants";
+} from "@slice/data/constants";
 import {
   type AccountFollowRules,
   AccountFollowRuleType,
   type AccountFragment,
   useMeLazyQuery,
   useUpdateAccountFollowRulesMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import {
   type RefObject,
   useCallback,

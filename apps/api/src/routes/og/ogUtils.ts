@@ -1,4 +1,4 @@
-import apolloClient from "@hey/indexer/apollo/client";
+import apolloClient from "@slice/indexer/apollo/client";
 import type { Context } from "hono";
 import type { HtmlEscapedString } from "hono/utils/html";
 import defaultMetadata from "@/utils/defaultMetadata";

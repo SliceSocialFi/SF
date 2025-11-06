@@ -1,5 +1,5 @@
-import { HomeFeedType } from "@hey/data/enums";
-import { Localstorage } from "@hey/data/storage";
+import { HomeFeedType } from "@slice/data/enums";
+import { Localstorage } from "@slice/data/storage";
 import { createPersistedTrackedStore } from "@/store/createTrackedStore";
 
 interface State {

@@ -1,5 +1,5 @@
 import { GiftIcon } from "@heroicons/react/24/outline";
-import type { TokenDistributedNotificationFragment } from "@hey/indexer";
+import type { TokenDistributedNotificationFragment } from "@slice/indexer";
 
 interface TokenDistributedNotificationProps {
   notification: TokenDistributedNotificationFragment;

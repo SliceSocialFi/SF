@@ -1,6 +1,8 @@
-import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { toast } from "sonner";
+import { apiClient } from "@/lib/apiClient";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { z } from "zod";
 import {
   Button,
@@ -13,22 +15,28 @@ import {
   useZodForm
 } from "@/components/Shared/UI";
 
+// Client validation should match backend zod schema to avoid 400s.
+// Backend requires: title >=3, objective/deliverables/acceptanceCriteria >=10,
+// rewardPoints positive integer, deadline is optional ISO datetime.
 const TaskAgreementSchema = z.object({
-  acceptanceCriteria: z.string().min(1, "Acceptance criteria is required"),
-  companyLogo: z.string().min(1, "Company logo is required"),
-  companyName: z.string().min(1, "Company name is required"),
-  contact: z.object({
-    email: z.string().email("Invalid email format"),
-    phone: z.string().min(1, "Phone number is required")
-  }),
-  deliverables: z.string().min(1, "Deliverables are required"),
-  description: z.string().min(1, "Job description is required"),
-  jobTitle: z.string().min(1, "Job title is required"),
-  location: z.string().min(1, "Location is required"),
-  objective: z.string().min(1, "Main objective is required"),
-  rewardTokens: z.number().min(1, "Reward must be greater than 0"),
-  salary: z.string().min(1, "Salary is required"),
-  skills: z.array(z.string()).min(1, "At least one skill is required")
+  title: z.string().min(1, "Title must be at least 3 characters"),
+  objective: z.string().min(1, "Objective must be at least 10 characters"),
+  deliverables: z.string().min(1, "Deliverables must be at least 10 characters"),
+  acceptanceCriteria: z.string().min(1, "Acceptance criteria must be at least 10 characters"),
+  rewardPoints: z.number().int().positive("Reward must be a positive integer"),
+  // Accept a simple date from the <input type="date" /> (YYYY-MM-DD) and
+  // preprocess it into an ISO datetime string so server's z.string().datetime()
+  // validation will pass. Deadline is optional.
+  deadline: z.preprocess((val) => {
+    if (!val) return undefined;
+    if (typeof val === "string") {
+      // If the input is a plain date (YYYY-MM-DD), create an ISO at midnight UTC
+      // new Date('YYYY-MM-DD') interprets as UTC by most browsers; normalize anyway
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d.toISOString();
+    }
+    return val;
+  }, z.string().datetime().optional())
 });
 
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
@@ -36,62 +44,71 @@ type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 const NewTask = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newSkill, setNewSkill] = useState("");
-  // const { currentAccount } = useAccountStore();
+  const { currentAccount } = useAccountStore();
 
   const form = useZodForm({
     defaultValues: {
-      acceptanceCriteria: "",
-      companyLogo: "",
-      companyName: "",
-      contact: {
-        email: "",
-        phone: ""
-      },
-      deliverables: "",
-      description: "",
-      jobTitle: "",
-      location: "",
+      title: "",
       objective: "",
-      rewardTokens: 0,
-      salary: "",
-      skills: []
+      deliverables: "",
+      acceptanceCriteria: "",
+      // default to 1 so an accidental empty submit doesn't immediately fail validation
+      rewardPoints: 1,
+      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
     },
     schema: TaskAgreementSchema
   });
 
-  const { watch, setValue } = form;
-  const skills = watch("skills");
-
-  const addSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setValue("skills", [...skills, newSkill.trim()]);
-      setNewSkill("");
-    }
-  };
-
-  const removeSkill = (skillToRemove: string) => {
-    setValue(
-      "skills",
-      skills.filter((skill) => skill !== skillToRemove)
-    );
-  };
-
   const handleSubmit = async (data: TaskAgreementData) => {
+    if (!currentAccount?.address) {
+      toast.error("Please connect wallet");
+      return;
+    }
     setIsSubmitting(true);
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // ensure we have currentAccount/profile id
+      if (!currentAccount?.address) {
+        toast.error("You must be logged in to create a task");
+        return;
+      }
 
-      // Here you would call your API to create the task
-      console.log("Creating task agreement:", data);
+      const employerProfileId = currentAccount.address;
+
+      // Ensure user exists in backend (users.profile_id) to satisfy FK constraints
+      try {
+        await apiClient.getUser(employerProfileId);
+      } catch (err: any) {
+        if (err?.status === 404) {
+          await apiClient.createUser({ profileId: employerProfileId });
+        } else {
+          throw err;
+        }
+      }
+
+      // Build payload including employerProfileId required by backend
+      const payload: any = {
+        employerProfileId,
+        title: data.title,
+        objective: data.objective,
+        deliverables: data.deliverables,
+        acceptanceCriteria: data.acceptanceCriteria,
+        rewardPoints: data.rewardPoints
+      };
+
+      if (data.deadline) {
+        payload.deadline = new Date(data.deadline).toISOString();
+      }
+    
+      await apiClient.createTask(payload as any);
 
       toast.success("Task agreement posted successfully!");
       setIsModalOpen(false);
       form.reset();
-    } catch (_error) {
-      toast.error("Failed to post task agreement");
+    } catch (error: any) {
+      // Log full error including body (ApiClient throws ApiError with .status and .body)
+      console.error("Failed to post task agreement:", error, error?.body);
+      const msg = error?.body?.message || error?.body?.error || error?.message || "Failed to post task agreement";
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,148 +150,98 @@ const NewTask = () => {
           className="max-h-[80vh] space-y-6 overflow-y-auto p-6"
           form={form}
           onSubmit={handleSubmit}
-        >
-          {/* Company Info */}
-          <div className="space-y-4">
-            <div className="flex gap-4">
-              <div className="w-full">
-                <Input
-                  label="Company Logo"
-                  maxLength={10}
-                  placeholder="e.g: WCE, TECH"
-                  {...form.register("companyLogo")}
-                />
-              </div>
-              <div className="w-full">
-                <Input
-                  label="Company Name"
-                  placeholder="Company or organization name"
-                  {...form.register("companyName")}
-                />
-              </div>
-            </div>
-          </div>
+          onError={(errors) => {
+            console.debug("Validation errors", errors);
 
-          {/* Job Info */}
+            // traverse errors object to collect messages and determine first field path
+            const messages: string[] = [];
+            let firstPath: string | null = null;
+
+            function walk(errObj: any, pathPrefix = "") {
+              if (!errObj) return;
+              for (const key of Object.keys(errObj)) {
+                const val = errObj[key];
+                const currentPath = pathPrefix ? `${pathPrefix}.${key}` : key;
+
+                if (val && (val.message || val.type) && !firstPath) {
+                  firstPath = currentPath;
+                }
+
+                if (val && (val.message || val.types)) {
+                  if (val.message) messages.push(val.message as string);
+                  else if (val.types) messages.push(Object.values(val.types).join(" "));
+                }
+
+                // nested errors
+                if (val && typeof val === "object" && !val.message) {
+                  walk(val, currentPath);
+                }
+              }
+            }
+
+            walk(errors);
+
+            if (firstPath && typeof (form as any).setFocus === "function") {
+              try {
+                // react-hook-form setFocus expects the field name as registered (e.g. 'contact.email')
+                (form as any).setFocus(firstPath);
+              } catch (e) {
+                // ignore focus errors
+              }
+            }
+
+            if (messages.length === 0) {
+              toast.error("Please fix form errors");
+            } else if (messages.length === 1) {
+              toast.error(messages[0]);
+            } else {
+              // show first error and inform there are more
+              toast.error(`${messages[0]} (${messages.length} errors total)`);
+            }
+          }}
+        >
+          {/* Minimal Task fields required by backend */}
           <div className="space-y-4">
             <Input
-              label="Job Title"
-              placeholder="e.g: QA Engineer, Frontend Developer"
-              {...form.register("jobTitle")}
+              label="Title"
+              placeholder="e.g: Frontend Engineer - UI"
+              {...form.register("title")}
             />
 
             <TextArea
-              label="Job Description"
-              placeholder="Detailed description of the job, requirements, responsibilities..."
-              rows={4}
-              {...form.register("description")}
-            />
-          </div>
-
-          {/* Task Agreement Fields */}
-          <div className="space-y-4 border-gray-200 border-t pt-4 dark:border-gray-700">
-            <h6 className="font-medium text-gray-900 text-sm dark:text-white">
-              Work Agreement
-            </h6>
-
-            <TextArea
-              label="Main Objective"
-              placeholder="e.g: Design a modern logo for our coffee brand."
+              label="Objective"
+              placeholder="Short objective of the task"
               rows={3}
               {...form.register("objective")}
             />
 
             <TextArea
               label="Deliverables"
-              placeholder="e.g: 01 PNG logo file (transparent background), 01 vector logo file (.AI)."
+              placeholder="What the freelancer should deliver"
               rows={3}
               {...form.register("deliverables")}
             />
 
             <TextArea
               label="Acceptance Criteria"
-              placeholder="e.g: Logo uses the correct 2 main colors provided, has 3 versions to choose from."
+              placeholder="How you'll accept the work"
               rows={3}
               {...form.register("acceptanceCriteria")}
             />
-          </div>
 
-          {/* Skills */}
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <Input
-                onChange={(e) => setNewSkill(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                placeholder="Add skill"
-                value={newSkill}
-              />
-              <Button onClick={addSkill} size="sm" type="button">
-                Add
-              </Button>
-            </div>
-            {skills.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill, index) => (
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-sm dark:bg-gray-800 dark:text-gray-300"
-                    key={index}
-                  >
-                    {skill}
-                    <button
-                      className="ml-1 text-gray-400 hover:text-gray-600"
-                      onClick={() => removeSkill(skill)}
-                      type="button"
-                    >
-                      <XMarkIcon className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Location & Salary */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Input
-              label="Location"
-              placeholder="e.g: Remote, Hybrid, On-site"
-              {...form.register("location")}
+              label="Reward (points)"
+              min="1"
+              placeholder="e.g: 100"
+              type="number"
+              {...form.register("rewardPoints", { valueAsNumber: true })}
             />
             <Input
-              label="Salary"
-              placeholder="e.g: 100.000/h, $50/hour"
-              {...form.register("salary")}
+              label="Deadline"
+              type="date"
+              min={new Date().toISOString().split("T")[0]} //Không cho chọn quá khứ
+              {...form.register("deadline")}
             />
-          </div>
-
-          {/* Reward Tokens */}
-          <Input
-            label="Reward (tokens)"
-            min="1"
-            placeholder="Number of tokens to reward upon completion"
-            type="number"
-            {...form.register("rewardTokens", { valueAsNumber: true })}
-          />
-
-          {/* Contact Info */}
-          <div className="space-y-4 border-gray-200 border-t pt-4 dark:border-gray-700">
-            <h6 className="font-medium text-gray-900 text-sm dark:text-white">
-              Contact Information
-            </h6>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Input
-                label="Email"
-                placeholder="email@example.com"
-                type="email"
-                {...form.register("contact.email")}
-              />
-              <Input
-                label="Phone Number"
-                placeholder="+84 123 456 789"
-                type="tel"
-                {...form.register("contact.phone")}
-              />
-            </div>
           </div>
 
           {/* Action Buttons */}

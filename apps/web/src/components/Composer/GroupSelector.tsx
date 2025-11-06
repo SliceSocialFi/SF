@@ -1,11 +1,11 @@
-import getAvatar from "@hey/helpers/getAvatar";
+import getAvatar from "@slice/helpers/getAvatar";
 import {
   type GroupFragment,
   GroupsOrderBy,
   type GroupsRequest,
   PageSize,
   useGroupsQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useMemo } from "react";
 import { Select } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";

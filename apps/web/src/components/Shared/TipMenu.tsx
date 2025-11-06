@@ -1,5 +1,10 @@
 import { useApolloClient } from "@apollo/client";
-import { HEY_TREASURY, NATIVE_TOKEN_SYMBOL, DEFAULT_COLLECT_TOKEN, ERC20_TOKEN_SYMBOL } from "@hey/data/constants";
+import {
+  HEY_TREASURY,
+  NATIVE_TOKEN_SYMBOL,
+  DEFAULT_COLLECT_TOKEN,
+  ERC20_TOKEN_SYMBOL
+} from "@slice/data/constants";
 import {
   type AccountFragment,
   type PostFragment,
@@ -7,8 +12,8 @@ import {
   useBalancesBulkQuery,
   useExecuteAccountActionMutation,
   useExecutePostActionMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import type { ChangeEvent, RefObject } from "react";
 import { memo, useCallback, useRef, useState } from "react";
 import { toast } from "sonner";

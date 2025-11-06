@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
-import { type AccountFragment, useUnfollowMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { type AccountFragment, useUnfollowMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/Shared/UI";
 import errorToast from "@/helpers/errorToast";

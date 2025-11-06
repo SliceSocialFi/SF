@@ -1,6 +1,6 @@
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
-import getPostData from "@hey/helpers/getPostData";
-import type { RepostNotificationFragment } from "@hey/indexer";
+import getPostData from "@slice/helpers/getPostData";
+import type { RepostNotificationFragment } from "@slice/indexer";
 import plur from "plur";
 import { NotificationAccountAvatar } from "@/components/Notification/Account";
 import AggregatedNotificationTitle from "@/components/Notification/AggregatedNotificationTitle";

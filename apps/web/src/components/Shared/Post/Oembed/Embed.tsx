@@ -1,4 +1,4 @@
-import type { Oembed } from "@hey/types/api";
+import type { Oembed } from "@slice/types/api";
 import { memo } from "react";
 import { Link } from "react-router";
 import { Card } from "@/components/Shared/UI";

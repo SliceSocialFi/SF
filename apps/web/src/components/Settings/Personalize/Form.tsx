@@ -1,9 +1,3 @@
-import { BANNER_IDS } from "@hey/data/constants";
-import { ERRORS } from "@hey/data/errors";
-import { Regex } from "@hey/data/regex";
-import trimify from "@hey/helpers/trimify";
-import { useMeLazyQuery, useSetAccountMetadataMutation } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
 import type {
   AccountOptions,
   MetadataAttribute
@@ -12,6 +6,12 @@ import {
   account as accountMetadata,
   MetadataAttributeType
 } from "@lens-protocol/metadata";
+import { BANNER_IDS } from "@slice/data/constants";
+import { ERRORS } from "@slice/data/errors";
+import { Regex } from "@slice/data/regex";
+import trimify from "@slice/helpers/trimify";
+import { useMeLazyQuery, useSetAccountMetadataMutation } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";

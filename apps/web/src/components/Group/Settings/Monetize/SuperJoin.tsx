@@ -1,14 +1,14 @@
 import {
   DEFAULT_COLLECT_TOKEN,
   ERC20_TOKEN_SYMBOL
-} from "@hey/data/constants";
+} from "@slice/data/constants";
 import {
   type GroupFragment,
   type GroupRules,
   GroupRuleType,
   useUpdateGroupRulesMutation
-} from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+} from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import {
   type RefObject,
   useCallback,

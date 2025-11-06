@@ -1,4 +1,4 @@
-import type { AnyKeyValueFragment } from "@hey/indexer";
+import type { AnyKeyValueFragment } from "@slice/indexer";
 import type { Address } from "viem";
 
 interface AddressKeyValue {

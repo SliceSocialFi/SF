@@ -9,7 +9,7 @@ const useLoadMoreOnIntersect = (onLoadMore: () => void) => {
   });
 
   const wasIntersecting = useRef(false);
-  const memoizedOnLoadMore = useCallback(onLoadMore, [onLoadMore]);
+  const memoizedOnLoadMore = useCallback(onLoadMore, []);
 
   useEffect(() => {
     const isIntersecting = entry?.isIntersecting ?? false;

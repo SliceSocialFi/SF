@@ -4,8 +4,8 @@ import {
   PageSize,
   type PostBookmarksRequest,
   usePostBookmarksQuery
-} from "@hey/indexer";
-import { useCallback } from "react";
+} from "@slice/indexer";
+import { useCallback, useMemo } from "react";
 import SinglePost from "@/components/Post/SinglePost";
 import PostFeed from "@/components/Shared/Post/PostFeed";
 
@@ -14,10 +14,13 @@ interface BookmarksFeedProps {
 }
 
 const BookmarksFeed = ({ focus }: BookmarksFeedProps) => {
-  const request: PostBookmarksRequest = {
-    pageSize: PageSize.Fifty,
-    ...(focus && { filter: { metadata: { mainContentFocus: [focus] } } })
-  };
+  const request: PostBookmarksRequest = useMemo(
+    () => ({
+      pageSize: PageSize.Fifty,
+      ...(focus && { filter: { metadata: { mainContentFocus: [focus] } } })
+    }),
+    [focus]
+  );
 
   const { data, error, fetchMore, loading } = usePostBookmarksQuery({
     variables: { request }

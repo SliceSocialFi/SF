@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { MAX_IMAGE_UPLOAD } from "@hey/data/constants";
-import type { NewAttachment } from "@hey/types/misc";
+import { MAX_IMAGE_UPLOAD } from "@slice/data/constants";
+import type { NewAttachment } from "@slice/types/misc";
 import { memo, useEffect, useRef } from "react";
 import ChooseThumbnail from "@/components/Composer/ChooseThumbnail";
 import Audio from "@/components/Shared/Audio";
@@ -46,7 +46,7 @@ const NewAttachments = ({
     if (videoRef.current) {
       videoRef.current.onloadeddata = onDataLoaded;
     }
-  }, [videoRef, attachments]);
+  }, [onDataLoaded]);
 
   const handleRemoveAttachment = (attachment: NewAttachment) => {
     const arr = attachments;

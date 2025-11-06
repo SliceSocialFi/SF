@@ -1,4 +1,4 @@
-import { withPrefix } from "@hey/helpers/logger";
+import { withPrefix } from "@slice/helpers/logger";
 import type IORedis from "ioredis";
 import type {
   DiscordQueueItem,

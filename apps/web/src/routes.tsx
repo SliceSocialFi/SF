@@ -11,6 +11,7 @@ import RulesSettings from "@/components/Group/Settings/Rules";
 import Groups from "@/components/Groups";
 import Home from "@/components/Home";
 import Notification from "@/components/Notification";
+import Tasks from "@/components/Tasks";
 import Copyright from "@/components/Pages/Copyright";
 import Guidelines from "@/components/Pages/Guidelines";
 import Privacy from "@/components/Pages/Privacy";
@@ -28,7 +29,6 @@ import { default as AccountPersonalizeSettings } from "@/components/Settings/Per
 import SessionsSettings from "@/components/Settings/Sessions";
 import UsernameSettings from "@/components/Settings/Username";
 import Custom404 from "@/components/Shared/404";
-import Tasks from "@/components/Tasks";
 import RewardsSettings from "./components/Settings/Rewards";
 import Staff from "./components/Staff";
 

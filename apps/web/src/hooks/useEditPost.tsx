@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
-import { useEditPostMutation, usePostLazyQuery } from "@hey/indexer";
-import type { ApolloClientError } from "@hey/types/errors";
+import { useEditPostMutation, usePostLazyQuery } from "@slice/indexer";
+import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { usePostStore } from "@/store/non-persisted/post/usePostStore";
@@ -37,7 +37,7 @@ const useEditPost = ({ onCompleted, onError }: EditPostProps) => {
         id: cache.identify(data.post)
       });
     },
-    [getPost, cache, editingPost]
+    [getPost, cache, editingPost, setEditingPost]
   );
 
   const onCompletedWithTransaction = useCallback(

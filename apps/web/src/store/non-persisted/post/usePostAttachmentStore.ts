@@ -1,4 +1,4 @@
-import type { NewAttachment } from "@hey/types/misc";
+import type { NewAttachment } from "@slice/types/misc";
 import { createTrackedStore } from "@/store/createTrackedStore";
 
 interface State {

@@ -87,7 +87,7 @@ const ChooseThumbnail = () => {
 
   useEffect(() => {
     handleSelectThumbnail(selectedThumbnailIndex);
-  }, [selectedThumbnailIndex]);
+  }, [selectedThumbnailIndex, handleSelectThumbnail]);
 
   useEffect(() => {
     if (file) {
@@ -97,7 +97,7 @@ const ChooseThumbnail = () => {
       setSelectedThumbnailIndex(-1);
       setThumbnails([]);
     };
-  }, [file]);
+  }, [file, generateThumbnails]);
 
   const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files?.length) {

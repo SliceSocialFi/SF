@@ -7,7 +7,7 @@ import {
   type ReferencedPostFragment,
   ReferenceRelevancyFilter,
   usePostReferencesQuery
-} from "@hey/indexer";
+} from "@slice/indexer";
 import { useCallback } from "react";
 import { useHiddenCommentFeedStore } from "@/components/Post";
 import SinglePost from "@/components/Post/SinglePost";
