@@ -1,4 +1,6 @@
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   CurrencyDollarIcon,
   EnvelopeIcon,
   MapPinIcon,
@@ -329,7 +331,7 @@ const TaskDetailModal = ({
         )}
 
         {/* Owner Info */}
-        <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
+        {/* <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 font-bold text-sm text-white">
               {task.owner.avatar}
@@ -358,7 +360,7 @@ const TaskDetailModal = ({
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Reward Info */}
         <div className="rounded-lg bg-brand-50 p-4 dark:bg-brand-900/20">
@@ -513,6 +515,14 @@ const Tasks = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<TaskFeedType>(TaskFeedType.All);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
+
+  const TASKS_PER_PAGE = 5;
+  const totalPages = Math.ceil(tasks.length / TASKS_PER_PAGE);
+  const paginatedTasks = tasks.slice(
+    currentPage * TASKS_PER_PAGE,
+    (currentPage + 1) * TASKS_PER_PAGE
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -522,33 +532,52 @@ const Tasks = () => {
         const res = await apiClient.listTasks();
         if (!mounted) return;
         // Attempt to map server task shape to local TaskItem
-        const mapped = (res || []).map((t: any) => ({
-          id: t.id || t.taskId,
-          companyLogo: t.companyLogo || t.company?.logo || "",
-          companyName: t.companyName || t.company?.name || t.ownerName || "",
-          jobTitle: t.title || t.jobTitle,
-          description: t.description || t.summary || "",
-          skills: t.skills || [],
-          location: t.location || "",
-          salary: t.salary || "",
-          postedDays: t.postedDays || 0,
-          owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
-          rewardTokens: t.rewardPoints || t.rewardTokens || 0,
-          // backend-compatible fields
-          employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
-          freelancerProfileId: t.freelancerProfileId ?? null,
-          title: t.title,
-          rewardPoints: t.rewardPoints || t.rewardTokens || 0,
-          createdAt: t.createdAt,
-          deadline: t.deadline,
-          objective: t.objective,
-          deliverables: t.deliverables,
-          acceptanceCriteria: t.acceptanceCriteria,
-          status: t.status || "open",
-          assigneeId: t.assigneeId,
-          applicants: t.applications || t.applicants || []
-        } as TaskItem));
-        setTasks(mapped);
+        const mapped = (res || []).map((t: any) => {
+          // Calculate days since created
+          let postedDays = 0;
+          if (t.createdAt) {
+            const createdDate = new Date(t.createdAt);
+            const now = new Date();
+            const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+            postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          }
+
+          return {
+            id: t.id || t.taskId,
+            companyLogo: t.companyLogo || t.company?.logo || "",
+            companyName: t.companyName || t.company?.name || t.ownerName || "",
+            jobTitle: t.title || t.jobTitle,
+            description: t.description || t.summary || "",
+            skills: t.skills || [],
+            location: t.location || "",
+            salary: t.salary || "",
+            postedDays,
+            owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
+            rewardTokens: t.rewardPoints || t.rewardTokens || 0,
+            // backend-compatible fields
+            employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
+            freelancerProfileId: t.freelancerProfileId ?? null,
+            title: t.title,
+            rewardPoints: t.rewardPoints || t.rewardTokens || 0,
+            createdAt: t.createdAt,
+            deadline: t.deadline,
+            objective: t.objective,
+            deliverables: t.deliverables,
+            acceptanceCriteria: t.acceptanceCriteria,
+            status: t.status || "open",
+            assigneeId: t.assigneeId,
+            applicants: t.applications || t.applicants || []
+          } as TaskItem;
+        });
+
+        // Sort by createdAt descending (newest first)
+        const sorted = mapped.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        setTasks(sorted);
       } catch (err) {
         console.error("Failed to load tasks:", err);
       } finally {
@@ -588,7 +617,7 @@ const Tasks = () => {
           </div>
 
           {/* New Task Button */}
-          <NewTask />
+          <NewTask onSubmit={setTasks} />
 
           {/* Reputation Card */}
           <Card className="p-5">
@@ -685,7 +714,7 @@ const Tasks = () => {
                   <p className="text-sm">Create the first task agreement to get started.</p>
                 </div>
               ) : (
-                tasks.map((task) => (
+                paginatedTasks.map((task) => (
                   <div key={task.id} onClick={() => handleTaskClick(task)}>
                     <TaskCard task={task} />
                   </div>
@@ -694,14 +723,33 @@ const Tasks = () => {
             )}
           </div>
 
-          <div className="pt-4 text-center">
-            <button
-              className="font-medium text-brand-500 text-sm hover:text-brand-600"
-              type="button"
-            >
-              Load More Tasks
-            </button>
-          </div>
+          {tasks.length > 0 && (
+            <div className="flex items-center justify-center gap-4 pt-4">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                disabled={currentPage === 0}
+                className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                type="button"
+              >
+                <ChevronLeftIcon className="size-5" />
+                Previous
+              </button>
+              
+              <span className="text-gray-600 text-sm">
+                Page {currentPage + 1} of {totalPages}
+              </span>
+              
+              <button
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                disabled={currentPage >= totalPages - 1}
+                className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                type="button"
+              >
+                Next
+                <ChevronRightIcon className="size-5" />
+              </button>
+            </div>
+          )}
         </div>
 
         <TaskDetailModal

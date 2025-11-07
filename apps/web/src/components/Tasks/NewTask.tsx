@@ -41,7 +41,7 @@ const TaskAgreementSchema = z.object({
 
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 
-const NewTask = () => {
+const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentAccount } = useAccountStore();
@@ -102,6 +102,11 @@ const NewTask = () => {
       await apiClient.createTask(payload as any);
 
       toast.success("Task agreement posted successfully!");
+
+      const tasks = await apiClient.listTasks(); // refresh task list cache
+
+      onSubmit(tasks);
+
       setIsModalOpen(false);
       form.reset();
     } catch (error: any) {
