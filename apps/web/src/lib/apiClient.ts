@@ -127,6 +127,10 @@ export default class ApiClient {
     return this.request(`/tasks/${encodeURIComponent(taskId)}`)
   }
 
+  async deleteTask(taskId: string) {
+    return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE' })
+  }
+
   // Users
   async getUser(profileId: string) {
     return this.request(`/users/${encodeURIComponent(profileId)}`)

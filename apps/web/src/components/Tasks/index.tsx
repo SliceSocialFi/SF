@@ -3,150 +3,23 @@ import {
   ChevronRightIcon,
   CurrencyDollarIcon,
   EnvelopeIcon,
-  MapPinIcon,
   MagnifyingGlassIcon,
-  PhoneIcon
+  PhoneIcon,
+  MapPinIcon
 } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button, Card, H5, H6, Input, Modal, Tabs } from "@/components/Shared/UI";
+import { Button, Card, H5, H6, Modal, Tabs } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import PageLayout from "../Shared/PageLayout";
+import NumberedStat from "../Shared/NumberedStat";
 import NewTask from "./NewTask";
-
-// Task Feed Types
-enum TaskFeedType {
-  All = "all",
-  MyTasks = "my-tasks",
-  PostedTasks = "posted-tasks"
-}
-
-interface TaskOwner {
-  id: string;
-  name: string;
-  avatar?: string;
-  contact?: {
-    email?: string;
-    phone?: string;
-  };
-}
-
-interface TaskApplicant {
-  walletAddress: string;
-  username?: string;
-  avatar?: string;
-  level: number;
-  appliedAt: string;
-  id?: string;
-  applicant?: string;
-}
-
-interface TaskItem {
-  id: string;
-  companyLogo: string;
-  companyName: string;
-  jobTitle: string;
-  description: string;
-  skills: string[];
-  location: string;
-  salary: string;
-  postedDays: number;
-  owner: TaskOwner;
-  rewardTokens: number;
-  // Backend fields
-  employerProfileId?: string;
-  freelancerProfileId?: string | null;
-  title?: string;
-  rewardPoints?: number;
-  createdAt?: string;
-  deadline?: string;
-  objective?: string;
-  deliverables?: string;
-  acceptanceCriteria?: string;
-  status: "open" | "in_progress" | "completed" | "cancelled";
-  assigneeId?: string;
-  applicants: TaskApplicant[];
-}
-
+import TaskCard, { type TaskItem } from "./TaskCard";
+import TasksShimmer from "./TasksShimmer";
+import { TaskFeedType, filterTasksByTab, getEmptyStateMessage } from "./taskFilters";
 import { apiClient } from "@/lib/apiClient";
 
 let mockTasks: TaskItem[] = [];
-
-const TaskCard = ({ task }: { task: TaskItem }) => {
-  return (
-    <Card className="cursor-pointer gap-4 p-4 transition-shadow hover:shadow-md">
-      {/* Main content */}
-      <div className="space-y-3">
-        {/* Top row: Avatar + Name + Time */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
-              {task.companyLogo}
-            </div>
-            <div>
-              <div className="font-medium text-gray-900 text-sm dark:text-white">
-                {task.companyName || task.employerProfileId || "Unknown"}
-              </div>
-            </div>
-          </div>
-          <div className="text-gray-500 text-xs dark:text-gray-400">
-            {task.postedDays} days ago
-          </div>
-        </div>
-
-        {/* Title */}
-        <H5 className="text-gray-900 dark:text-white">
-          {task.title || task.jobTitle}
-        </H5>
-
-        {/* Objective (if available) */}
-        {task.objective && (
-          <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-            {task.objective}
-          </div>
-        )}
-
-        {/* Description (fallback if no objective) */}
-        {!task.objective && task.description && (
-          <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-            {task.description}
-          </div>
-        )}
-
-        {/* Skills */}
-        {task.skills && task.skills.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {task.skills.map((skill, index) => (
-              <span
-                className="rounded-full bg-gray-100 px-3 py-1 text-gray-700 text-xs dark:bg-gray-800 dark:text-gray-300"
-                key={index}
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Location and Salary */}
-        {(task.location || task.salary) && (
-          <div className="flex items-center gap-4 pt-2">
-            {task.location && (
-              <div className="flex items-center gap-1 text-gray-600 text-sm dark:text-gray-400">
-                <MapPinIcon className="h-4 w-4" />
-                <span>{task.location}</span>
-              </div>
-            )}
-            {task.salary && (
-              <div className="font-medium text-gray-900 text-sm dark:text-white">
-                {task.salary}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </Card>
-  );
-};
 
 const TaskDetailModal = ({
   task,
@@ -508,6 +381,11 @@ const TaskDetailModal = ({
   );
 };
 
+import {
+  useAccountQuery
+} from "@slice/indexer";
+import { request } from "https";
+
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -516,77 +394,117 @@ const Tasks = () => {
   const [activeTab, setActiveTab] = useState<TaskFeedType>(TaskFeedType.All);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
+  const { currentAccount } = useAccountStore();
 
   const TASKS_PER_PAGE = 5;
-  const totalPages = Math.ceil(tasks.length / TASKS_PER_PAGE);
-  const paginatedTasks = tasks.slice(
+
+  // Filter tasks based on active tab
+  const filteredTasks = filterTasksByTab(tasks, activeTab, currentAccount?.address);
+
+  const totalPages = Math.ceil(filteredTasks.length / TASKS_PER_PAGE);
+  const paginatedTasks = filteredTasks.slice(
     currentPage * TASKS_PER_PAGE,
     (currentPage + 1) * TASKS_PER_PAGE
   );
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await apiClient.listTasks();
-        if (!mounted) return;
-        // Attempt to map server task shape to local TaskItem
-        const mapped = (res || []).map((t: any) => {
-          // Calculate days since created
-          let postedDays = 0;
-          if (t.createdAt) {
-            const createdDate = new Date(t.createdAt);
-            const now = new Date();
-            const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-            postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          }
+  const { data, error, fetchMore } =  useAccountQuery({
+    skip: !tasks,
+    variables: { 
+      request: {
+        address: tasks[0]?.employerProfileId
+      }
+    }
+  });
 
-          return {
-            id: t.id || t.taskId,
-            companyLogo: t.companyLogo || t.company?.logo || "",
-            companyName: t.companyName || t.company?.name || t.ownerName || "",
-            jobTitle: t.title || t.jobTitle,
-            description: t.description || t.summary || "",
-            skills: t.skills || [],
-            location: t.location || "",
-            salary: t.salary || "",
-            postedDays,
-            owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
-            rewardTokens: t.rewardPoints || t.rewardTokens || 0,
-            // backend-compatible fields
-            employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
-            freelancerProfileId: t.freelancerProfileId ?? null,
-            title: t.title,
-            rewardPoints: t.rewardPoints || t.rewardTokens || 0,
-            createdAt: t.createdAt,
-            deadline: t.deadline,
-            objective: t.objective,
-            deliverables: t.deliverables,
-            acceptanceCriteria: t.acceptanceCriteria,
-            status: t.status || "open",
-            assigneeId: t.assigneeId,
-            applicants: t.applications || t.applicants || []
-          } as TaskItem;
-        });
+  const getUsernameByProfileId = async (profileId: string) => {
+    const data = await fetchMore({
+      variables: {
+        request: {
+          address: profileId
+        }
+      }
+    });
+    if (error) {
+      console.error("Error fetching account data:", error);
+      return null;
+    }
+    console.log("data", data);
+    return data?.data?.account?.metadata?.name;
+  }
 
-        // Sort by createdAt descending (newest first)
-        const sorted = mapped.sort((a, b) => {
+  const fetchTasks = async () => {
+    try {
+      const res = await apiClient.listTasks();
+      // Attempt to map server task shape to local TaskItem
+      const mapped = (res || []).map(async (t: any) => {
+        // Calculate days since created
+        let postedDays = 0;
+        if (t.createdAt) {
+          const createdDate = new Date(t.createdAt);
+          const now = new Date();
+          const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+          postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        const employerName = await getUsernameByProfileId(t.employerProfileId);
+        return {
+          id: t.id || t.taskId,
+          companyLogo: t.companyLogo || t.company?.logo || "",
+          companyName: t.companyName || t.company?.name || t.ownerName || "",
+          jobTitle: t.title || t.jobTitle,
+          description: t.description || t.summary || "",
+          skills: t.skills || [],
+          location: t.location || "",
+          salary: t.salary || "",
+          postedDays,
+          owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
+          rewardTokens: t.rewardPoints || t.rewardTokens || 0,
+          employerName: employerName || "",
+          employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
+          freelancerProfileId: t.freelancerProfileId ?? null,
+          title: t.title,
+          rewardPoints: t.rewardPoints || t.rewardTokens || 0,
+          createdAt: t.createdAt,
+          deadline: t.deadline,
+          objective: t.objective,
+          deliverables: t.deliverables,
+          acceptanceCriteria: t.acceptanceCriteria,
+          status: t.status || "open",
+          assigneeId: t.assigneeId,
+          applicants: t.applications || t.applicants || []
+        } as TaskItem;
+      });
+
+      // Sort by createdAt descending (newest first)
+      const sorted = await Promise.all(mapped).then((resolved) =>
+        resolved.sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
           return dateB - dateA;
-        });
+        })
+      );
 
-        setTasks(sorted);
-      } catch (err) {
-        console.error("Failed to load tasks:", err);
-      } finally {
-        setLoading(false);
-      }
+      setTasks(sorted);
+    } catch (err) {
+      console.error("Failed to load tasks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // Reset to page 0 when tab changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const load = async () => {
+      fetchTasks();
     };
 
     load();
-    return () => { mounted = false };
   }, []);
 
   const handleTaskClick = useCallback((task: TaskItem) => {
@@ -598,6 +516,28 @@ const Tasks = () => {
     setIsModalOpen(false);
     setSelectedTask(null);
   }, []);
+
+  const handleDeleteTask = async (taskId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening modal when clicking delete
+    
+    if (!confirm("Are you sure you want to delete this task?")) {
+      return;
+    }
+
+    setDeletingTaskId(taskId);
+    try {
+      await apiClient.deleteTask(taskId);
+      toast.success("Task deleted successfully");
+      // Remove task from local state
+      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== taskId));
+    } catch (error: any) {
+      console.error("Failed to delete task:", error);
+      const msg = error?.body?.message || error?.message || "Failed to delete task";
+      toast.error(msg);
+    } finally {
+      setDeletingTaskId(null);
+    }
+  };
 
   return (
     <PageLayout
@@ -706,24 +646,28 @@ const Tasks = () => {
         <div className="space-y-6">
           <div className="space-y-4">
             {loading ? (
-              <div>Loading tasks...</div>
+              <TasksShimmer count={5} />
             ) : (
-              tasks.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500">
-                  <p className="mb-2">No tasks found.</p>
-                  <p className="text-sm">Create the first task agreement to get started.</p>
+              filteredTasks.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                  <p className="mb-2 font-medium">No tasks found.</p>
+                  <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
                 </div>
               ) : (
                 paginatedTasks.map((task) => (
                   <div key={task.id} onClick={() => handleTaskClick(task)}>
-                    <TaskCard task={task} />
+                    <TaskCard 
+                      task={task}
+                      showDelete={activeTab === TaskFeedType.PostedTasks}
+                      onDelete={handleDeleteTask}
+                    />
                   </div>
                 ))
               )
             )}
           </div>
 
-          {tasks.length > 0 && (
+          {filteredTasks.length > 0 && (
             <div className="flex items-center justify-center gap-4 pt-4">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
