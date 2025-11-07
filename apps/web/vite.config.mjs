@@ -78,5 +78,17 @@ export default defineConfig({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
       LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet"
     })
-  ]
+  ],
+server: {
+    port: Number(process.env.PORT) || 5173,
+    proxy: {
+      // tất cả request tới /api/* được proxy tới slice-api (removes CORS issues in dev)
+      '/api': {
+        target: 'https://slice-api-indol.vercel.app',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 });

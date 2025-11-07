@@ -35,15 +35,19 @@ export default class ApiClient {
   baseUrl: string
 
   constructor(baseUrl?: string) {
-    // Use Vite-exposed env var for client builds, fallback to SLICE_API_URL
-    this.baseUrl = baseUrl || SLICE_API_URL
+    // In dev prefer a local proxy to avoid CORS preflight; fallback to SLICE_API_URL in prod
+    if (import.meta.env?.DEV) {
+      this.baseUrl = baseUrl || '/api'
+    } else {
+      this.baseUrl = baseUrl || SLICE_API_URL
+    }
     if (!this.baseUrl) console.warn('[ApiClient] SLICE_API_URL not set')
   }
-
+  
   setBaseUrl(url: string) {
     this.baseUrl = url
   }
-
+  
   private getToken(): string | null {
     // First try persisted auth store (preferred)
     try {
@@ -58,26 +62,39 @@ export default class ApiClient {
 
   private async request(path: string, opts: RequestInit = {}) {
     const url = path.startsWith('http') ? path : `${this.baseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
-    const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(opts.headers as Record<string,string> || {}) }
+    const headers: Record<string, string> = { ...(opts.headers as Record<string,string> || {}) }
+    const method = (opts.method || 'GET').toUpperCase()
+    if (opts.body != null && method !== 'GET' && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json'
+    }
     const token = this.getToken()
     if (token) headers['Authorization'] = `Bearer ${token}`
-    // Dev-time debug: print final URL and headers so CORS/misconfig issues are easier to spot in browser console
+    // Send credentials only when using cookie-based auth.
+    // If using Authorization Bearer token we omit credentials to avoid requiring
+    // Access-Control-Allow-Credentials on the server (simpler CORS).
+    const credentials: RequestCredentials = token ? 'omit' : 'include'
+    const fetchOpts: RequestInit = { ...opts, headers, credentials, mode: 'cors' }
+    // Dev-time debug:
     if (import.meta.env?.DEV) {
       try {
-        console.debug('[ApiClient] fetch', { url, method: opts.method || 'GET', headers, body: opts.body })
-      } catch (e) {
-        // ignore
-      }
+        console.debug('[ApiClient] fetch', { url, method: opts.method || 'GET', headers, body: opts.body, credentials })
+      } catch (e) {}
     }
-
     let res: Response
     try {
-      res = await fetch(url, { ...opts, headers })
+      res = await fetch(url, fetchOpts)
     } catch (err: any) {
       console.error('[ApiClient] Network error when fetching', { url, err })
-      // Normalize network errors to an ApiError with status 0 so callers can distinguish
       throw new ApiError(0, err?.message || 'Network request failed', { url, opts })
     }
+    // Debug CORS-related info (will only be visible if browser allows inspecting)
+    try {
+      if (import.meta.env?.DEV) {
+        const hdrs: Record<string,string> = {}
+        res.headers.forEach((v,k) => hdrs[k] = v)
+        console.debug('[ApiClient] response headers', { status: res.status, headers: hdrs })
+      }
+    } catch {}
     const text = await res.text()
     let body: any = null
     try { body = text ? JSON.parse(text) : null } catch { body = text }
