@@ -35,6 +35,7 @@ export interface TaskItem {
   rewardTokens: number;
   employerName?: any;
   employerProfileId?: string;
+    employerAvatar?: string;
   freelancerProfileId?: string | null;
   title?: string;
   rewardPoints?: number;
@@ -63,7 +64,7 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
-              {task.companyLogo}
+              {task.employerAvatar && <img src={task.employerAvatar} alt={task.employerName} className="h-10 w-10 rounded-full" />}
             </div>
             <div>
               <div className="font-medium text-gray-900 text-sm dark:text-white">

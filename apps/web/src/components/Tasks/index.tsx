@@ -430,7 +430,10 @@ const Tasks = () => {
       return null;
     }
     console.log("data", data);
-    return data?.data?.account?.metadata?.name;
+    return {
+      name: data?.data?.account?.metadata?.name,
+      avatar: data?.data?.account?.metadata?.picture
+    };
   }
 
   const fetchTasks = async () => {
@@ -447,7 +450,7 @@ const Tasks = () => {
           postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        const employerName = await getUsernameByProfileId(t.employerProfileId);
+        const metadata = await getUsernameByProfileId(t.employerProfileId);
         return {
           id: t.id || t.taskId,
           companyLogo: t.companyLogo || t.company?.logo || "",
@@ -460,7 +463,8 @@ const Tasks = () => {
           postedDays,
           owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
           rewardTokens: t.rewardPoints || t.rewardTokens || 0,
-          employerName: employerName || "",
+          employerName: metadata?.name || "",
+          employerAvatar: metadata?.avatar || "",
           employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
           freelancerProfileId: t.freelancerProfileId ?? null,
           title: t.title,
