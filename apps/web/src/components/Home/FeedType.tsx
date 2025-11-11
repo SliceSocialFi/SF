@@ -15,7 +15,7 @@ const FeedType = () => {
   return (
     <Tabs
       active={feedType}
-      className="mx-5 mb-5 md:mx-0"
+      className="flex justify-center gap-4 mx-5 mb-5 md:mx-0"
       layoutId="home_tab"
       setActive={(type) => setFeedType(type as HomeFeedType)}
       tabs={tabs}

@@ -9,6 +9,7 @@ import ForYou from "./ForYou";
 import Hero from "./Hero";
 import Highlights from "./Highlights";
 import Timeline from "./Timeline";
+import StickyFeedBar from "./StickyFeedbar";
 
 const Home = () => {
   const { currentAccount } = useAccountStore();
@@ -19,7 +20,9 @@ const Home = () => {
     <PageLayout>
       {loggedInWithAccount ? (
         <>
-          <FeedType />
+          <StickyFeedBar>
+            <FeedType />
+          </StickyFeedBar>
           <NewPost />
           {feedType === HomeFeedType.FOLLOWING ? (
             <Timeline />
