@@ -1,3 +1,5 @@
+import "./styles/theme-vars.css";
+
 import "./font.css";
 import "./styles.css";
 

@@ -22,7 +22,7 @@ const Home = () => {
         <>
           <StickyFeedBar>
             <FeedType />
-          </StickyFeedBar>
+          </StickyFeedBar>  
           <NewPost />
           {feedType === HomeFeedType.FOLLOWING ? (
             <Timeline />

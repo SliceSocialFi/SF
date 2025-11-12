@@ -1,0 +1,17 @@
+:root {
+    --primary: #FF6B81;
+    --primary-foreground: #ffffff;
+    --primary-hover: #FFA4B1;
+    --primary-active: #E9566B;
+    --ring: var(--primary);
+    --muted: #FFE4E9;
+}
+
+.dark {
+    --primary: #FF6B81;
+    --primary-foreground: #ffffff;
+    --primary-hover: #FFA4B1;
+    --primary-active: #E9566B;
+    --ring: var(--primary);
+    --muted: #3f1720;
+}

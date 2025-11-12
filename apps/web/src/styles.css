@@ -35,8 +35,13 @@
 
   body {
     @apply bg-gray-50;
-    @apply dark:bg-black;
+    /* @apply dark:bg-black; */
   }
+
+    .dark body {
+      background-color: #121212;
+      /* “dim black” – dễ chịu cho mắt hơn đen tuyệt đối */
+    }
 
   .shimmer {
     @apply animate-shimmer;
@@ -159,5 +164,205 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@keyframes ringFade {
+  from {
+    box-shadow: 0 0 0 0 var(--primary);
+  }
+
+  to {
+    box-shadow: 0 0 0 3px var(--primary);
+  }
+}
+
+@layer components {
+  .search-wrap {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.75rem;
+    background: transparent;
+    background-color: white;
+    overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+
+  .search-wrap:hover {
+    border-color: rgba(0, 0, 0, 0.28);
+  }
+
+  /* viền lan trái -> phải */
+  .search-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 3px solid var(--primary, #FF6B81);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s ease-out;
+    padding: 1px;
+  }
+
+  .search-wrap:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  /* làm mờ border cũ khi focus để chỉ thấy viền animation */
+  .search-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  /* dark mode */
+  .dark .search-wrap {
+    border-color: rgb(63 63 70 / 1);
+    background-color: var(--app-bg);
+  }
+
+  .dark .search-wrap:hover {
+    border-color: rgb(82 82 91 / 1);
+  }
+
+  .dark .search-wrap::before {
+    background:
+        conic-gradient(from 180deg at 0% 50%, var(--primary-hover) 0 25%, transparent 0 100%),
+        conic-gradient(from 0deg at 100% 50%, var(--primary-hover) 0 25%, transparent 0 100%);
+  }
+
+  /* input con */
+  .search-wrap input {
+    border: none !important;
+    outline: none !important;
+    background: transparent;
+    box-shadow: none !important;
+  }
+
+  .feed-wrap {
+    position: relative;
+    isolation: isolate;
+    border-radius: 0.75rem;
+    transition: box-shadow .3s ease, border-color .3s ease;
+  }
+
+  .feed-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    border: 1.5px solid var(--primary);
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: opacity .25s ease, transform .4s ease-out;
+  }
+
+  /* Hover hoặc focus vào vùng feed (ví dụ khi scroll hoặc click trong card) */
+  .feed-wrap:hover::before,
+  .feed-wrap:focus-within::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .dark .feed-wrap::before {
+    border-color: var(--primary-hover);
+  }
+}
+
+@layer components {
+  .composer-ring {
+    position: relative;
+    isolation: isolate;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .composer-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 2px solid var(--primary, #FF6B81);
+    opacity: 0;
+    transform: scale(0.98);
+    transition:
+      opacity 0.75s ease,
+      transform 0.75s ease,
+      border-color 0.3s ease;
+  }
+
+  /* khi mount hoặc data-active=true => viền dần hiện rõ */
+  .composer-ring[data-active="true"]::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .dark .composer-ring::before {
+    border-color: var(--primary-hover, #FFA4B1);
+  }
+}
+
+@layer components {
+  .composer-panel {
+    position: relative;
+    isolation: isolate;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    z-index: 0;
+    background: transparent;
+    max-height: 60px;
+    opacity: 0.98;
+    transform: scale(0.995);
+    transition:
+      max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .composer-panel[data-open="true"] {
+    max-height: 800px;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .composer-panel[data-overflow="visible"] {
+    overflow: visible;
+    z-index: 60;
+    transform: none;
+  }
+
+ .composer-panel__inner {
+    overflow: visible;
+  }
+
+  /* viền fade-in mượt */
+  .composer-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--primary, #FF6B81);
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 0.5s ease,
+      transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .composer-ring[data-active="true"]::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .dark .composer-ring::before {
+    border-color: var(--primary-hover, #FFA4B1);
   }
 }
