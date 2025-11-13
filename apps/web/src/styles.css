@@ -373,13 +373,55 @@
     filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.18));
   }
 
-  .dark .post-action:hover svg {
-    color: var(--primary-hover);
-  }
-
   .post-action:active svg {
     transform: scale(1);
     filter: none;
+  }
+
+  /* COUNT — luôn liên kết màu với icon */
+  .post-action .post-action-count {
+    @apply transition-colors duration-200 ease-out;
+  }
+
+
+  .post-action-like:hover svg,
+  .post-action-like:hover .post-action-count {
+    color: #fb3a5d;
+  }
+
+  .dark .post-action-like:hover svg,
+  .dark .post-action-like:hover .post-action-count {
+    color: #e91546;
+  }
+
+  .post-action-comment:hover svg,
+  .post-action-comment:hover .post-action-count {
+    color: #3b82f6;
+  }
+
+  .dark .post-action-comment:hover svg,
+  .dark .post-action-comment:hover .post-action-count {
+    color: #60a5fa;
+  }
+
+  .post-action-repost:hover svg,
+  .post-action-repost:hover .post-action-count {
+    color: #10b981;
+  }
+
+  .dark .post-action-repost:hover svg,
+  .dark .post-action-repost:hover .post-action-count {
+    color: #34d399;
+  }
+
+  .post-action-tip:hover svg,
+  .post-action-tip:hover .post-action-count {
+    color: #f59e0b;
+  }
+
+  .dark .post-action-tip:hover svg,
+  .dark .post-action-tip:hover .post-action-count {
+    color: #fbbf24;
   }
 
   .suggested-follow-modal .modal-content {

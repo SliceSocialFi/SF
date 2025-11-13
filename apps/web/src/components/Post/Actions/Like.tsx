@@ -112,7 +112,7 @@ const Like = ({ post, showCount }: LikeProps) => {
       <button
         aria-label="Like"
         className={cn(
-          hasReacted ? "hover:bg-brand-300/20" : "hover:bg-gray-300/20",
+          hasReacted ? "hover:bg-[#FF6B81]/20" : "hover:bg-gray-300/20",
           "rounded-full p-1.5 outline-offset-2"
         )}
         onClick={handleCreateLike}
@@ -132,7 +132,7 @@ const Like = ({ post, showCount }: LikeProps) => {
       </button>
       {reactions > 0 && !showCount ? (
         <AnimateNumber
-          className="min-w-[2.4rem] text-[11px] sm:text-xs text-right whitespace-nowrap"
+          className="w-3 text-[11px] sm:text-xs"
           format={{ notation: "compact" }}
           key={`like-count-${post.id}`}
           transition={{ type: "tween" }}
