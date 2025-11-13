@@ -129,7 +129,9 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
         {/* Objective (if available) */}
         {task.objective && (
           <div className="text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-            {task.objective}
+            {task.objective && task.objective.length > 200
+              ? `${task.objective.slice(0, 200)}...`
+              : task.objective}
           </div>
         )}
 
