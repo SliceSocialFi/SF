@@ -193,7 +193,6 @@
     border-color: rgba(0, 0, 0, 0.28);
   }
 
-  /* viền lan trái -> phải */
   .search-wrap::before {
     content: "";
     position: absolute;
@@ -213,7 +212,6 @@
     transform: scaleX(1);
   }
 
-  /* làm mờ border cũ khi focus để chỉ thấy viền animation */
   .search-wrap:focus-within {
     border-color: transparent;
   }
@@ -234,7 +232,6 @@
         conic-gradient(from 0deg at 100% 50%, var(--primary-hover) 0 25%, transparent 0 100%);
   }
 
-  /* input con */
   .search-wrap input {
     border: none !important;
     outline: none !important;
@@ -263,7 +260,6 @@
     transition: opacity .25s ease, transform .4s ease-out;
   }
 
-  /* Hover hoặc focus vào vùng feed (ví dụ khi scroll hoặc click trong card) */
   .feed-wrap:hover::before,
   .feed-wrap:focus-within::before {
     opacity: 1;
@@ -298,7 +294,6 @@
       border-color 0.3s ease;
   }
 
-  /* khi mount hoặc data-active=true => viền dần hiện rõ */
   .composer-ring[data-active="true"]::before {
     opacity: 1;
     transform: scale(1);
@@ -307,9 +302,7 @@
   .dark .composer-ring::before {
     border-color: var(--primary-hover, #FFA4B1);
   }
-}
 
-@layer components {
   .composer-panel {
     position: relative;
     isolation: isolate;
@@ -342,7 +335,6 @@
     overflow: visible;
   }
 
-  /* viền fade-in mượt */
   .composer-ring::before {
     content: "";
     position: absolute;
@@ -364,5 +356,29 @@
 
   .dark .composer-ring::before {
     border-color: var(--primary-hover, #FFA4B1);
+  }
+
+  .post-action {
+    @apply inline-flex items-center cursor-pointer select-none;
+  }
+
+  .post-action svg {
+    @apply transition-transform transition-colors duration-200 ease-out;
+    transform-origin: center;
+  }
+
+  .post-action:hover svg {
+    transform: scale(2);
+    color: var(--primary);
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.18));
+  }
+
+  .dark .post-action:hover svg {
+    color: var(--primary-hover);
+  }
+
+  .post-action:active svg {
+    transform: scale(1);
+    filter: none;
   }
 }

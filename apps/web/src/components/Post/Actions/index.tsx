@@ -29,13 +29,40 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
       onClick={stopEventPropagation}
     >
       <span className="flex items-center gap-x-6">
-        <Comment post={targetPost} showCount={showCount} />
-        <ShareMenu post={post} showCount={showCount} />
-        <Like post={targetPost} showCount={showCount} />
-        {canAct && !showCount ? <CollectAction post={targetPost} /> : null}
-        <TipAction post={targetPost} showCount={showCount} />
+        {/* COMMENT */}
+        <span className="post-action">
+          <Comment post={targetPost} showCount={showCount} />
+        </span>
+
+        {/* SHARE */}
+        <span className="post-action">
+          <ShareMenu post={post} showCount={showCount} />
+        </span>
+
+        {/* LIKE */}
+        <span className="post-action">
+          <Like post={targetPost} showCount={showCount} />
+        </span>
+
+        {/* COLLECT */}
+        {canAct && !showCount ? (
+          <span className="post-action">
+            <CollectAction post={targetPost} />
+          </span>
+        ) : null}
+
+        {/* TIP */}
+        <span className="post-action">
+          <TipAction post={targetPost} showCount={showCount} />
+        </span>
       </span>
-      {canAct ? <SmallCollectButton post={targetPost} /> : null}
+
+      {/* SMALL COLLECT BUTTON */}
+      {canAct ? (
+        <span className="post-action">
+          <SmallCollectButton post={targetPost} />
+        </span>
+      ) : null}
     </span>
   );
 };

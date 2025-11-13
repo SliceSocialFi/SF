@@ -124,10 +124,11 @@ const Navbar = () => {
       <Image alt="Logo" className="size-8" height={32} src="/favicon.png" width={32} />
     </Link>
 
-    {/* Nút đổi màu */}
-    <ThemeSwitcher />
+    
 
     <NavItems isLoggedIn={!!currentAccount} />
+    {/* Nút đổi màu */}
+    <ThemeSwitcher />
     {currentAccount ? (
       <>
         {/* <Pro /> */}
