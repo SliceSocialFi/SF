@@ -26,7 +26,6 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
   const hasReposted =
     targetPost.operations?.hasReposted.optimistic ||
     targetPost.operations?.hasReposted.onChain;
-
   const hasQuoted =
     targetPost.operations?.hasQuoted.optimistic ||
     targetPost.operations?.hasQuoted.onChain;
@@ -37,18 +36,16 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
   const canRepost =
     targetPost.operations?.canRepost.__typename ===
     "PostOperationValidationPassed";
-
   const canQuote =
     targetPost.operations?.canQuote.__typename ===
     "PostOperationValidationPassed";
 
   const iconClassName = "w-[15px] sm:w-[18px]";
+  const hasVisibleCount = shares > 0 && !showCount;
 
   if (!canRepost && !canQuote) {
     return null;
   }
-
-  const hasVisibleCount = shares > 0 && !showCount;
 
   return (
     <div
@@ -60,8 +57,8 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
       <Menu as="div" className="relative">
         <MenuButton
           aria-label="Repost"
-          onClick={stopEventPropagation}
           className="rounded-full p-1.5 outline-offset-2 hover:bg-gray-300/20 dark:hover:bg-gray-700/40"
+          onClick={stopEventPropagation}
         >
           {isSubmitting ? (
             <Spinner className="mr-0.5" size="xs" />
@@ -93,10 +90,7 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
                 setIsSubmitting={setIsSubmitting}
               />
             )}
-
             {canQuote && <Quote post={targetPost} />}
-
-            {/* Chỉ hiển thị nút Undo khi bài gốc khác bài repost */}
             {hasReposted && targetPost.id !== post.id && (
               <UndoRepost
                 isSubmitting={isSubmitting}
@@ -108,20 +102,22 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
         </MenuTransition>
       </Menu>
 
-      {/* COUNT — luôn cố định vị trí */}
-      <span className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200">
-        {hasVisibleCount ? (
-          <AnimateNumber
-            key={`share-count-${post.id}`}
-            transition={{ type: "tween" }}
-            format={{ notation: "compact" }}
-          >
-            {shares}
-          </AnimateNumber>
-        ) : (
-          <span className="opacity-0">0</span>
-        )}
-      </span>
+      {/* COUNT: luôn chiếm chỗ, giống Like */}
+      {!showCount && (
+        <span className="post-action-count text-gray-500 dark:text-gray-200">
+          {hasVisibleCount ? (
+            <AnimateNumber
+              format={{ notation: "compact" }}
+              key={`share-count-${post.id}`}
+              transition={{ type: "tween" }}
+            >
+              {shares}
+            </AnimateNumber>
+          ) : (
+            <span className="opacity-0">0</span>
+          )}
+        </span>
+      )}
     </div>
   );
 };
