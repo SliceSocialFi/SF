@@ -22,6 +22,7 @@ import TaskDetailModal from "./TaskDetailModal";
 let mockTasks: TaskItem[] = [];
 
 import { useAccountQuery } from "@slice/indexer";
+import { userInfo } from "os";
 
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -33,6 +34,16 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const { currentAccount } = useAccountStore();
+  interface User {
+    profileId: string;
+    username?: string;
+    professionalRoles?: string[];
+    reputationScore: number;
+    rewardPoints: number;
+    level: number;
+    createdAt: string;
+  }
+  const [user, setUser] = useState<User | null>(null);
 
   const TASKS_PER_PAGE = 5;
 
@@ -142,10 +153,43 @@ const Tasks = () => {
     }
   };
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        if (!currentAccount?.address) return;
+        const profileId = currentAccount.address;
+        const data = await apiClient.getUser(profileId);
+        // normalized response to match User interface loosely
+        setUser({
+          profileId: data?.profileId || profileId,
+          username: data?.username || data?.handle || undefined,
+          professionalRoles: data?.professionalRoles || [],
+          reputationScore:
+            typeof data?.reputationScore === "number"
+              ? data.reputationScore
+              : Number(data?.reputation) || 0,
+          rewardPoints:
+            typeof data?.rewardPoints === "number"
+              ? data.rewardPoints
+              : Number(data?.points) || 0,
+          level: Number(data?.level) || 0,
+          createdAt: data?.createdAt || new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error("Failed to load user profile", err);
+      }
+    };
+    loadUser();
+  }, [currentAccount]);
+
   // Reset to page 0 when tab changes
   useEffect(() => {
     setCurrentPage(0);
   }, [activeTab]);
+
+  const reputation = user?.reputationScore ?? 0;
+  const rewardPoints = user?.rewardPoints ?? 0;
+  const progressWidth = Math.min(100, Math.max(0, reputation));
 
   useEffect(() => {
     const load = async () => {
@@ -231,13 +275,13 @@ const Tasks = () => {
                     Progress
                   </span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {/* Lấy điểm uy tín của user bằng cách tín toán trên frontend*/}
+                    {reputation}
                   </span>
                 </div>
                 <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
-                    style={{ width: "70%" }}
+                    style={{ width: `${progressWidth}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -264,7 +308,7 @@ const Tasks = () => {
               </div>
               <div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  10,000
+                  {rewardPoints.toLocaleString()}
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Total points earned

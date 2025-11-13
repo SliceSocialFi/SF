@@ -137,6 +137,10 @@ export default class ApiClient {
     return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'PATCH' })
   }
 
+  async completeTaskAndUpdateUser(taskId: string, profileId: string, payload: { rewardPoints: number; reputationScore: number }) {
+    await this.request(`/tasks/complete/${encodeURIComponent(taskId)}`, { method: 'PUT' })
+    await this.adjustUserPoints(profileId, payload)
+  }
   // ==================== APPLICATIONS ====================
   
   async listApplications(): Promise<any[]> {
