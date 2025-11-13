@@ -37,7 +37,7 @@ export default class ApiClient {
   constructor(baseUrl?: string) {
     // In dev prefer a local proxy to avoid CORS preflight; fallback to SLICE_API_URL in prod
     if (import.meta.env?.DEV) {
-      this.baseUrl = baseUrl || '/api'
+      this.baseUrl = baseUrl || 'http://localhost:3000'
     } else {
       this.baseUrl = baseUrl || SLICE_API_URL
     }
@@ -102,14 +102,16 @@ export default class ApiClient {
     return body
   }
 
-  // Tasks
+  // ==================== TASKS ====================
+  
   async createTask(payload: {
     title: string
     objective: string
     deliverables: string
     acceptanceCriteria: string
     rewardPoints: number
-    deadline: Date
+    deadline?: string
+    checklist?: Array<{ itemText: string; orderIndex?: number }>
   }) {  
     try { 
       return await this.request('/tasks', { method: 'POST', body: JSON.stringify(payload) })
@@ -127,42 +129,104 @@ export default class ApiClient {
     return this.request(`/tasks/${encodeURIComponent(taskId)}`)
   }
 
+  async updateTask(taskId: string, payload: Json) {
+    return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'PUT', body: JSON.stringify(payload) })
+  }
+
   async deleteTask(taskId: string) {
-    return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE' })
+    return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'PATCH' })
   }
 
-  // Users
-  async getUser(profileId: string) {
-    return this.request(`/users/${encodeURIComponent(profileId)}`)
-  }
-
-  async createUser(payload: Json) {
-    return this.request(`/users`, { method: 'POST', body: JSON.stringify(payload) })
-  }
-
-  // Applications
-  async createApplication(payload: { taskId: string, coverLetter?: string }) {
-    return this.request(`/applications`, { method: 'POST', body: JSON.stringify(payload) })
-  }
-
-  async updateApplication(applicationId: string, payload: Json) {
-    return this.request(`/applications/${encodeURIComponent(applicationId)}`, { method: 'PATCH', body: JSON.stringify(payload) })
-  }
+  // ==================== APPLICATIONS ====================
   
-  // Convenience: apply for a task (creates application)
-  // Updated to accept applicantProfileId so payload matches backend application shape:
-  // { taskId, applicantProfileId, coverLetter }
-  async applyForTask(taskId: string, coverLetter?: string, applicantProfileId?: string) {
-    // include applicantProfileId if provided
-    const payload: any = { taskId }
-    if (typeof applicantProfileId !== 'undefined') payload.applicantProfileId = applicantProfileId
-    if (typeof coverLetter !== 'undefined') payload.coverLetter = coverLetter
-    return this.createApplication(payload)
+  async listApplications(): Promise<any[]> {
+    return this.request('/applications', { method: 'GET' })
   }
 
-  // Convenience: accept an application by id
+  async getApplicationsByTask(taskId: string): Promise<any[]> {
+    return this.request(`/applications/task/${encodeURIComponent(taskId)}`, { method: 'GET' })
+  }
+
+  async createApplication(payload: { taskId: string, coverLetter?: string }) {
+    return this.request('/applications', { method: 'POST', body: JSON.stringify(payload) })
+  }
+
+  async submitOutcome(applicationId: string, payload: { outcome?: string; outcomeType?: 'text' | 'file' }) {
+    return this.request(`/applications/${encodeURIComponent(applicationId)}/submit`, { method: 'POST', body: JSON.stringify(payload) })
+  }
+
+  async updateApplication(applicationId: string, payload: { status: string; feedback?: string; rating?: number; comment?: string }) {
+    return this.request(`/applications/${encodeURIComponent(applicationId)}`, { method: 'PUT', body: JSON.stringify(payload) })
+  }
+
+  async rateApplication(applicationId: string, payload: { rating: number; comment?: string }) {
+    return this.request(`/applications/${encodeURIComponent(applicationId)}/rate`, { method: 'POST', body: JSON.stringify(payload) })
+  }
+
+  async deleteApplication(applicationId: string) {
+    return this.request(`/applications/${encodeURIComponent(applicationId)}`, { method: 'DELETE' })
+  }
+
+  // ==================== USERS ====================
+  
+  async listUsers(): Promise<any[]> {
+    return this.request('/users', { method: 'GET' })
+  }
+
+  async getUser(profileId: string) {
+    return this.request(`/users/${encodeURIComponent(profileId).toLowerCase()}`)
+  }
+
+  async createUser(payload: { profileId: string; username?: string; professionalRoles?: string[] }) {
+    return this.request('/users', { method: 'POST', body: JSON.stringify(payload) })
+  }
+
+  async updateUser(profileId: string, payload: Json) {
+    return this.request(`/users/${encodeURIComponent(profileId).toLowerCase()}`, { method: 'PUT', body: JSON.stringify(payload) })
+  }
+
+  async deleteUser(profileId: string) {
+    return this.request(`/users/${encodeURIComponent(profileId).toLowerCase()}`, { method: 'DELETE' })
+  }
+
+  async adjustUserPoints(profileId: string, payload: { rewardPoints?: number; reputationScore?: number }) {
+    return this.request(`/users/${encodeURIComponent(profileId).toLowerCase()}/adjust-points`, { method: 'POST', body: JSON.stringify(payload) })
+  }
+
+  // ==================== NOTIFICATIONS ====================
+  
+  async getNotifications(): Promise<any[]> {
+    return this.request('/notifications', { method: 'GET' })
+  }
+
+  async getUnreadCount(): Promise<{ count: number }> {
+    return this.request('/notifications/unread', { method: 'GET' })
+  }
+
+  async markNotificationAsRead(notificationId: string) {
+    return this.request(`/notifications/${encodeURIComponent(notificationId)}/read`, { method: 'PUT' })
+  }
+
+  async markAllNotificationsAsRead() {
+    return this.request('/notifications/read-all', { method: 'PUT' })
+  }
+
+  async deleteNotification(notificationId: string) {
+    return this.request(`/notifications/${encodeURIComponent(notificationId)}`, { method: 'DELETE' })
+  }
+
+  // ==================== CONVENIENCE METHODS ====================
+  
+  async applyForTask(taskId: string, coverLetter?: string) {
+    return this.createApplication({ taskId, coverLetter })
+  }
+
   async acceptApplication(applicationId: string) {
     return this.updateApplication(applicationId, { status: 'accepted' })
+  }
+
+  async rejectApplication(applicationId: string) {
+    return this.updateApplication(applicationId, { status: 'rejected' })
   }
 }
 

@@ -19,22 +19,49 @@ export const filterTasksByTab = (
     case TaskFeedType.PostedTasks:
       // Show tasks created by current user
       return tasks.filter(
-        (task) => task.employerProfileId === currentUserAddress
+        (task) => task.employerProfileId === currentUserAddress.toLowerCase()
       );
 
     case TaskFeedType.MyTasks:
       // Show tasks where user has applied or is assigned
-      return tasks.filter(
-        (task) =>
-          task.applicants.some(
-            (applicant) => applicant.walletAddress === currentUserAddress
-          ) || task.assigneeId === currentUserAddress
-      );
+      // console.log("currentUserAddress", currentUserAddress.toLowerCase());
+      // console.log("tasks", tasks);
+      // let taskData = tasks.filter(
+      //   (task) => {
+      //     task.applicants.some(
+      //       (applicant) => {
+      //         return applicant.applicantProfileId === currentUserAddress.toLowerCase();
+      //       }
+      //     )
+      //   }
+      // );
+
+      let taskData: TaskItem[] = [];
+      tasks.forEach((task) => {
+        task.applicants.forEach((applicant) => {
+          // console.log("applicant", applicant.applicantProfileId === currentUserAddress?.toLowerCase());
+          if (applicant.applicantProfileId === currentUserAddress?.toLowerCase()) {
+            taskData.push(task);
+            return;
+          }
+        });
+      });
+
+      // console.log("taskData", taskData);
+      return taskData;
+          // task.applicants.some(
+          //   (applicant) => applicant.walletAddress === currentUserAddress.toLowerCase()
+          //  ) //|| task.assigneeId === currentUserAddress.toLowerCase()
 
     case TaskFeedType.All:
+      return tasks.filter(
+        (task) => task.status === "open"
+      )
     default:
       // Show all tasks
-      return tasks;
+      return tasks.filter(
+        (task) => task.status === "open"
+      );
   }
 };
 
