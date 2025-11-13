@@ -22,6 +22,7 @@ import useHasNewNotifications from "@/hooks/useHasNewNotifications";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import SignedAccount from "./SignedAccount";
+import ThemeSwitcher from "@/components/Shared/Theme/ThemeSwitcher";
 
 const navigationItems = {
   "/": {
@@ -119,29 +120,27 @@ const Navbar = () => {
 
   return (
     <aside className="sticky top-5 mt-5 hidden w-10 shrink-0 flex-col items-center gap-y-5 md:flex">
-      <Link onClick={handleLogoClick} to="/">
-        <Image
-          alt="Logo"
-          className="size-8"
-          height={32}
-          src="/favicon.png" /* Chỉnh logo ở đây */
-          width={32}
-        />
-      </Link>
-      <NavItems isLoggedIn={!!currentAccount} />
-      {currentAccount ? (
-        <>
-          {/*<Pro /> */}
-          <SignedAccount />
-        </>
-      ) : (
-        <button onClick={handleAuthClick} type="button">
-          <Tooltip content="Login">
-            <UserCircleIcon className="size-6" />
-          </Tooltip>
-        </button>
-      )}
-    </aside>
+    <Link onClick={handleLogoClick} to="/">
+      <Image alt="Logo" className="size-8" height={32} src="/favicon.png" width={32} />
+    </Link>
+
+    {/* Nút đổi màu */}
+    <ThemeSwitcher />
+
+    <NavItems isLoggedIn={!!currentAccount} />
+    {currentAccount ? (
+      <>
+        {/* <Pro /> */}
+        <SignedAccount />
+      </>
+    ) : (
+      <button onClick={handleAuthClick} type="button">
+        <Tooltip content="Login">
+          <UserCircleIcon className="size-6" />
+        </Tooltip>
+      </button>
+    )}
+  </aside>
   );
 };
 
