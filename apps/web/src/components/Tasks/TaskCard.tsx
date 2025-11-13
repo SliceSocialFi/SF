@@ -11,14 +11,15 @@ interface TaskOwner {
   };
 }
 
-interface TaskApplicant {
-  walletAddress: string;
+export interface TaskApplicant {
+  walletAddress?: string;
   username?: string;
   avatar?: string;
-  level: number;
-  appliedAt: string;
+  level?: number;
+  appliedAt?: string;
   id?: string;
   applicant?: string;
+  applicantProfileId?: string;
 }
 
 export interface TaskItem {
@@ -35,9 +36,9 @@ export interface TaskItem {
   rewardTokens: number;
   employerName?: any;
   employerProfileId?: string;
-    employerAvatar?: string;
+  employerAvatar?: string;
   freelancerProfileId?: string | null;
-  title?: string;
+  title: string;
   rewardPoints?: number;
   createdAt?: string;
   deadline?: string;
@@ -64,7 +65,13 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
-              {task.employerAvatar && <img src={task.employerAvatar} alt={task.employerName} className="h-10 w-10 rounded-full" />}
+              {task.employerAvatar && (
+                <img
+                  src={task.employerAvatar}
+                  alt={task.employerName}
+                  className="h-10 w-10 rounded-full"
+                />
+              )}
             </div>
             <div>
               <div className="font-medium text-gray-900 text-sm dark:text-white">
@@ -74,7 +81,7 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-gray-500 text-xs dark:text-gray-400">
-              {task.postedDays} days ago
+              {task.postedDays} {task.postedDays > 1 ? "days" : "day"} ago
             </div>
             {showDelete && task.status === "open" && onDelete && (
               <button
@@ -108,9 +115,13 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
                   : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
               }`}
             >
-              {task.status === "open" ? "Open" : 
-               task.status === "in_progress" ? "In Progress" :
-               task.status === "completed" ? "Completed" : "Cancelled"}
+              {task.status === "open"
+                ? "Open"
+                : task.status === "in_progress"
+                ? "In Progress"
+                : task.status === "completed"
+                ? "Completed"
+                : "Cancelled"}
             </span>
           </div>
         )}

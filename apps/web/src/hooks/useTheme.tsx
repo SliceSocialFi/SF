@@ -9,7 +9,7 @@ import {
   useState
 } from "react";
 
-export type Theme = "light" | "dark";
+export type Theme = "dark" | "light";
 interface ThemeContextValue {
   theme: Theme;
   toggleTheme: () => void;
@@ -24,7 +24,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem(Localstorage.Theme);
-    return (saved ?? "light") as Theme;
+    return (saved ?? "dark") as Theme;
   });
 
   useEffect(() => {
