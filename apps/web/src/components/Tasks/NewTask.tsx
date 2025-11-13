@@ -19,26 +19,74 @@ import type { TaskItem } from "@/components/Shared/Sidebar/TaskSystem";
 // Client validation should match backend zod schema to avoid 400s.
 // Backend requires: title >=3, objective/deliverables/acceptanceCriteria >=10,
 // rewardPoints positive integer, deadline is optional ISO datetime.
-const TaskAgreementSchema = z.object({
-  title: z.string().min(1, "Title must be at least 3 characters"),
-  objective: z.string().min(1, "Objective must be at least 10 characters"),
-  deliverables: z.string().min(1, "Deliverables must be at least 10 characters"),
-  acceptanceCriteria: z.string().min(1, "Acceptance criteria must be at least 10 characters"),
-  rewardPoints: z.number().int().positive("Reward must be a positive integer"),
-  // Accept a simple date from the <input type="date" /> (YYYY-MM-DD) and
-  // preprocess it into an ISO datetime string so server's z.string().datetime()
-  // validation will pass. Deadline is optional.
-  deadline: z.preprocess((val) => {
-    if (!val) return undefined;
-    if (typeof val === "string") {
-      // If the input is a plain date (YYYY-MM-DD), create an ISO at midnight UTC
-      // new Date('YYYY-MM-DD') interprets as UTC by most browsers; normalize anyway
-      const d = new Date(val);
-      if (!isNaN(d.getTime())) return d.toISOString();
+// const TaskAgreementSchema = z.object({
+//   title: z.string().min(1, "Title must be at least 3 characters"),
+//   objective: z.string().min(1, "Objective must be at least 10 characters"),
+//   deliverables: z.string().min(1, "Deliverables must be at least 10 characters"),
+//   acceptanceCriteria: z.string().min(1, "Acceptance criteria must be at least 10 characters"),
+//   rewardPoints: z.number().int().positive("Reward must be a positive integer"),
+//   // Accept a simple date from the <input type="date" /> (YYYY-MM-DD) and
+//   // preprocess it into an ISO datetime string so server's z.string().datetime()
+//   // validation will pass. Deadline is optional.
+//   deadline: z.preprocess((val) => {
+//     if (!val) return undefined;
+//     if (typeof val === "string") {
+//       // If the input is a plain date (YYYY-MM-DD), create an ISO at midnight UTC
+//       // new Date('YYYY-MM-DD') interprets as UTC by most browsers; normalize anyway
+//       const d = new Date(val);
+//       if (!isNaN(d.getTime())) return d.toISOString();
+//     }
+//     return val;
+//   }, z.string().datetime().optional())
+// });
+
+const TaskAgreementSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(3, "Title must be at least 3 characters"),
+    objective: z
+      .string()
+      .trim()
+      .min(10, "Objective must be at least 10 characters"),
+    deliverables: z
+      .string()
+      .trim()
+      .min(10, "Deliverables must be at least 10 characters"),
+    acceptanceCriteria: z
+      .string()
+      .trim()
+      .min(10, "Acceptance criteria must be at least 10 characters"),
+    rewardPoints: z
+      .number()
+      .int()
+      .positive("Reward must be a positive integer")
+      .min(1, "Reward must be at least 1 point"),
+    // deadline: nhận từ <input type="date" /> => string YYYY-MM-DD
+    deadline: z.preprocess(
+      (val) => {
+        if (!val) return undefined;
+        if (typeof val === "string") {
+          const d = new Date(val);
+          if (!Number.isNaN(d.getTime())) return d.toISOString();
+        }
+        return val;
+      },
+      z.string().datetime().optional()
+    )
+  })
+  .refine(
+    (data) => {
+      if (!data.deadline) return true;
+      const d = new Date(data.deadline);
+      return d.getTime() > Date.now();
+    },
+    {
+      path: ["deadline"],
+      message: "Deadline must be in the future"
     }
-    return val;
-  }, z.string().datetime().optional())
-});
+  );
 
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 
@@ -61,119 +109,116 @@ const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
   });
 
   const handleSubmit = async (data: TaskAgreementData) => {
-    if (!currentAccount?.address) {
-      toast.error("Please connect wallet");
-      return;
-    }
-    setIsSubmitting(true);
+  if (!currentAccount?.address) {
+    toast.error("Please connect wallet");
+    return;
+  }
+  setIsSubmitting(true);
+
+  try {
+    const employerProfileId = currentAccount.address;
+
+    // Ensure user exists (backend needs this for FK constraints)
     try {
-      // ensure we have currentAccount/profile id
-      if (!currentAccount?.address) {
-        toast.error("You must be logged in to create a task");
-        return;
+      await apiClient.getUser(employerProfileId);
+    } catch (err: any) {
+      if (err?.status === 404) {
+        await apiClient.createUser({ profileId: employerProfileId });
+      } else {
+        throw err;
       }
-
-      const employerProfileId = currentAccount.address;
-
-      // Ensure user exists in backend (users.profile_id) to satisfy FK constraints
-      try {
-        await apiClient.getUser(employerProfileId);
-      } catch (err: any) {
-        if (err?.status === 404) {
-          await apiClient.createUser({ profileId: employerProfileId });
-        } else {
-          throw err;
-        }
-      }
-
-      // Build payload including employerProfileId required by backend
-      const payload: any = {
-        employerProfileId,
-        title: data.title,
-        objective: data.objective,
-        deliverables: data.deliverables,
-        acceptanceCriteria: data.acceptanceCriteria,
-        rewardPoints: data.rewardPoints
-      };
-
-      if (data.deadline) {
-        payload.deadline = new Date(data.deadline).toISOString();
-      }
-    
-      await apiClient.createTask(payload as any);
-
-      toast.success("Task agreement posted successfully!");
-
-      
-
-      const tasks = await apiClient.listTasks(); // refresh task list cache
-
-      try {
-              const res = await apiClient.listTasks();
-              // Attempt to map server task shape to local TaskItem
-              const mapped = (res || []).map((t: any) => {
-                // Calculate days since created
-                let postedDays = 0;
-                if (t.createdAt) {
-                  const createdDate = new Date(t.createdAt);
-                  const now = new Date();
-                  const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-                  postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                }
-      
-                return {
-                  id: t.id || t.taskId,
-                  companyLogo: t.companyLogo || t.company?.logo || "",
-                  companyName: t.companyName || t.company?.name || t.ownerName || "",
-                  jobTitle: t.title || t.jobTitle,
-                  description: t.description || t.summary || "",
-                  skills: t.skills || [],
-                  location: t.location || "",
-                  salary: t.salary || "",
-                  postedDays,
-                  owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
-                  rewardTokens: t.rewardPoints || t.rewardTokens || 0,
-                  // backend-compatible fields
-                  employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
-                  freelancerProfileId: t.freelancerProfileId ?? null,
-                  title: t.title,
-                  rewardPoints: t.rewardPoints || t.rewardTokens || 0,
-                  createdAt: t.createdAt,
-                  deadline: t.deadline,
-                  objective: t.objective,
-                  deliverables: t.deliverables,
-                  acceptanceCriteria: t.acceptanceCriteria,
-                  status: t.status || "open",
-                  assigneeId: t.assigneeId,
-                  applicants: t.applications || t.applicants || []
-                } as TaskItem;
-              });
-      
-              // Sort by createdAt descending (newest first)
-              const sorted = mapped.sort((a, b) => {
-                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                return dateB - dateA;
-              });
-      
-              onSubmit(sorted);
-            } catch (err) {
-              console.error("Failed to load tasks:", err);
-            }
-
-
-
-      setIsModalOpen(false);
-      form.reset();
-    } catch (error: any) {
-      // Log full error including body (ApiClient throws ApiError with .status and .body)
-      console.error("Failed to post task agreement:", error, error?.body);
-      const msg = error?.body?.message || error?.body?.error || error?.message || "Failed to post task agreement";
-      toast.error(msg);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+
+    // Build payload
+    const payload: any = {
+      employerProfileId,
+      title: data.title,
+      objective: data.objective,
+      deliverables: data.deliverables,
+      acceptanceCriteria: data.acceptanceCriteria,
+      rewardPoints: data.rewardPoints
+    };
+
+    if (data.deadline) {
+      payload.deadline = new Date(data.deadline).toISOString();
+    }
+
+    // Create task
+    await apiClient.createTask(payload as any);
+
+    toast.success("Task agreement posted successfully!");
+
+    // Refresh task list
+    try {
+      const res = await apiClient.listTasks();
+
+      const mapped = (res || []).map((t: any) => {
+        let postedDays = 0;
+        if (t.createdAt) {
+          const createdDate = new Date(t.createdAt);
+          const now = new Date();
+          const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+          postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        return {
+          id: t.id || t.taskId,
+          companyLogo: t.companyLogo || t.company?.logo || "",
+          companyName:
+            t.companyName || t.company?.name || t.ownerName || "",
+          jobTitle: t.title || t.jobTitle,
+          description: t.description || t.summary || "",
+          skills: t.skills || [],
+          location: t.location || "",
+          salary: t.salary || "",
+          postedDays,
+          owner: t.owner || {
+            id: t.ownerId || t.ownerProfileId,
+            name: t.ownerName || ""
+          },
+          rewardTokens: t.rewardPoints || t.rewardTokens || 0,
+          employerProfileId:
+            t.employerProfileId || t.ownerProfileId || t.ownerId,
+          freelancerProfileId: t.freelancerProfileId ?? null,
+          title: t.title,
+          rewardPoints: t.rewardPoints || t.rewardTokens || 0,
+          createdAt: t.createdAt,
+          deadline: t.deadline,
+          objective: t.objective,
+          deliverables: t.deliverables,
+          acceptanceCriteria: t.acceptanceCriteria,
+          status: t.status || "open",
+          assigneeId: t.assigneeId,
+          applicants: t.applications || t.applicants || []
+        } as TaskItem;
+      });
+
+      const sorted = mapped.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      onSubmit(sorted);
+    } catch (err) {
+      console.error("Failed to load tasks:", err);
+    }
+
+    setIsModalOpen(false);
+    form.reset();
+  } catch (error: any) {
+    console.error("Failed to post task agreement:", error, error?.body);
+    const msg =
+      error?.body?.message ||
+      error?.body?.error ||
+      error?.message ||
+      "Failed to post task agreement";
+    toast.error(msg);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleClose = () => {
     setIsModalOpen(false);
