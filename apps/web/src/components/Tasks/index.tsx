@@ -18,6 +18,7 @@ import TaskCard, { type TaskItem } from "./TaskCard";
 import TasksShimmer from "./TasksShimmer";
 import { TaskFeedType, filterTasksByTab, getEmptyStateMessage } from "./taskFilters";
 import { apiClient } from "@/lib/apiClient";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 let mockTasks: TaskItem[] = [];
 
@@ -636,9 +637,10 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-          <Tabs
+          <StickyFeedBar>
+            <Tabs
             active={activeTab}
-            className="mx-5 mb-5 md:mx-0"
+            className="mx-5 mb-0 md:mx-0"
             layoutId="task_tabs"
             setActive={(type) => setActiveTab(type as TaskFeedType)}
             tabs={[
@@ -647,6 +649,7 @@ const Tasks = () => {
               { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
             ]}
           />
+          </StickyFeedBar>
         <div className="space-y-6">
           <div className="space-y-4">
             {loading ? (

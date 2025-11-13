@@ -25,7 +25,7 @@ const ContentFeedType = ({
   return (
     <Tabs
       active={focus || ""}
-      className="mx-5 mb-5 md:mx-0"
+      className="mx-5 md:mx-0"
       layoutId={layoutId}
       setActive={(type) => setFocus(type as MainContentFocus)}
       tabs={tabs}

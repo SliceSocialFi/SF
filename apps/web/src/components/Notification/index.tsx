@@ -5,6 +5,7 @@ import PageLayout from "@/components/Shared/PageLayout";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import FeedType from "./FeedType";
 import List from "./List";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 const Notification = () => {
   const { currentAccount } = useAccountStore();
@@ -18,7 +19,9 @@ const Notification = () => {
 
   return (
     <PageLayout title="Notifications">
-      <FeedType feedType={feedType} setFeedType={setFeedType} />
+      <StickyFeedBar>
+        <FeedType feedType={feedType} setFeedType={setFeedType} />
+      </StickyFeedBar>
       <List feedType={feedType} />
     </PageLayout>
   );

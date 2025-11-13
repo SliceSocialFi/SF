@@ -6,6 +6,7 @@ import ContentFeedType from "@/components/Shared/Post/ContentFeedType";
 import WhoToFollow from "@/components/Shared/Sidebar/WhoToFollow";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import ExploreFeed from "./ExploreFeed";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 const Explore = () => {
   const { currentAccount } = useAccountStore();
@@ -21,11 +22,13 @@ const Explore = () => {
       }
       title="Explore"
     >
-      <ContentFeedType
+      <StickyFeedBar>
+        <ContentFeedType
         focus={focus}
         layoutId="explore_tab"
         setFocus={setFocus}
-      />
+        />
+      </StickyFeedBar>
       <ExploreFeed focus={focus} />
     </PageLayout>
   );

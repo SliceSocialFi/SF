@@ -5,6 +5,7 @@ import PageLayout from "@/components/Shared/PageLayout";
 import ContentFeedType from "@/components/Shared/Post/ContentFeedType";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import BookmarksFeed from "./BookmarksFeed";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 const Bookmarks = () => {
   const { currentAccount } = useAccountStore();
@@ -16,11 +17,13 @@ const Bookmarks = () => {
 
   return (
     <PageLayout title="Bookmarks">
-      <ContentFeedType
+      <StickyFeedBar>
+        <ContentFeedType
         focus={focus}
         layoutId="bookmarks_tab"
         setFocus={setFocus}
       />
+      </StickyFeedBar>
       <BookmarksFeed focus={focus} />
     </PageLayout>
   );
