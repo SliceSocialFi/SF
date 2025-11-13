@@ -463,4 +463,20 @@
   .dark .follow-animated::before {
     border-color: var(--primary-hover);
   }
+
+  .task-gradient {
+    background: linear-gradient(135deg,
+        var(--primary),
+        var(--primary-active));
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .task-gradient:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  .task-gradient:active {
+    transform: scale(0.97);
+  }
 }
