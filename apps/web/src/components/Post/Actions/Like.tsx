@@ -132,7 +132,7 @@ const Like = ({ post, showCount }: LikeProps) => {
       </button>
       {reactions > 0 && !showCount ? (
         <AnimateNumber
-          className="w-3 text-[11px] sm:text-xs"
+          className="min-w-[2.4rem] text-[11px] sm:text-xs text-right whitespace-nowrap"
           format={{ notation: "compact" }}
           key={`like-count-${post.id}`}
           transition={{ type: "tween" }}

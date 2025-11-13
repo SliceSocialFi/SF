@@ -381,4 +381,44 @@
     transform: scale(1);
     filter: none;
   }
+
+  .suggested-follow-modal .modal-content {
+    z-index: 100;
+  }
+
+  .follow-animated {
+    position: relative;
+    isolation: isolate;
+    border-radius: 9999px;
+    /* giữ cùng bo như button */
+    overflow: hidden;
+    /* tránh viền tràn ra ngoài */
+  }
+
+  .follow-animated::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 2px solid var(--primary);
+    opacity: 0;
+    transform: scale(1.15);
+    /* to hơn một chút lúc chưa hover */
+    transition:
+      opacity 0.25s ease,
+      transform 0.4s ease-out;
+  }
+
+  .follow-animated:hover::before {
+    opacity: 1;
+    transform: scale(1);
+    /* thu dần về đúng nút → cảm giác viền chạy vào */
+  }
+
+  /* Dark mode: dùng màu hover cho dịu mắt hơn */
+  .dark .follow-animated::before {
+    border-color: var(--primary-hover);
+  }
 }
