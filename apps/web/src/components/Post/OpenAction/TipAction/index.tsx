@@ -15,11 +15,13 @@ interface TipActionProps {
 
 const TipAction = ({ post, showCount }: TipActionProps) => {
   const hasTipped = post.operations?.hasTipped;
-  const { tips = 0 } = post.stats;
+  const  tips  = post.stats.tips || 0;
 
   const iconClassName = showCount
     ? "w-[17px] sm:w-[20px]"
     : "w-[15px] sm:w-[18px]";
+
+  const hasVisibleCount = tips > 0 && !showCount;
 
   return (
     <div
@@ -35,12 +37,10 @@ const TipAction = ({ post, showCount }: TipActionProps) => {
           onClick={stopEventPropagation}
         >
           <Tooltip content="Tip" placement="top" withDelay>
-            <TipIcon
-              className={cn("post-action-icon", iconClassName)}
-            />
+            <TipIcon className={cn("post-action-icon", iconClassName)} />
           </Tooltip>
         </MenuButton>
-
+        {/* Menu giữ nguyên */}
         <MenuTransition>
           <MenuItems
             anchor="bottom start"
@@ -54,18 +54,19 @@ const TipAction = ({ post, showCount }: TipActionProps) => {
         </MenuTransition>
       </Menu>
 
-      {tips > 0 && !showCount && (
-        <AnimateNumber
-          className={cn(
-            "post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200"
-          )}
-          format={{ notation: "compact" }}
-          key={`tip-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {tips}
-        </AnimateNumber>
-      )}
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`tip-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {tips}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };

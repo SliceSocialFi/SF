@@ -18,6 +18,8 @@ const Comment = ({ post, showCount }: CommentProps) => {
     ? "w-[17px] sm:w-[20px]"
     : "w-[15px] sm:w-[18px]";
 
+  const hasVisibleCount = count > 0 && !showCount;
+
   return (
     <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-200">
       <button
@@ -34,16 +36,22 @@ const Comment = ({ post, showCount }: CommentProps) => {
           <ChatBubbleLeftIcon className={iconClassName} />
         </Tooltip>
       </button>
-      {count > 0 && !showCount ? (
-        <AnimateNumber
-          className="w-3 text-[11px] sm:text-xs"
-          format={{ notation: "compact" }}
-          key={`comment-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {count}
-        </AnimateNumber>
-      ) : null}
+
+      {/* LUÔN giữ một slot cho số */}
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`comment-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {count}
+          </AnimateNumber>
+        ) : (
+          // reserve width nhưng không hiển thị
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };

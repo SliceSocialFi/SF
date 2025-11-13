@@ -20,19 +20,24 @@ interface ShareMenuProps {
 
 const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const targetPost = isRepost(post) ? post?.repostOf : post;
+
+  const targetPost = isRepost(post) ? post.repostOf : post;
+
   const hasReposted =
     targetPost.operations?.hasReposted.optimistic ||
     targetPost.operations?.hasReposted.onChain;
+
   const hasQuoted =
     targetPost.operations?.hasQuoted.optimistic ||
     targetPost.operations?.hasQuoted.onChain;
+
   const hasShared = hasReposted || hasQuoted;
   const shares = targetPost.stats.reposts + targetPost.stats.quotes;
 
   const canRepost =
     targetPost.operations?.canRepost.__typename ===
     "PostOperationValidationPassed";
+
   const canQuote =
     targetPost.operations?.canQuote.__typename ===
     "PostOperationValidationPassed";
@@ -43,18 +48,20 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
     return null;
   }
 
+  const hasVisibleCount = shares > 0 && !showCount;
+
   return (
-    <div className="flex items-center space-x-1">
+    <div
+      className={cn(
+        "post-action post-action-repost flex items-center space-x-1",
+        hasShared ? "post-action--active" : "text-gray-500 dark:text-gray-200"
+      )}
+    >
       <Menu as="div" className="relative">
         <MenuButton
           aria-label="Repost"
-          className={cn(
-            hasShared
-              ? "post-action--active"
-              : "text-gray-500 dark:text-gray-200",
-            "rounded-full p-1.5 outline-offset-2"
-          )}
           onClick={stopEventPropagation}
+          className="rounded-full p-1.5 outline-offset-2 hover:bg-gray-300/20 dark:hover:bg-gray-700/40"
         >
           {isSubmitting ? (
             <Spinner className="mr-0.5" size="xs" />
@@ -62,7 +69,7 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
             <Tooltip
               content={
                 shares > 0
-                  ? `${humanize(shares)} Reposts and Quotes`
+                  ? `${humanize(shares)} Reposts & Quotes`
                   : "Repost or Quote"
               }
               placement="top"
@@ -72,6 +79,7 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
             </Tooltip>
           )}
         </MenuButton>
+
         <MenuTransition>
           <MenuItems
             anchor="bottom start"
@@ -85,7 +93,10 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
                 setIsSubmitting={setIsSubmitting}
               />
             )}
+
             {canQuote && <Quote post={targetPost} />}
+
+            {/* Chỉ hiển thị nút Undo khi bài gốc khác bài repost */}
             {hasReposted && targetPost.id !== post.id && (
               <UndoRepost
                 isSubmitting={isSubmitting}
@@ -96,16 +107,21 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
           </MenuItems>
         </MenuTransition>
       </Menu>
-      {shares > 0 && !showCount ? (
-        <AnimateNumber
-          className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200"
-          format={{ notation: "compact" }}
-          key={`share-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {shares}
-        </AnimateNumber>
-      ) : null}
+
+      {/* COUNT — luôn cố định vị trí */}
+      <span className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            key={`share-count-${post.id}`}
+            transition={{ type: "tween" }}
+            format={{ notation: "compact" }}
+          >
+            {shares}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };

@@ -5,7 +5,12 @@ import { ERRORS } from "@slice/data/errors";
 import { type PostFragment, useRepostMutation } from "@slice/indexer";
 import type { ApolloClientError } from "@slice/types/errors";
 import { useCounter } from "@uidotdev/usehooks";
-import { type Dispatch, type SetStateAction, useCallback } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useState
+} from "react";
 import { toast } from "sonner";
 import cn from "@/helpers/cn";
 import errorToast from "@/helpers/errorToast";
@@ -21,9 +26,20 @@ interface RepostProps {
 
 const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
   const { currentAccount } = useAccountStore();
-  const hasReposted =
+
+  // Trạng thái từ server
+  const remoteHasReposted =
     post.operations?.hasReposted.optimistic ||
     post.operations?.hasReposted.onChain;
+
+  // State cục bộ — đảm bảo UI phản ứng ngay sau khi repost
+  const [localHasReposted, setLocalHasReposted] = useState<boolean>(
+    !!remoteHasReposted
+  );
+
+  // Giá trị "đã repost" cuối cùng dùng cho UI
+  const isReposted = localHasReposted || !!remoteHasReposted;
+
   const [shares, { increment }] = useCounter(
     post.stats.reposts + post.stats.quotes
   );
@@ -47,6 +63,7 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
       },
       id: cache.identify(post.operations)
     });
+
     cache.modify({
       fields: {
         stats: (existingData) => ({
@@ -62,6 +79,7 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
     setIsSubmitting(false);
     increment();
     updateCache();
+    setLocalHasReposted(true); // 🔥 Đánh dấu đã repost để UI đổi màu/text ngay
     toast.success("Post has been reposted!");
   };
 
@@ -110,9 +128,13 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
       disabled={isSubmitting}
       onClick={handleCreateRepost}
     >
-      <div className="flex items-center space-x-2">
+      <div
+        className="flex items-center space-x-2"
+        // Khi đã repost → dùng màu theme
+        style={isReposted ? { color: "var(--primary)" } : undefined}
+      >
         <ArrowsRightLeftIcon className="size-4" />
-        <div>{hasReposted ? "Repost again" : "Repost"}</div>
+        <div>{isReposted ? "Repost again" : "Repost"}</div>
       </div>
     </MenuItem>
   );

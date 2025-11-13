@@ -381,20 +381,20 @@
     @apply transition-colors duration-200 ease-out;
   }
 
+  .post-action-count {
+    display: inline-block;
+    min-width: 2.25rem;
+    /* ~36px, đủ cho 18,4M */
+    text-align: left;
+    font-size: 11px;
+  }
+
+  @screen sm {
     .post-action-count {
-      display: inline-block;
-      min-width: 2.25rem;
-      /* ~36px, đủ cho 18,4M */
-      text-align: left;
-      font-size: 11px;
+      font-size: 0.75rem;
+      /* sm:text-xs */
     }
-  
-    @screen sm {
-      .post-action-count {
-        font-size: 0.75rem;
-        /* sm:text-xs */
-      }
-    }
+  }
 
 
   .post-action-like:not(.post-action--active):hover svg,

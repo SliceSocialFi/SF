@@ -102,48 +102,54 @@ const Like = ({ post, showCount }: LikeProps) => {
     ? "w-[17px] sm:w-[20px]"
     : "w-[15px] sm:w-[18px]";
 
-  return (
-  <div
-    className={cn(
-      "post-action post-action-like flex items-center space-x-1",
-      hasReacted
-        ? "post-action--active"
-        : "text-gray-500 dark:text-gray-200"
-    )}
-  >
-    <button
-      aria-label="Like"
-      className={cn(
-        "rounded-full p-1.5 outline-offset-2",
-        hasReacted ? "hover:bg-brand-300/20" : "hover:bg-gray-300/20"
-      )}
-      onClick={handleCreateLike}
-      type="button"
-    >
-      <Tooltip
-        content={hasReacted ? "Unlike" : "Like"}
-        placement="top"
-        withDelay
-      >
-        {hasReacted ? (
-          <HeartIconSolid className={iconClassName} />
-        ) : (
-          <HeartIcon className={iconClassName} />
-        )}
-      </Tooltip>
-    </button>
+  const hasVisibleCount = reactions > 0 && !showCount;
 
-    {reactions > 0 && !showCount ? (
-      <AnimateNumber
-        className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200"
-        format={{ notation: "compact" }}
-        key={`like-count-${post.id}`}
-        transition={{ type: "tween" }}
+  return (
+    <div
+      className={cn(
+        "post-action post-action-like flex items-center space-x-1",
+        hasReacted
+          ? "post-action--active text-[var(--primary)]"
+          : "text-gray-500 dark:text-gray-200"
+      )}
+    >
+      <button
+        aria-label="Like"
+        className={cn(
+          "rounded-full p-1.5 outline-offset-2 transition-colors",
+          hasReacted ? "hover:bg-brand-300/20" : "hover:bg-gray-300/20"
+        )}
+        onClick={handleCreateLike}
+        type="button"
       >
-        {reactions}
-      </AnimateNumber>
-    ) : null}
-  </div>
+        <Tooltip
+          content={hasReacted ? "Unlike" : "Like"}
+          placement="top"
+          withDelay
+        >
+          {hasReacted ? (
+            <HeartIconSolid className={iconClassName} />
+          ) : (
+            <HeartIcon className={iconClassName} />
+          )}
+        </Tooltip>
+      </button>
+
+      {/* COUNT — giữ chỗ để không đẩy giao diện */}
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`like-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {reactions}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
+    </div>
   );
 };
 
