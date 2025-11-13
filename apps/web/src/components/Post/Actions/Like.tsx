@@ -103,44 +103,47 @@ const Like = ({ post, showCount }: LikeProps) => {
     : "w-[15px] sm:w-[18px]";
 
   return (
-    <div
+  <div
+    className={cn(
+      "post-action post-action-like flex items-center space-x-1",
+      hasReacted
+        ? "post-action--active"
+        : "text-gray-500 dark:text-gray-200"
+    )}
+  >
+    <button
+      aria-label="Like"
       className={cn(
-        hasReacted ? "text-brand-500" : "text-gray-500 dark:text-gray-200",
-        "flex items-center space-x-1"
+        "rounded-full p-1.5 outline-offset-2",
+        hasReacted ? "hover:bg-brand-300/20" : "hover:bg-gray-300/20"
       )}
+      onClick={handleCreateLike}
+      type="button"
     >
-      <button
-        aria-label="Like"
-        className={cn(
-          hasReacted ? "hover:bg-[#FF6B81]/20" : "hover:bg-gray-300/20",
-          "rounded-full p-1.5 outline-offset-2"
-        )}
-        onClick={handleCreateLike}
-        type="button"
+      <Tooltip
+        content={hasReacted ? "Unlike" : "Like"}
+        placement="top"
+        withDelay
       >
-        <Tooltip
-          content={hasReacted ? "Unlike" : "Like"}
-          placement="top"
-          withDelay
-        >
-          {hasReacted ? (
-            <HeartIconSolid className={iconClassName} />
-          ) : (
-            <HeartIcon className={iconClassName} />
-          )}
-        </Tooltip>
-      </button>
-      {reactions > 0 && !showCount ? (
-        <AnimateNumber
-          className="w-3 text-[11px] sm:text-xs"
-          format={{ notation: "compact" }}
-          key={`like-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {reactions}
-        </AnimateNumber>
-      ) : null}
-    </div>
+        {hasReacted ? (
+          <HeartIconSolid className={iconClassName} />
+        ) : (
+          <HeartIcon className={iconClassName} />
+        )}
+      </Tooltip>
+    </button>
+
+    {reactions > 0 && !showCount ? (
+      <AnimateNumber
+        className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200"
+        format={{ notation: "compact" }}
+        key={`like-count-${post.id}`}
+        transition={{ type: "tween" }}
+      >
+        {reactions}
+      </AnimateNumber>
+    ) : null}
+  </div>
   );
 };
 

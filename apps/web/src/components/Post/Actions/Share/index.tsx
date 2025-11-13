@@ -50,8 +50,8 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
           aria-label="Repost"
           className={cn(
             hasShared
-              ? "text-brand-500 hover:bg-brand-300/20"
-              : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
+              ? "post-action--active"
+              : "text-gray-500 dark:text-gray-200",
             "rounded-full p-1.5 outline-offset-2"
           )}
           onClick={stopEventPropagation}
@@ -98,10 +98,7 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
       </Menu>
       {shares > 0 && !showCount ? (
         <AnimateNumber
-          className={cn(
-            hasShared ? "text-brand-500" : "text-gray-500 dark:text-gray-200",
-            "w-3 text-[11px] sm:text-xs"
-          )}
+          className="post-action-count w-3 text-[11px] sm:text-xs text-gray-500 dark:text-gray-200"
           format={{ notation: "compact" }}
           key={`share-count-${post.id}`}
           transition={{ type: "tween" }}
