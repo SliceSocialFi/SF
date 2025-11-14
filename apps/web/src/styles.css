@@ -264,6 +264,36 @@
   }
 }
 
+@keyframes input-border-draw {
+  0% {
+    clip-path: inset(0 100% 100% 0 round 12px);
+  }
+  25% {
+    clip-path: inset(0 100% 0 0 round 12px);
+  }
+  65% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+
+@keyframes input-border-undraw {
+  0% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+  35% {
+    clip-path: inset(0 0 0 100% round 12px);
+  }
+  75% {
+    clip-path: inset(0 100% 0 100% round 12px);
+  }
+  100% {
+    clip-path: inset(0 100% 100% 0 round 12px);
+  }
+}
+
 @layer components {
   .search-wrap {
     position: relative;
@@ -339,6 +369,48 @@
 
   .dark .search-wrap input {
     background: transparent;
+  }
+
+  /* ========= INPUT WRAP (cho các input khác) ========= */
+  .input-wrap {
+    position: relative;
+    isolation: isolate;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+
+  .input-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.2s ease;
+    box-shadow: 
+      inset 0 0 0 3px var(--primary),
+      0 0 0 0 transparent;
+  }
+
+  .dark .input-wrap::before {
+    box-shadow: 
+      inset 0 0 0 3px var(--primary-hover),
+      0 0 0 0 transparent;
+  }
+
+  .input-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  .input-wrap:focus-within::before {
+    opacity: 1;
+    animation: input-border-draw 0.5s cubic-bezier(.42, 0, .58, 1) forwards;
+  }
+
+  .input-wrap:not(:focus-within)::before {
+    animation: input-border-undraw 0.35s cubic-bezier(.42, 0, .58, 1) forwards;
   }
   
   .feed-wrap {

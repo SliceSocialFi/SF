@@ -59,9 +59,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               { "!bg-gray-500/20 opacity-50": props.disabled },
               { "!border-red-500": error },
               prefix ? "rounded-r-xl" : "rounded-xl",
-              "flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-gray-900"
+              "input-wrap flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-gray-900"
             )}
           >
+            <div className="relative z-10 flex w-full items-center">
             <input
               className={cn(
                 { "placeholder:text-red-500": error },
@@ -86,6 +87,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             >
               {iconRight}
             </span>
+            </div>
           </div>
         </div>
         {!hideError && props.name ? <FieldError name={props.name} /> : null}
