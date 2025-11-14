@@ -177,43 +177,107 @@
   }
 }
 
+@keyframes search-left-grow {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes border-left-spread {
+  0% {
+    background-size: 3px 0, 0 3px, 0 3px, 0 100%;
+  }
+
+  40% {
+    background-size: 3px 100%, 100% 3px, 100% 3px, 0 100%;
+  }
+
+  100% {
+    background-size: 3px 100%, 100% 3px, 100% 3px, 3px 100%;
+  }
+}
+
+@keyframes search-border-trace {
+  0% {
+    background-size:
+      4px 0,      
+      0 4px,     
+      0 4px,     
+      0 100%;   
+  }
+  30% {
+    background-size:
+      4px 100%, 
+      0 4px,
+      0 4px,
+      0 100%;
+  }
+  70% {
+    background-size:
+      4px 100%,
+      100% 4px,  
+      100% 4px, 
+      0 100%;
+  }
+  100% {
+    background-size:
+      4px 100%,
+      100% 4px,
+      100% 4px,
+      4px 100%; 
+  }
+}
+
+@keyframes search-border-draw {
+  0% {
+    clip-path: inset(0 100% 100% 0 round 16px);
+  }
+  25% {
+    clip-path: inset(0 100% 0 0 round 16px);
+  }
+  65% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+}
+
+@keyframes search-border-undraw {
+  0% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  35% {
+    clip-path: inset(0 0 0 100% round 16px);
+  }
+  75% {
+    clip-path: inset(0 100% 0 100% round 16px);
+  }
+  100% {
+    clip-path: inset(0 100% 100% 0 round 16px);
+  }
+}
+
 @layer components {
   .search-wrap {
     position: relative;
     isolation: isolate;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0.75rem;
-    background: transparent;
-    background-color: white;
+    border-radius: 16px;
+    background-color: #0b1220;
+    border: 1px solid rgba(255, 255, 255, 0.7);
     overflow: hidden;
     transition: border-color 0.25s ease;
+    z-index: 0;
   }
 
   .search-wrap:hover {
-    border-color: rgba(0, 0, 0, 0.28);
-  }
-
-  .search-wrap::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    border-radius: inherit;
-    pointer-events: none;
-
-    border: 3px solid var(--primary, #FF6B81);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.4s ease-out;
-    padding: 1px;
-  }
-
-  .search-wrap:focus-within::before {
-    transform: scaleX(1);
-  }
-
-  .search-wrap:focus-within {
-    border-color: transparent;
+    border-color: rgba(255, 255, 255, 0.9);
   }
 
   .dark .search-wrap {
@@ -225,19 +289,58 @@
     border-color: rgb(82 82 91 / 1);
   }
 
+  .search-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.2s ease;
+    box-shadow: 
+      inset 0 0 0 4px var(--primary),
+      0 0 0 0 transparent;
+  }
+
   .dark .search-wrap::before {
-    background:
-        conic-gradient(from 180deg at 0% 50%, var(--primary-hover) 0 25%, transparent 0 100%),
-        conic-gradient(from 0deg at 100% 50%, var(--primary-hover) 0 25%, transparent 0 100%);
+    box-shadow: 
+      inset 0 0 0 4px var(--primary-hover),
+      0 0 0 0 transparent;
+  }
+
+  .search-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  .search-wrap:focus-within::before {
+    opacity: 1;
+    animation: search-border-draw 0.6s cubic-bezier(.42, 0, .58, 1) forwards;
+  }
+
+  .search-wrap:not(:focus-within)::before {
+    animation: search-border-undraw 0.4s cubic-bezier(.42, 0, .58, 1) forwards;
   }
 
   .search-wrap input {
+    position: relative;
+    width: 100%;
     border: none !important;
     outline: none !important;
-    background: transparent;
+    padding: 0.75rem 0.9rem;
+    background: transparent !important;
+    border-radius: 13px;
     box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    color: #e5e7eb;
+    z-index: 2;
   }
 
+  .dark .search-wrap input {
+    background: transparent;
+  }
+  
   .feed-wrap {
     position: relative;
     isolation: isolate;

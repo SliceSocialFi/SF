@@ -135,7 +135,6 @@ const Like = ({ post, showCount }: LikeProps) => {
         </Tooltip>
       </button>
 
-      {/* COUNT — giữ chỗ để không đẩy giao diện */}
       <span className="post-action-count text-gray-500 dark:text-gray-200">
         {hasVisibleCount ? (
           <AnimateNumber

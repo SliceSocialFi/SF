@@ -98,14 +98,20 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
   return (
     <div className="w-full pt-1">
       <Form form={form} onSubmit={handleSubmit}>
-        <div className="search-wrap rounded-xl">
-          
+        <div className="search-wrap">
           <Input
-            className="w-full px-3 py-3 text-sm bg-transparent"
+            className={cn(
+              "w-full px-3 py-3 text-sm",
+              "bg-transparent shadow-none",
+              "focus:border-none focus:ring-0 focus:outline-none",              
+            )}
             iconLeft={<MagnifyingGlassIcon />}
             iconRight={
               <XMarkIcon
-                className={cn("cursor-pointer", query ? "visible" : "invisible")}
+                className={cn(
+                  "cursor-pointer",
+                  query ? "visible" : "invisible"
+                )}
                 onClick={handleReset}
               />
             }
@@ -116,6 +122,7 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
           />
         </div>
       </Form>
+
       {pathname !== "/search" && showDropdown ? (
         <div className="fixed z-10 mt-2 w-[360px]" ref={dropdownRef}>
           <Card className="max-h-[80vh] overflow-y-auto py-2">
