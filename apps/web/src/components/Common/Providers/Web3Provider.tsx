@@ -1,6 +1,5 @@
 import {
   CHAIN,
-  IS_MAINNET,
   WALLETCONNECT_PROJECT_ID
 } from "@slice/data/constants";
 import { familyAccountsConnector } from "family";
@@ -19,7 +18,7 @@ const config = createConfig({
   chains: [CHAIN],
   connectors,
   transports: {
-    [CHAIN.id]: getRpc({ mainnet: IS_MAINNET })
+    [CHAIN.id]: getRpc({ chainId: CHAIN.id })
   }
 });
 
