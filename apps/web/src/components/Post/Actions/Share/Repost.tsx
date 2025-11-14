@@ -79,7 +79,7 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
     setIsSubmitting(false);
     increment();
     updateCache();
-    setLocalHasReposted(true); // 🔥 Đánh dấu đã repost để UI đổi màu/text ngay
+    setLocalHasReposted(true);
     toast.success("Post has been reposted!");
   };
 
@@ -130,7 +130,6 @@ const Repost = ({ isSubmitting, post, setIsSubmitting }: RepostProps) => {
     >
       <div
         className="flex items-center space-x-2"
-        // Khi đã repost → dùng màu theme
         style={isReposted ? { color: "var(--primary)" } : undefined}
       >
         <ArrowsRightLeftIcon className="size-4" />

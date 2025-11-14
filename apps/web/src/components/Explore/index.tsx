@@ -22,14 +22,18 @@ const Explore = () => {
       }
       title="Explore"
     >
-      <StickyFeedBar>
-        <ContentFeedType
-        focus={focus}
-        layoutId="explore_tab"
-        setFocus={setFocus}
-        />
-      </StickyFeedBar>
-      <ExploreFeed focus={focus} />
+      
+      <div className="sm:px-0 space-y-3">
+        
+        <StickyFeedBar>
+          <ContentFeedType
+            focus={focus}
+            layoutId="explore_tab"
+            setFocus={setFocus}
+          />
+        </StickyFeedBar>
+        <ExploreFeed focus={focus} />
+      </div>
     </PageLayout>
   );
 };

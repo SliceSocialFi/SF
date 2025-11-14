@@ -26,21 +26,26 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
     );
 
   return (
-    <span
-      className="mt-3 flex w-full flex-wrap items-center justify-between gap-3"
+    <div
+      className="mt-3 flex w-full items-center justify-center gap-x-4 sm:justify-between sm:gap-x-6 -ml-14 pl-14" 
       onClick={stopEventPropagation}
     >
-      <span className="flex items-center gap-x-6">
+      {/* Nhóm 4 action chính – luôn canh GIỮA trên mobile */}
+      <div className="flex items-center gap-x-4 sm:gap-x-6">
         <span className="post-action post-action-comment">
           <Comment post={targetPost} showCount={showCount} />
         </span>
 
         <span className="post-action post-action-repost">
-          <ShareMenu post={post} showCount={showCount} />
+          <ShareMenu post={targetPost} showCount={showCount} />
         </span>
 
         <span className="post-action post-action-like">
           <Like post={targetPost} showCount={showCount} />
+        </span>
+
+        <span className="post-action post-action-tip">
+          <TipAction post={targetPost} showCount={showCount} />
         </span>
 
         {canAct && !showCount ? (
@@ -48,18 +53,14 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
             <CollectAction post={targetPost} />
           </span>
         ) : null}
-
-        <span className="post-action post-action-tip">
-          <TipAction post={targetPost} showCount={showCount} />
-        </span>
-      </span>
+      </div>
 
       {canAct ? (
-        <span className="post-action post-action-collect">
+        <span className="post-action post-action-collect hidden sm:inline-flex ml-auto shrink-0">
           <SmallCollectButton post={targetPost} />
         </span>
       ) : null}
-    </span>
+    </div>
   );
 };
 

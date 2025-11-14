@@ -216,7 +216,6 @@
     border-color: transparent;
   }
 
-  /* dark mode */
   .dark .search-wrap {
     border-color: rgb(63 63 70 / 1);
     background-color: var(--app-bg);
@@ -376,7 +375,6 @@
     filter: none;
   }
 
-  /* COUNT — luôn liên kết màu với icon */
   .post-action .post-action-count {
     @apply transition-colors duration-200 ease-out;
   }
@@ -384,7 +382,6 @@
   .post-action-count {
     display: inline-block;
     min-width: 2.25rem;
-    /* ~36px, đủ cho 18,4M */
     text-align: left;
     font-size: 11px;
   }
@@ -392,10 +389,8 @@
   @screen sm {
     .post-action-count {
       font-size: 0.75rem;
-      /* sm:text-xs */
     }
   }
-
 
   .post-action-like:not(.post-action--active):hover svg,
   .post-action-like:not(.post-action--active):hover .post-action-count {
@@ -437,11 +432,6 @@
     color: #fbbf24;
   }
 
-  /* ===========================
-    *  ACTIVE – THEO THEME
-    *  (đã like / đã tip / đã repost)
-    * =========================== */
-
   .post-action--active svg,
   .post-action--active .post-action-count {
     color: var(--primary);
@@ -460,9 +450,7 @@
     position: relative;
     isolation: isolate;
     border-radius: 9999px;
-    /* giữ cùng bo như button */
     overflow: hidden;
-    /* tránh viền tràn ra ngoài */
   }
 
   .follow-animated::before {
@@ -475,7 +463,6 @@
     border: 2px solid var(--primary);
     opacity: 0;
     transform: scale(1.15);
-    /* to hơn một chút lúc chưa hover */
     transition:
       opacity 0.25s ease,
       transform 0.4s ease-out;
@@ -484,10 +471,8 @@
   .follow-animated:hover::before {
     opacity: 1;
     transform: scale(1);
-    /* thu dần về đúng nút → cảm giác viền chạy vào */
   }
 
-  /* Dark mode: dùng màu hover cho dịu mắt hơn */
   .dark .follow-animated::before {
     border-color: var(--primary-hover);
   }

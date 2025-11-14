@@ -101,23 +101,20 @@ const ShareMenu = ({ post, showCount }: ShareMenuProps) => {
           </MenuItems>
         </MenuTransition>
       </Menu>
-
-      {/* COUNT: luôn chiếm chỗ, giống Like */}
-      {!showCount && (
-        <span className="post-action-count text-gray-500 dark:text-gray-200">
-          {hasVisibleCount ? (
-            <AnimateNumber
-              format={{ notation: "compact" }}
-              key={`share-count-${post.id}`}
-              transition={{ type: "tween" }}
-            >
-              {shares}
-            </AnimateNumber>
-          ) : (
-            <span className="opacity-0">0</span>
-          )}
-        </span>
-      )}
+      
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`like-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {shares}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };
