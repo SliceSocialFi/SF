@@ -45,7 +45,7 @@ export interface TaskItem {
   objective?: string;
   deliverables?: string;
   acceptanceCriteria?: string;
-  status: "open" | "in_progress" | "completed" | "cancelled";
+  status: "open" | "in_review" | "in_progress" | "completed" | "cancelled";
   assigneeId?: string;
   applicants: TaskApplicant[];
 }
@@ -112,6 +112,8 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
                   ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
                   : task.status === "completed"
                   ? "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  : task.status === "in_review"
+                  ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
                   : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
               }`}
             >
@@ -121,6 +123,8 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
                 ? "In Progress"
                 : task.status === "completed"
                 ? "Completed"
+                : task.status === "in_review"
+                ? "In Review"
                 : "Cancelled"}
             </span>
           </div>

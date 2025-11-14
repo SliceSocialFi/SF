@@ -51,7 +51,9 @@ const TaskDetailModal = ({
   // console.log("my application", myApplication);
   // console.log("showActions", isOwner || hasApplied);
   const canSubmitOutcome =
-    myApplication && (myApplication as any).status === "accepted";
+    myApplication &&
+    ((myApplication as any).status === "accepted" ||
+      (myApplication as any).status === "needs_revision");
 
   const handleApplicationUpdate = () => {
     setRefreshKey((prev) => prev + 1);
@@ -234,6 +236,7 @@ const TaskDetailModal = ({
               taskStatus={task.status}
               isEmployer={isOwner}
               onApplicationUpdate={handleApplicationUpdate}
+              rewardPoints={task.rewardPoints}
               onOpenRate={(id: string) => setRatingAppId(id)}
             />
           </div>
@@ -253,8 +256,16 @@ const TaskDetailModal = ({
 
                   <div className="flex gap-3 border-t pt-4 mt-4">
                     <Button
-                      className="ml-auto"
-                      onClick={() => setShowSubmitModal(true)}
+                      className="ml-auto disabled:opacity-30 disabled:text-gray-400"
+                      onClick={() => {
+                        if (canSubmitOutcome) setShowSubmitModal(true);
+                      }}
+                      disabled={!canSubmitOutcome}
+                      title={
+                        !canSubmitOutcome
+                          ? "You have already submitted for this task"
+                          : undefined
+                      }
                     >
                       Open Submit Form
                     </Button>
@@ -287,7 +298,7 @@ const TaskDetailModal = ({
             ) : (
               <>
                 <Button
-                  className="flex-1"
+                  className="flex-1 disabled:opacity-30 disabled:text-gray-400"
                   onClick={() => {
                     // Only open apply modal for users who haven't applied and when task is open
                     if (!hasApplied && task.status === "open")
@@ -336,6 +347,13 @@ const TaskDetailModal = ({
         onClose={() => setShowSubmitModal(false)}
         applicationId={myApplication?.id || ""}
         onSuccess={handleApplicationUpdate}
+        isResubmit={Boolean(
+          myApplication && (myApplication as any).status === "needs_revision"
+        )}
+        taskId={task.id}
+        profileId={currentAccount?.address || ""}
+        rewardPoints={task.rewardPoints}
+        reputationScore={1}
       />
       {/* Post Rate Modal - mounted and controlled by ratingAppId */}
       <PostRateModal

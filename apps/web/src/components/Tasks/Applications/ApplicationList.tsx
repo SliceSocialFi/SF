@@ -12,6 +12,7 @@ interface ApplicationListProps {
   taskStatus?: string;
   onApplicationUpdate?: () => void;
   onOpenRate?: (applicationId: string) => void;
+  rewardPoints?: number;
 }
 
 const ApplicationList = ({
@@ -20,6 +21,7 @@ const ApplicationList = ({
   isEmployer = false,
   onApplicationUpdate,
   onOpenRate,
+  rewardPoints,
 }: ApplicationListProps) => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -155,6 +157,15 @@ const ApplicationList = ({
     try {
       await apiClient.updateApplication(id, { status: "completed" });
       await apiClient.updateTask(taskId, { status: "completed" });
+      // Award reward points and update reputation for the freelancer
+      const app = applications.find((a) => a.id === id);
+      const freelancerProfileId = app?.applicantProfileId;
+      if (freelancerProfileId) {
+        await apiClient.completeTaskAndUpdateUser(taskId, freelancerProfileId, {
+          rewardPoints: rewardPoints ?? 0,
+          reputationScore: 1,
+        });
+      }
       toast.success("Submission approved and application completed");
       await loadApplications();
       // Ask parent to open rating modal so employer can post a rating for the freelancer

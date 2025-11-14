@@ -198,6 +198,7 @@ const ApplicationCard = ({
                   </button>
                 )}
                 {onRating &&
+                  application.status === "completed" &&
                   ![1, 2, 3, 4, 5].includes(application.rating ?? 0) && (
                     <button
                       onClick={() => onRating(application.id || "")}

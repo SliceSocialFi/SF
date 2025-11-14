@@ -248,10 +248,8 @@ const Tasks = () => {
               value={searchQuery}
             />
           </div>
-
           {/* New Task Button */}
           <NewTask onSubmit={setTasks} />
-
           {/* Reputation Card */}
           <Card className="p-5">
             <div className="space-y-4">
@@ -290,7 +288,6 @@ const Tasks = () => {
               </div>
             </div>
           </Card>
-
           {/* Reward Points Card */}
           <Card className="p-5">
             <div className="space-y-3">
@@ -308,7 +305,7 @@ const Tasks = () => {
               </div>
               <div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {rewardPoints.toLocaleString()}
+                  {rewardPoints}
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Total points earned
@@ -316,7 +313,6 @@ const Tasks = () => {
               </div>
             </div>
           </Card>
-
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             © 2025 Slice GitHub
