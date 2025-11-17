@@ -4,12 +4,12 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState
+  useState,
 } from "react";
 import {
   useAccount,
   useWaitForTransactionReceipt,
-  useSwitchChain
+  useSwitchChain,
 } from "wagmi";
 import { type Address, type Hex } from "viem";
 import type { ApolloClientError } from "@slice/types/errors";
@@ -24,7 +24,7 @@ import usePreventScrollOnNumberInput from "@/hooks/usePreventScrollOnNumberInput
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import {
   type FundingToken,
-  useFundModalStore
+  useFundModalStore,
 } from "@/store/non-persisted/modal/useFundModalStore";
 import { getChains } from "@/helpers/getChains";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -48,9 +48,14 @@ const Transfer = ({ token }: TransferProps) => {
   const { currentAccount } = useAccountStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const chains = getChains();
-  const [selectedChainId, setSelectedChainId] = useState<number>(chains.lensChain.chainId);
-  const [balanceOfSelectedChain, setBalanceOfSelectedChain] = useState<string>("0");
-  const selectedChain = Object.values(chains).find(c => c.chainId === selectedChainId) || chains.lensChain;
+  const [selectedChainId, setSelectedChainId] = useState<number>(
+    chains.lensChain.chainId
+  );
+  const [balanceOfSelectedChain, setBalanceOfSelectedChain] =
+    useState<string>("0");
+  const selectedChain =
+    Object.values(chains).find((c) => c.chainId === selectedChainId) ||
+    chains.lensChain;
   const symbol = token?.symbol ?? NATIVE_TOKEN_SYMBOL;
   const { switchChainAsync } = useSwitchChain();
 
@@ -66,9 +71,9 @@ const Transfer = ({ token }: TransferProps) => {
         address: currentAccount?.address,
         ...(token
           ? { tokens: [token?.contractAddress] }
-          : { includeNative: true })
-      }
-    }
+          : { includeNative: true }),
+      },
+    },
   });
 
   useEffect(() => {
@@ -81,16 +86,16 @@ const Transfer = ({ token }: TransferProps) => {
     fecthCurrentBalance();
   }, [balance, currentAccount]);
 
-  const { formatted: bscBalance } = useTokenBalance({ 
-    walletAddress: address as Address, 
-    chainId: chains.bsc.chainId, 
-    tokenAddress: chains.bsc.token.address as Address 
+  const { formatted: bscBalance } = useTokenBalance({
+    walletAddress: address as Address,
+    chainId: chains.bsc.chainId,
+    tokenAddress: chains.bsc.token.address as Address,
   });
 
-  const { formatted: lensBalance } = useTokenBalance({ 
-    walletAddress: address as Address, 
-    chainId: chains.lensChain.chainId, 
-    tokenAddress: chains.lensChain.token.address as Address 
+  const { formatted: lensBalance } = useTokenBalance({
+    walletAddress: address as Address,
+    chainId: chains.lensChain.chainId,
+    tokenAddress: chains.lensChain.token.address as Address,
   });
 
   useEffect(() => {
@@ -117,7 +122,7 @@ const Transfer = ({ token }: TransferProps) => {
 
   const { data: transactionReceipt } = useWaitForTransactionReceipt({
     hash: txHash as Hex,
-    query: { enabled: Boolean(txHash) }
+    query: { enabled: Boolean(txHash) },
   });
 
   useEffect(() => {
@@ -135,10 +140,10 @@ const Transfer = ({ token }: TransferProps) => {
       return await handleTransactionLifecycle({
         onCompleted: (hash) => setTxHash(hash as Hex),
         onError,
-        transactionData: deposit
+        transactionData: deposit,
       });
     },
-    onError
+    onError,
   });
 
   const onOtherAmount = (event: ChangeEvent<HTMLInputElement>) => {
@@ -152,7 +157,6 @@ const Transfer = ({ token }: TransferProps) => {
   };
 
   const buildDepositRequest = (amount: number, token?: FundingToken) => {
-    console.log("Building deposit request with amount:", amount, "and token:", token);
     if (!token) {
       return { native: amount.toString() };
     }
@@ -160,8 +164,8 @@ const Transfer = ({ token }: TransferProps) => {
     return {
       erc20: {
         currency: token.contractAddress,
-        value: amount.toString()
-      }
+        value: amount.toString(),
+      },
     };
   };
 
@@ -171,7 +175,7 @@ const Transfer = ({ token }: TransferProps) => {
       await switchChainAsync({ chainId: chains.lensChain.chainId });
     }
     return await deposit({
-      variables: { request: buildDepositRequest(amount, token) }
+      variables: { request: buildDepositRequest(amount, token) },
     });
   };
 
@@ -186,7 +190,7 @@ const Transfer = ({ token }: TransferProps) => {
   const [initialBal, setInitialBal] = useState<number | null>(null);
   const handleBridgeTransfer = async () => {
     if (!address) return;
-    
+
     try {
       setIsBridging(true);
       setInitialBal(Number(currentBalance));
@@ -197,7 +201,7 @@ const Transfer = ({ token }: TransferProps) => {
           console.error("Bridge transfer error:", error);
           setIsBridging(false);
           throw error;
-        }
+        },
       });
     } catch (error: any) {
       console.error("Bridge transfer exception:", error);
@@ -234,14 +238,18 @@ const Transfer = ({ token }: TransferProps) => {
     return (
       <Card className="mt-5" forceRounded>
         <div className="flex flex-col items-center gap-4 p-8">
-          <Loader/>
+          <Loader />
           <div className="flex flex-col items-center gap-2 text-center">
-            <span className="font-semibold text-lg">Bridging in progress...</span>
+            <span className="font-semibold text-lg">
+              Bridging in progress...
+            </span>
             <span className="text-gray-500 text-sm dark:text-gray-400">
-              Transferring {amount} {symbol} from {selectedChain.name} to Lens Chain
+              Transferring {amount} {symbol} from {selectedChain.name} to Lens
+              Chain
             </span>
             <span className="text-gray-500 text-xs dark:text-gray-400">
-              This may take a few minutes. Please wait and do not close this window.
+              This may take a few minutes. Please wait and do not close this
+              window.
             </span>
           </div>
         </div>
@@ -254,7 +262,7 @@ const Transfer = ({ token }: TransferProps) => {
     value: chain.chainId,
     label: chain.name,
     icon: chain.icon,
-    selected: chain.chainId === selectedChainId
+    selected: chain.chainId === selectedChainId,
   }));
 
   return (
@@ -336,11 +344,7 @@ const Transfer = ({ token }: TransferProps) => {
             icon={<Spinner className="my-1" size="xs" />}
           />
         ) : Number(balanceOfSelectedChain) < amount ? (
-          <Button
-            className="w-full opacity-60"
-            disabled
-            outline
-          >
+          <Button className="w-full opacity-60" disabled outline>
             <span>Insufficient Balance</span>
           </Button>
         ) : (
@@ -350,7 +354,10 @@ const Transfer = ({ token }: TransferProps) => {
             loading={isSubmitting}
             onClick={handleTransaction}
           >
-            {selectedChainId === chains.lensChain.chainId ? "Purchase" : "Bridge"} {amount} {symbol}
+            {selectedChainId === chains.lensChain.chainId
+              ? "Purchase"
+              : "Bridge"}{" "}
+            {amount} {symbol}
           </Button>
         )}
       </div>
