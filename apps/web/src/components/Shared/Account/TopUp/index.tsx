@@ -36,7 +36,7 @@ const TopUp = () => {
         : 0;
 
   return (
-    <div className="m-5">
+    <div className="m-3">
       <div className="flex flex-col items-center gap-2 text-center">
         <Image
           alt={token?.symbol}

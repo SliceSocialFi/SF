@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { type Address, type Hex } from "viem";
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt } from "wagmi";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import { Button, Input, Modal } from "@/components/Shared/UI";
+import { Button, Input, Modal, Card } from "@/components/Shared/UI";
 import Select from "@/components/Shared/UI/Select";
 import Loader from "@/components/Shared/Loader";
 import errorToast from "@/helpers/errorToast";
@@ -36,9 +36,6 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
   const selectedChain = Object.values(chains).find(c => c.chainId === selectedChainId) || chains.lensChain;
   const symbol = currency ? "tRYF" : NATIVE_TOKEN_SYMBOL;
   const { switchChainAsync } = useSwitchChain();
-
-  console.log("Withdraw component - currentAccount:", currentAccount);
-  console.log("Address:", address);
 
   const handleTransactionLifecycle = useTransactionLifecycle();
   usePreventScrollOnNumberInput(inputRef as any);
@@ -172,62 +169,64 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
         Withdraw
       </Button>
       <Modal onClose={() => setShowModal(false)} show={showModal} title="Withdraw">
-        {isBridging ? (
-          <div className="flex flex-col items-center gap-4 p-8">
-            <Loader />
-            <div className="flex flex-col items-center gap-2 text-center">
-              <span className="font-semibold text-lg">Bridging in progress...</span>
-              <span className="text-gray-500 text-sm dark:text-gray-400">
-                Transferring {inputValue} {symbol} from Lens Chain to {selectedChain.name}
-              </span>
-              <span className="text-gray-500 text-xs dark:text-gray-400">
-                This may take a few minutes. Please wait and do not close this window.
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="p-5">
-            <div className="mb-5">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <b>Select Network</b>
-                  <span className="text-gray-500 text-sm dark:text-gray-400">
-                    Destination network
-                  </span>
-                </div>
-                <div>
-                  <Select
-                    options={chainOptions}
-                    onChange={handleSelectChain}
-                    iconClassName="size-4 rounded-full"
-                  />
-                </div>
+        <Card className="m-3" forceRounded>
+          {isBridging ? (
+            <div className="flex flex-col items-center gap-4 p-8">
+              <Loader />
+              <div className="flex flex-col items-center gap-2 text-center">
+                <span className="font-semibold text-lg">Bridging in progress...</span>
+                <span className="text-gray-500 text-sm dark:text-gray-400">
+                  Transferring {inputValue} {symbol} from Lens Chain to {selectedChain.name}
+                </span>
+                <span className="text-gray-500 text-xs dark:text-gray-400">
+                  This may take a few minutes. Please wait and do not close this window.
+                </span>
               </div>
             </div>
-            <div className="mb-5 flex items-center gap-2">
-              <Input
-                inputMode="decimal"
-                onChange={(e) => setInputValue(e.target.value)}
-                ref={inputRef}
-                step="any"
-                type="number"
-                value={inputValue}
-              />
-              <Button onClick={() => setInputValue(value)} size="lg">
-                Max
+          ) : (
+            <div className="p-5">
+              <div className="mb-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <b>Select Network</b>
+                    <span className="text-gray-500 text-sm dark:text-gray-400">
+                      Destination network
+                    </span>
+                  </div>
+                  <div>
+                    <Select
+                      options={chainOptions}
+                      onChange={handleSelectChain}
+                      iconClassName="size-4 rounded-full"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="mb-5 flex items-center gap-2">
+                <Input
+                  inputMode="decimal"
+                  onChange={(e) => setInputValue(e.target.value)}
+                  ref={inputRef}
+                  step="any"
+                  type="number"
+                  value={inputValue}
+                />
+                <Button onClick={() => setInputValue(value)} size="lg">
+                  Max
+                </Button>
+              </div>
+              <Button
+                className="w-full"
+                disabled={isSubmitting || !inputValue || inputValue === "0" || isBridging}
+                loading={isSubmitting || isBridging}
+                onClick={handleTransaction}
+                size="lg"
+              >
+                {selectedChainId === chains.bsc.chainId ? "Bridge" : "Withdraw"} {inputValue} {symbol}
               </Button>
             </div>
-            <Button
-              className="w-full"
-              disabled={isSubmitting || !inputValue || inputValue === "0" || isBridging}
-              loading={isSubmitting || isBridging}
-              onClick={handleTransaction}
-              size="lg"
-            >
-              {selectedChainId === chains.bsc.chainId ? "Bridge" : "Withdraw"} {inputValue} {symbol}
-            </Button>
-          </div>
-        )}
+          )}
+        </Card>
       </Modal>
     </>
   );
