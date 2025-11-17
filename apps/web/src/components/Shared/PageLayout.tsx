@@ -61,7 +61,7 @@ const PageLayout = ({
         />
         {children}
       </div>
-      <aside className="no-scrollbar sticky top-5 mt-5 hidden max-h-screen w-[22.5rem] shrink-0 flex-col gap-y-5 overflow-y-auto lg:flex">
+      <aside className="no-scrollbar sticky top-5 mt-5 hidden max-h-screen w-[22.5rem] shrink-0 flex-col gap-y-5 overflow-y-auto overflow-x-clip lg:flex">
         <AuthButtons />
         {!hideSearch && <Search />}
         {sidebar}

@@ -30,8 +30,8 @@ const Tabs = ({ tabs, active, setActive, layoutId, className }: TabsProps) => {
         aria-label="Home feed tabs"
         onKeyDown={onKey}
         className={cn(
-          "flex w-full list-none flex-wrap justify-center gap-3 px-2",
-          className
+          className,
+          "flex w-full list-none flex-wrap justify-center gap-2 px-1 mx-0"
         )}
         layout
       >

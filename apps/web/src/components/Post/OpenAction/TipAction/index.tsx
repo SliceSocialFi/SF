@@ -15,31 +15,32 @@ interface TipActionProps {
 
 const TipAction = ({ post, showCount }: TipActionProps) => {
   const hasTipped = post.operations?.hasTipped;
-  const { tips } = post.stats;
+  const  tips  = post.stats.tips || 0;
 
   const iconClassName = showCount
     ? "w-[17px] sm:w-[20px]"
     : "w-[15px] sm:w-[18px]";
 
+  const hasVisibleCount = tips > 0 && !showCount;
+
   return (
-    <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-200">
+    <div
+      className={cn(
+        "flex items-center space-x-1 text-gray-500 dark:text-gray-200",
+        hasTipped && "post-action--active"
+      )}
+    >
       <Menu as="div" className="relative">
         <MenuButton
           aria-label="Tip"
-          className={cn(
-            hasTipped
-              ? "text-brand-500 hover:bg-brand-300/20"
-              : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
-            "rounded-full p-1.5 outline-offset-2"
-          )}
+          className="rounded-full p-1.5 outline-offset-2 hover:bg-gray-300/20 dark:hover:bg-gray-700/40"
           onClick={stopEventPropagation}
         >
           <Tooltip content="Tip" placement="top" withDelay>
-            <TipIcon
-              className={cn({ "text-brand-500": hasTipped }, iconClassName)}
-            />
+            <TipIcon className={cn("post-action-icon", iconClassName)} />
           </Tooltip>
         </MenuButton>
+        {/* Menu giữ nguyên */}
         <MenuTransition>
           <MenuItems
             anchor="bottom start"
@@ -52,21 +53,23 @@ const TipAction = ({ post, showCount }: TipActionProps) => {
           </MenuItems>
         </MenuTransition>
       </Menu>
-      {(tips || 0) > 0 && !showCount && (
-        <AnimateNumber
-          className={cn(
-            hasTipped ? "text-brand-500" : "text-gray-500 dark:text-gray-200",
-            "w-3 text-[11px] sm:text-xs"
-          )}
-          format={{ notation: "compact" }}
-          key={`tip-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {tips || 0}
-        </AnimateNumber>
-      )}
+
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`tip-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {tips}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };
+
 
 export default TipAction;

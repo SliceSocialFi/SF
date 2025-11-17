@@ -16,7 +16,7 @@ export default function StickyFeedBar({ children, top = 64 }: Props) {
   return (
     <div
       className={clsx(
-        "sticky z-40 transition-colors duration-200",
+        "sticky z-1 transition-colors duration-200",
         `top-[0px] pt-3 pb-3 mb-0`,
         atTop
           ? "bg-[var(--app-bg)]"
