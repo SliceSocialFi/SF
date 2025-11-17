@@ -43,12 +43,16 @@ const PostFeed = <T extends { id: string }>({
   }
 
   return (
-    <Card className="virtual-divider-list-window">
+    <div className="space-y-3">
       <WindowVirtualizer>
-        {items.map((item) => renderItem(item))}
+        {items.map((item) => (
+          <Card key={item.id} className="mb-3">
+            {renderItem(item)}
+          </Card>
+        ))}
         {hasMore && <span ref={loadMoreRef} />}
       </WindowVirtualizer>
-    </Card>
+    </div>
   );
 };
 

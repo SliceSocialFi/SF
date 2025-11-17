@@ -127,7 +127,6 @@ const Navbar = () => {
     
 
     <NavItems isLoggedIn={!!currentAccount} />
-    {/* Nút đổi màu */}
     <ThemeSwitcher />
     {currentAccount ? (
       <>

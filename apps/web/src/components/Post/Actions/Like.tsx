@@ -102,18 +102,22 @@ const Like = ({ post, showCount }: LikeProps) => {
     ? "w-[17px] sm:w-[20px]"
     : "w-[15px] sm:w-[18px]";
 
+  const hasVisibleCount = reactions > 0 && !showCount;
+
   return (
     <div
       className={cn(
-        hasReacted ? "text-brand-500" : "text-gray-500 dark:text-gray-200",
-        "flex items-center space-x-1"
+        "post-action post-action-like flex items-center space-x-1",
+        hasReacted
+          ? "post-action--active text-[var(--primary)]"
+          : "text-gray-500 dark:text-gray-200"
       )}
     >
       <button
         aria-label="Like"
         className={cn(
-          hasReacted ? "hover:bg-[#FF6B81]/20" : "hover:bg-gray-300/20",
-          "rounded-full p-1.5 outline-offset-2"
+          "rounded-full p-1.5 outline-offset-2 transition-colors",
+          hasReacted ? "hover:bg-brand-300/20" : "hover:bg-gray-300/20"
         )}
         onClick={handleCreateLike}
         type="button"
@@ -130,16 +134,20 @@ const Like = ({ post, showCount }: LikeProps) => {
           )}
         </Tooltip>
       </button>
-      {reactions > 0 && !showCount ? (
-        <AnimateNumber
-          className="w-3 text-[11px] sm:text-xs"
-          format={{ notation: "compact" }}
-          key={`like-count-${post.id}`}
-          transition={{ type: "tween" }}
-        >
-          {reactions}
-        </AnimateNumber>
-      ) : null}
+
+      <span className="post-action-count text-gray-500 dark:text-gray-200">
+        {hasVisibleCount ? (
+          <AnimateNumber
+            format={{ notation: "compact" }}
+            key={`like-count-${post.id}`}
+            transition={{ type: "tween" }}
+          >
+            {reactions}
+          </AnimateNumber>
+        ) : (
+          <span className="opacity-0">0</span>
+        )}
+      </span>
     </div>
   );
 };

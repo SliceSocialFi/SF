@@ -239,7 +239,7 @@ const Tasks = () => {
       sidebar={
         <div className="space-y-4">
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative search-wrap">
             <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               className="w-full rounded-lg border border-gray-300 bg-white py-2 pr-3 pl-10 text-sm placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"

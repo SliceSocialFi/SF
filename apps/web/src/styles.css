@@ -177,46 +177,139 @@
   }
 }
 
+@keyframes search-left-grow {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes border-left-spread {
+  0% {
+    background-size: 3px 0, 0 3px, 0 3px, 0 100%;
+  }
+
+  40% {
+    background-size: 3px 100%, 100% 3px, 100% 3px, 0 100%;
+  }
+
+  100% {
+    background-size: 3px 100%, 100% 3px, 100% 3px, 3px 100%;
+  }
+}
+
+@keyframes search-border-trace {
+  0% {
+    background-size:
+      4px 0,      
+      0 4px,     
+      0 4px,     
+      0 100%;   
+  }
+  30% {
+    background-size:
+      4px 100%, 
+      0 4px,
+      0 4px,
+      0 100%;
+  }
+  70% {
+    background-size:
+      4px 100%,
+      100% 4px,  
+      100% 4px, 
+      0 100%;
+  }
+  100% {
+    background-size:
+      4px 100%,
+      100% 4px,
+      100% 4px,
+      4px 100%; 
+  }
+}
+
+@keyframes search-border-draw {
+  0% {
+    clip-path: inset(0 100% 100% 0 round 16px);
+  }
+  25% {
+    clip-path: inset(0 100% 0 0 round 16px);
+  }
+  65% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+}
+
+@keyframes search-border-undraw {
+  0% {
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  35% {
+    clip-path: inset(0 0 0 100% round 16px);
+  }
+  75% {
+    clip-path: inset(0 100% 0 100% round 16px);
+  }
+  100% {
+    clip-path: inset(0 100% 100% 0 round 16px);
+  }
+}
+
+@keyframes input-border-draw {
+  0% {
+    clip-path: inset(0 100% 100% 0 round 12px);
+  }
+  25% {
+    clip-path: inset(0 100% 0 0 round 12px);
+  }
+  65% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+  100% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+}
+
+@keyframes input-border-undraw {
+  0% {
+    clip-path: inset(0 0 0 0 round 12px);
+  }
+  35% {
+    clip-path: inset(0 0 0 100% round 12px);
+  }
+  75% {
+    clip-path: inset(0 100% 0 100% round 12px);
+  }
+  100% {
+    clip-path: inset(0 100% 100% 0 round 12px);
+  }
+}
+
 @layer components {
   .search-wrap {
     position: relative;
     isolation: isolate;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0.75rem;
-    background: transparent;
-    background-color: white;
+    border-radius: 16px;
+    background-color: #0b1220;
+    border: 1px solid rgba(255, 255, 255, 0.7);
     overflow: hidden;
     transition: border-color 0.25s ease;
+    z-index: 0;
   }
 
   .search-wrap:hover {
-    border-color: rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.9);
   }
 
-  .search-wrap::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    border-radius: inherit;
-    pointer-events: none;
-
-    border: 3px solid var(--primary, #FF6B81);
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.4s ease-out;
-    padding: 1px;
-  }
-
-  .search-wrap:focus-within::before {
-    transform: scaleX(1);
-  }
-
-  .search-wrap:focus-within {
-    border-color: transparent;
-  }
-
-  /* dark mode */
   .dark .search-wrap {
     border-color: rgb(63 63 70 / 1);
     background-color: var(--app-bg);
@@ -226,19 +319,100 @@
     border-color: rgb(82 82 91 / 1);
   }
 
+  .search-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.2s ease;
+    box-shadow: 
+      inset 0 0 0 4px var(--primary),
+      0 0 0 0 transparent;
+  }
+
   .dark .search-wrap::before {
-    background:
-        conic-gradient(from 180deg at 0% 50%, var(--primary-hover) 0 25%, transparent 0 100%),
-        conic-gradient(from 0deg at 100% 50%, var(--primary-hover) 0 25%, transparent 0 100%);
+    box-shadow: 
+      inset 0 0 0 4px var(--primary-hover),
+      0 0 0 0 transparent;
+  }
+
+  .search-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  .search-wrap:focus-within::before {
+    opacity: 1;
+    animation: search-border-draw 0.6s cubic-bezier(.42, 0, .58, 1) forwards;
+  }
+
+  .search-wrap:not(:focus-within)::before {
+    animation: search-border-undraw 0.4s cubic-bezier(.42, 0, .58, 1) forwards;
   }
 
   .search-wrap input {
+    position: relative;
+    width: 100%;
     border: none !important;
     outline: none !important;
-    background: transparent;
+    padding: 0.75rem 0.9rem;
+    background: transparent !important;
+    border-radius: 13px;
     box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    color: #e5e7eb;
+    z-index: 2;
   }
 
+  .dark .search-wrap input {
+    background: transparent;
+  }
+
+  /* ========= INPUT WRAP (cho các input khác) ========= */
+  .input-wrap {
+    position: relative;
+    isolation: isolate;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+
+  .input-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.2s ease;
+    box-shadow: 
+      inset 0 0 0 3px var(--primary),
+      0 0 0 0 transparent;
+  }
+
+  .dark .input-wrap::before {
+    box-shadow: 
+      inset 0 0 0 3px var(--primary-hover),
+      0 0 0 0 transparent;
+  }
+
+  .input-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  .input-wrap:focus-within::before {
+    opacity: 1;
+    animation: input-border-draw 0.5s cubic-bezier(.42, 0, .58, 1) forwards;
+  }
+
+  .input-wrap:not(:focus-within)::before {
+    animation: input-border-undraw 0.35s cubic-bezier(.42, 0, .58, 1) forwards;
+  }
+  
   .feed-wrap {
     position: relative;
     isolation: isolate;
@@ -269,9 +443,7 @@
   .dark .feed-wrap::before {
     border-color: var(--primary-hover);
   }
-}
 
-@layer components {
   .composer-ring {
     position: relative;
     isolation: isolate;
@@ -378,50 +550,71 @@
     filter: none;
   }
 
-  /* COUNT — luôn liên kết màu với icon */
   .post-action .post-action-count {
     @apply transition-colors duration-200 ease-out;
   }
 
+  .post-action-count {
+    display: inline-block;
+    min-width: 2.25rem;
+    text-align: left;
+    font-size: 11px;
+  }
 
-  .post-action-like:hover svg,
-  .post-action-like:hover .post-action-count {
+  @screen sm {
+    .post-action-count {
+      font-size: 0.75rem;
+    }
+  }
+
+  .post-action-like:not(.post-action--active):hover svg,
+  .post-action-like:not(.post-action--active):hover .post-action-count {
     color: #fb3a5d;
   }
 
-  .dark .post-action-like:hover svg,
-  .dark .post-action-like:hover .post-action-count {
+  .dark .post-action-like:not(.post-action--active):hover svg,
+  .dark .post-action-like:not(.post-action--active):hover .post-action-count {
     color: #e91546;
   }
 
-  .post-action-comment:hover svg,
-  .post-action-comment:hover .post-action-count {
+  .post-action-comment:not(.post-action--active):hover svg,
+  .post-action-comment:not(.post-action--active):hover .post-action-count {
     color: #3b82f6;
   }
 
-  .dark .post-action-comment:hover svg,
-  .dark .post-action-comment:hover .post-action-count {
+  .dark .post-action-comment:not(.post-action--active):hover svg,
+  .dark .post-action-comment:not(.post-action--active):hover .post-action-count {
     color: #60a5fa;
   }
 
-  .post-action-repost:hover svg,
-  .post-action-repost:hover .post-action-count {
+  .post-action-repost:not(.post-action--active):hover svg,
+  .post-action-repost:not(.post-action--active):hover .post-action-count {
     color: #10b981;
   }
 
-  .dark .post-action-repost:hover svg,
-  .dark .post-action-repost:hover .post-action-count {
+  .dark .post-action-repost:not(.post-action--active):hover svg,
+  .dark .post-action-repost:not(.post-action--active):hover .post-action-count {
     color: #34d399;
   }
 
-  .post-action-tip:hover svg,
-  .post-action-tip:hover .post-action-count {
+  .post-action-tip:not(.post-action--active):hover svg,
+  .post-action-tip:not(.post-action--active):hover .post-action-count {
     color: #f59e0b;
   }
 
-  .dark .post-action-tip:hover svg,
-  .dark .post-action-tip:hover .post-action-count {
+  .dark .post-action-tip:not(.post-action--active):hover svg,
+  .dark .post-action-tip:not(.post-action--active):hover .post-action-count {
     color: #fbbf24;
+  }
+
+  .post-action--active svg,
+  .post-action--active .post-action-count {
+    color: var(--primary);
+  }
+
+  .dark .post-action--active svg,
+  .dark .post-action--active .post-action-count {
+    color: var(--primary-active);
   }
 
   .suggested-follow-modal .modal-content {
@@ -432,9 +625,7 @@
     position: relative;
     isolation: isolate;
     border-radius: 9999px;
-    /* giữ cùng bo như button */
     overflow: hidden;
-    /* tránh viền tràn ra ngoài */
   }
 
   .follow-animated::before {
@@ -447,7 +638,6 @@
     border: 2px solid var(--primary);
     opacity: 0;
     transform: scale(1.15);
-    /* to hơn một chút lúc chưa hover */
     transition:
       opacity 0.25s ease,
       transform 0.4s ease-out;
@@ -456,11 +646,25 @@
   .follow-animated:hover::before {
     opacity: 1;
     transform: scale(1);
-    /* thu dần về đúng nút → cảm giác viền chạy vào */
   }
 
-  /* Dark mode: dùng màu hover cho dịu mắt hơn */
   .dark .follow-animated::before {
     border-color: var(--primary-hover);
+  }
+
+  .task-gradient {
+    background: linear-gradient(135deg,
+        var(--primary),
+        var(--primary-active));
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .task-gradient:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  .task-gradient:active {
+    transform: scale(0.97);
   }
 }

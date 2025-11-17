@@ -35,12 +35,28 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     return (
       <label className="w-full" htmlFor={id}>
         {label ? <div className="label">{label}</div> : null}
-        <textarea
-          className={cn(textAreaVariants({ className, error }))}
-          id={id}
-          ref={ref}
-          {...props}
-        />
+        <div
+          className={cn(
+            "input-wrap",
+            "border",
+            error ? "!border-red-500" : "border-gray-300 dark:border-gray-700",
+            "rounded-xl bg-white dark:bg-gray-900",
+            { "!bg-gray-500/20 opacity-60": props.disabled }
+          )}
+        >
+          <textarea
+            className={cn(
+              "relative z-10 w-full border-none bg-transparent px-4 py-2 shadow-xs",
+              "focus:ring-0 outline-hidden",
+              "disabled:opacity-60",
+              error && "placeholder:text-red-500",
+              className
+            )}
+            id={id}
+            ref={ref}
+            {...props}
+          />
+        </div>
         {props.name ? <FieldError name={props.name} /> : null}
       </label>
     );

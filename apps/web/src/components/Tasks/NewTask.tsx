@@ -232,7 +232,7 @@ const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
         onClick={() => setIsModalOpen(true)}
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full task-gradient">
             <PlusIcon className="h-5 w-5 text-white" />
           </div>
           <div>
