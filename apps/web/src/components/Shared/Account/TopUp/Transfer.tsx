@@ -1,7 +1,6 @@
 import {
   type ChangeEvent,
   type RefObject,
-  use,
   useCallback,
   useEffect,
   useRef,
@@ -58,7 +57,7 @@ const Transfer = ({ token }: TransferProps) => {
   const handleTransactionLifecycle = useTransactionLifecycle();
   usePreventScrollOnNumberInput(inputRef as RefObject<HTMLInputElement>);
 
-  const { data: balance, loading: balanceLoading, fetchMore: getCurrentBalance } = useBalancesBulkQuery({
+  const { data: balance, loading: balanceLoading } = useBalancesBulkQuery({
     fetchPolicy: "no-cache",
     pollInterval: 3000,
     skip: !currentAccount,
@@ -268,7 +267,7 @@ const Transfer = ({ token }: TransferProps) => {
               <Skeleton className="h-2.5 w-20 rounded-full" />
             ) : (
               <span className="text-gray-500 text-sm dark:text-gray-200">
-                Balance : {balanceOfSelectedChain} {symbol}
+                Balance: {balanceOfSelectedChain} {symbol}
               </span>
             )}
           </div>

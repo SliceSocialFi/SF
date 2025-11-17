@@ -1,15 +1,23 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { erc20Abi, parseEther, type Address, type Hex } from "viem";
+import { erc20Abi, parseEther, encodeFunctionData, type Address } from "viem";
+import { getChains } from "@/helpers/getChains";
 import {
   useWaitForTransactionReceipt,
   useWriteContract,
-  useReadContract,
+  useReadContract,  
   useSwitchChain,
   useAccount
 } from "wagmi";
-import { BRIDGE_GATEWAY_BSC_ABI } from "@slice/data/abis";
-import { BSC_POOL_CONTRACT } from "@slice/data/contracts";
+import {
+    BRIDGE_GATEWAY_BSC_ABI,
+    BRIDGE_MINTER_LENS_ABI,
+    LENS_ACCOUNT_ABI
+} from "@slice/data/abis";
+import {
+    BSC_POOL_CONTRACT,
+    LENS_BRIDGE_MINTER_CONTRACT
+} from "@slice/data/contracts";
 
 interface BridgeProps {
     srcChainId: number;
@@ -19,10 +27,19 @@ interface BridgeProps {
     tokenAddress: Address;
 }
 
-interface PendingLockState {
-    amountToLock: bigint;
+interface PendingBridgeState {
+    amount: bigint;
     recipient: Address;
 }
+
+interface BridgeMethodInfo {
+    contractAddress: Address;
+    contractAbi: any;
+    functionName: string;
+}
+
+const MAX_UINT =
+  0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn;
 
 const useBridge = ({
     srcChainId,
@@ -31,9 +48,40 @@ const useBridge = ({
     recipientAddress,
     tokenAddress,
 }: BridgeProps) => {
-    const [pendingLock, setPendingLock] = useState<PendingLockState | null>(null);
+    const [pendingBridge, setPendingBridge] = useState<PendingBridgeState | null>(null);
+    const [bridgeMethodInfo, setBridgeMethodInfo] = useState<BridgeMethodInfo | null>(null);
     const { switchChainAsync } = useSwitchChain();
     const { chainId: currentChainId } = useAccount();
+    const chains = getChains();
+
+    const isTopUp = destChainId === chains.lensChain.chainId;
+    const isWithdraw = !isTopUp;
+
+    console.log(`BRIDGE: from(${userAddress}) on chain ${srcChainId} to(${recipientAddress}) on chain ${destChainId}`);
+
+    useEffect(() => {
+        if (isTopUp) {
+            setBridgeMethodInfo({
+                contractAddress: BSC_POOL_CONTRACT as Address,
+                contractAbi: BRIDGE_GATEWAY_BSC_ABI,
+                functionName: 'lock'
+            });
+        } else {
+            setBridgeMethodInfo({
+                contractAddress: userAddress,
+                contractAbi: LENS_ACCOUNT_ABI,
+                functionName: 'executeTransaction'
+            });
+        }
+    }, [destChainId, isTopUp, userAddress]);
+
+    console.log("Bridge method info set:", bridgeMethodInfo);
+    console.log("userAddress:", userAddress);
+    console.log("Token address:", tokenAddress);
+
+    const allowanceSpender = isTopUp
+        ? (BSC_POOL_CONTRACT as Address)
+        : (LENS_BRIDGE_MINTER_CONTRACT as Address);
 
     const { 
         data: allowance, 
@@ -47,7 +95,7 @@ const useBridge = ({
         address: tokenAddress,
         abi: erc20Abi,
         functionName: 'allowance',
-        args: [userAddress, BSC_POOL_CONTRACT as Address],
+        args: [userAddress, allowanceSpender],
         query: {
             enabled: Boolean(srcChainId && tokenAddress && userAddress),
             refetchInterval: 3000
@@ -59,7 +107,16 @@ const useBridge = ({
         if (srcChainId && tokenAddress && userAddress) {
             refetchAllowance();
         }
-    }, [srcChainId, tokenAddress, userAddress, refetchAllowance, allowanceStatus, isAllowanceLoading, isAllowanceError, allowanceError]);
+    }, [
+        srcChainId,
+        tokenAddress,
+        userAddress,
+        refetchAllowance,
+        allowanceStatus,
+        isAllowanceLoading,
+        isAllowanceError,
+        allowanceError
+    ]);
 
     const {
         data: approveHash,
@@ -67,46 +124,74 @@ const useBridge = ({
         isPending: isApproving,
     } = useWriteContract();
 
-    const { data: approveReceipt, isLoading: isConfirmingApprove } = useWaitForTransactionReceipt({
-        hash: approveHash,
-        chainId: srcChainId,
-        query: { enabled: Boolean(approveHash) }
-    });
+    const { data: approveReceipt, isLoading: isConfirmingApprove } =
+        useWaitForTransactionReceipt({
+            hash: approveHash,
+            chainId: srcChainId,
+            query: { enabled: Boolean(approveHash) }
+        });
 
     const {
-        data: lockHash,
-        writeContract: lock,
-        isPending: isLocking,
+        data: bridgeHash,
+        writeContract: bridge,
+        isPending: isBridging,
     } = useWriteContract();
 
-    const { data: lockReceipt, isLoading: isConfirmingLock } = useWaitForTransactionReceipt({
-        hash: lockHash,
-        query: { enabled: Boolean(lockHash) }
-    });
+    const { data: bridgeReceipt, isLoading: isConfirmingBridge } =
+        useWaitForTransactionReceipt({
+            hash: bridgeHash,
+            query: { enabled: Boolean(bridgeHash) }
+        });
     
     useEffect(() => {
-        if (approveReceipt?.status === "success" && pendingLock) {
-            refetchAllowance();
-            lock({
-                chainId: srcChainId,
-                address: BSC_POOL_CONTRACT as Address,
-                abi: BRIDGE_GATEWAY_BSC_ABI,
-                functionName: 'lock',
-                args: [
-                    pendingLock.amountToLock,
-                    pendingLock.recipient
-                ],
-            });
-            setPendingLock(null);
-        }
-    }, [approveReceipt, pendingLock, lock, srcChainId, refetchAllowance]);
+        if (!approveReceipt || approveReceipt.status !== "success") return;
+        if (!pendingBridge || !bridgeMethodInfo) return;
 
-    useEffect(() => {
-        if (lockReceipt?.status === "success") {
-            console.log("lockReceipt:", lockReceipt)
-            console.log("lockHash:", lockHash)
-        }
-    }, [lockReceipt]);
+        (async () => {
+            try {
+                await refetchAllowance();
+
+                if (isTopUp) {
+                    bridge({
+                        chainId: srcChainId,
+                        address: bridgeMethodInfo.contractAddress,
+                        abi: bridgeMethodInfo.contractAbi,
+                        functionName: bridgeMethodInfo.functionName,
+                        args: [pendingBridge.amount, pendingBridge.recipient],
+                    });
+                } else {
+                    // Lens -> BSC: gọi executeTransaction(
+                    //   LENS_BRIDGE_MINTER_CONTRACT,
+                    //   0,
+                    //   burnToBsc(amount, recipient)
+                    // )
+                    const burnCalldata = encodeFunctionData({
+                        abi: BRIDGE_MINTER_LENS_ABI,
+                        functionName: "burnToBsc",
+                        args: [pendingBridge.amount, pendingBridge.recipient],
+                    });
+
+                    bridge({
+                        chainId: srcChainId,
+                        address: bridgeMethodInfo.contractAddress, // Lens Account
+                        abi: bridgeMethodInfo.contractAbi, // IAccount ABI
+                        functionName: bridgeMethodInfo.functionName, // "executeTransaction"
+                        args: [LENS_BRIDGE_MINTER_CONTRACT as Address, 0n, burnCalldata],
+                    });
+                }
+            } finally {
+                setPendingBridge(null);
+            }
+        })();
+    }, [
+        approveReceipt,
+        pendingBridge,
+        bridgeMethodInfo,
+        bridge,
+        srcChainId,
+        refetchAllowance,
+        isTopUp,
+    ]);
 
     // Helper function to ensure we're on the correct chain
     const ensureCorrectChain = async () => {
@@ -125,47 +210,90 @@ const useBridge = ({
 
     const bridgeFunction = async ({ amount, onError }: any) => {
         try {
+            if (!bridgeMethodInfo) return;
+
             // Ensure we're on the correct chain first
             await ensureCorrectChain();
             
-            const amountToLock = parseEther(amount || '0');
-            const needsApprove = allowance !== undefined && allowance < amountToLock;
-            
-            if (needsApprove) {
-                setPendingLock({ amountToLock, recipient: recipientAddress });
-                approve({
-                    chainId: srcChainId,
-                    address: tokenAddress,
-                    abi: erc20Abi,
-                    functionName: 'approve',
-                    args: [
-                        BSC_POOL_CONTRACT,
-                        0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn
-                    ], 
-                });
+            const amountParsed = parseEther(amount || '0');
+            const needsApprove = allowance !== undefined && allowance < amountParsed;
+
+            console.log("Bridging amount:", amountParsed);
+            if (isTopUp) {
+                if (needsApprove) {
+                    setPendingBridge({ amount: amountParsed, recipient: recipientAddress });
+                    approve({
+                        chainId: srcChainId,
+                        address: tokenAddress,
+                        abi: erc20Abi,
+                        functionName: 'approve',
+                        args: [
+                            bridgeMethodInfo.contractAddress,
+                            MAX_UINT
+                        ], 
+                    });
+                } else {
+                    bridge({
+                        chainId: srcChainId,
+                        address: bridgeMethodInfo.contractAddress,
+                        abi: bridgeMethodInfo.contractAbi,
+                        functionName: bridgeMethodInfo.functionName,
+                        args: [
+                            amountParsed,
+                            recipientAddress
+                        ],
+                    });
+                }
             } else {
-                lock({
-                    chainId: srcChainId,
-                    address: BSC_POOL_CONTRACT as Address,
-                    abi: BRIDGE_GATEWAY_BSC_ABI,
-                    functionName: 'lock',
-                    args: [
-                        amountToLock,
-                        recipientAddress
-                    ],
-                });
+                if (needsApprove) {
+                    setPendingBridge({
+                        amount: amountParsed,
+                        recipient: recipientAddress,
+                    });
+
+                    // calldata cho token.approve(LENS_BRIDGE_MINTER_CONTRACT, MAX_UINT)
+                    const approveCalldata = encodeFunctionData({
+                        abi: erc20Abi,
+                        functionName: "approve",
+                        args: [LENS_BRIDGE_MINTER_CONTRACT as Address, MAX_UINT],
+                    });
+
+                    // Gọi Lens Account: executeTransaction(tokenAddress, 0, approveCalldata)
+                    approve({
+                        chainId: srcChainId,
+                        address: userAddress, // Lens Account
+                        abi: LENS_ACCOUNT_ABI,
+                        functionName: "executeTransaction",
+                        args: [tokenAddress, 0n, approveCalldata],
+                    });
+                } else {
+                    // Đủ allowance -> gọi burnToBsc qua executeTransaction luôn
+                    const burnCalldata = encodeFunctionData({
+                        abi: BRIDGE_MINTER_LENS_ABI,
+                        functionName: "burnToBsc",
+                        args: [amountParsed, recipientAddress],
+                    });
+
+                    bridge({
+                        chainId: srcChainId,
+                        address: userAddress, // Lens Account
+                        abi: LENS_ACCOUNT_ABI,
+                        functionName: "executeTransaction",
+                        args: [LENS_BRIDGE_MINTER_CONTRACT as Address, 0n, burnCalldata],
+                    });
+                }
             }
 
-            return lockHash || approveHash;
+            return bridgeHash || approveHash;
         } catch (error) {
             console.error(error);
-            onError(error);
-            setPendingLock(null);
+            onError?.(error);
+            setPendingBridge(null);
         }
     };
 
-    const isLoading = isApproving || isConfirmingApprove || isLocking || isConfirmingLock;
-    return { bridgeFunction, isLoading };
+    const isLoading = isApproving || isConfirmingApprove || isBridging || isConfirmingBridge;
+    return { bridgeFunction, isLoading, bridgeHash, bridgeReceipt };
 }
 
 export default useBridge;

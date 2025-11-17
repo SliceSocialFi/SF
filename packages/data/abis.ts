@@ -19,4 +19,6 @@ export const ERC20_ABI = parseAbi([
   "event Transfer(address indexed from, address indexed to, uint256 value)",
 ]);
 
-
+export const LENS_ACCOUNT_ABI = parseAbi([
+  "function executeTransaction(address target, uint256 value, bytes calldata data) external payable returns (bytes memory)"
+]);
