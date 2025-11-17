@@ -48,11 +48,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <HelpTooltip>{helper}</HelpTooltip>
           </div>
         ) : null}
-        <div className="flex">
+        <div className="flex gap-1">
           {prefix ? (
-            <span className="inline-flex items-center rounded-l-xl border border-gray-300 border-r-0 bg-gray-100 px-3 text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
-              {prefix}
-            </span>
+            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900 rounded-xl px-3 shrink-0 ">
+              <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                {prefix}
+              </span>
+            </div>
           ) : null}
           <div
             className={cn(
