@@ -42,14 +42,24 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import GroupFeedSelector from "./Actions/GroupFeedSelector";
 import { Editor, useEditorContext, withEditorContext } from "./Editor";
 import LinkPreviews from "./LinkPreviews";
+import ComposerPanel from "./ComposerPanel";
+
+type PanelProps = {
+  isOpen: boolean;
+  onDismiss?: () => void;
+  onExited?: () => void;
+  disableDismiss?: boolean;
+};
+
 
 interface NewPublicationProps {
   className?: string;
   post?: PostFragment;
   feed?: string;
+  panelProps?: PanelProps;
 }
 
-const NewPublication = ({ className, post, feed }: NewPublicationProps) => {
+const NewPublication = ({ className, post, feed, panelProps }: NewPublicationProps) => {
   const { currentAccount } = useAccountStore();
 
   // New post modal store
@@ -245,60 +255,67 @@ const NewPublication = ({ className, post, feed }: NewPublicationProps) => {
   });
 
   return (
-    <Card className={className} onClick={() => setShowEmojiPicker(false)}>
-      <Editor isComment={isComment} />
-      {postContentError ? (
-        <H6 className="mt-1 px-5 pb-3 text-red-500">{postContentError}</H6>
-      ) : null}
-      <LinkPreviews />
-      <NewAttachments attachments={attachments} />
-      {quotedPost ? (
-        <Wrapper className="m-5" zeroPadding>
-          <QuotedPost isNew post={quotedPost} />
-        </Wrapper>
-      ) : null}
-      <div className="divider mx-5" />
-      <div className="block items-center px-5 py-3 sm:flex">
-        <div className="flex items-center space-x-4">
-          <Attachment />
-          <EmojiPicker
-            setEmoji={(emoji: string) => {
-              setShowEmojiPicker(false);
-              editor?.insertText(emoji);
-            }}
-            setShowEmojiPicker={setShowEmojiPicker}
-            showEmojiPicker={showEmojiPicker}
-          />
-          <Gif setGifAttachment={(gif: IGif) => setGifAttachment(gif)} />
-          {editingPost ? null : (
-            <>
-              <CollectSettings />
-              <RulesSettings />
-              {isComment ? null : !currentAccount?.isStaff && feed ? null : (
-                <GroupFeedSelector
-                  onChange={setSelectedFeed}
-                  selected={selectedFeed}
-                />
+    <ComposerPanel 
+      isOpen={panelProps?.isOpen ?? true}
+      onDismiss={panelProps?.onDismiss}
+      onExited={panelProps?.onExited}
+      disableDismiss={panelProps?.disableDismiss}
+      allowOverflow={showEmojiPicker}>
+        <Card className={className} onClick={() => setShowEmojiPicker(false)}>
+          <Editor isComment={isComment} />
+          {postContentError ? (
+            <H6 className="mt-1 px-5 pb-3 text-red-500">{postContentError}</H6>
+          ) : null}
+          <LinkPreviews />
+          <NewAttachments attachments={attachments} />
+          {quotedPost ? (
+            <Wrapper className="m-5" zeroPadding>
+              <QuotedPost isNew post={quotedPost} />
+            </Wrapper>
+          ) : null}
+          <div className="divider mx-5" />
+          <div className="block items-center px-5 py-3 sm:flex">
+            <div className="flex items-center space-x-4">
+              <Attachment />
+              <EmojiPicker
+                setEmoji={(emoji: string) => {
+                  setShowEmojiPicker(false);
+                  editor?.insertText(emoji);
+                }}
+                setShowEmojiPicker={setShowEmojiPicker}
+                showEmojiPicker={showEmojiPicker}
+              />
+              <Gif setGifAttachment={(gif: IGif) => setGifAttachment(gif)} />
+              {editingPost ? null : (
+                <>
+                  <CollectSettings />
+                  <RulesSettings />
+                  {isComment ? null : !currentAccount?.isStaff && feed ? null : (
+                    <GroupFeedSelector
+                      onChange={setSelectedFeed}
+                      selected={selectedFeed}
+                    />
+                  )}
+                </>
               )}
-            </>
-          )}
-        </div>
-        <div className="mt-2 ml-auto sm:mt-0">
-          <Button
-            disabled={
-              isSubmitting ||
-              isUploading ||
-              videoThumbnail.uploading ||
-              postContentError.length > 0
-            }
-            loading={isSubmitting}
-            onClick={handleCreatePost}
-          >
-            {editingPost ? "Update" : isComment ? "Comment" : "Post"}
-          </Button>
-        </div>
-      </div>
-    </Card>
+            </div>
+            <div className="mt-2 ml-auto sm:mt-0">
+              <Button
+                disabled={
+                  isSubmitting ||
+                  isUploading ||
+                  videoThumbnail.uploading ||
+                  postContentError.length > 0
+                }
+                loading={isSubmitting}
+                onClick={handleCreatePost}
+              >
+                {editingPost ? "Update" : isComment ? "Comment" : "Post"}
+              </Button>
+            </div>
+          </div>
+        </Card>
+    </ComposerPanel>
   );
 };
 

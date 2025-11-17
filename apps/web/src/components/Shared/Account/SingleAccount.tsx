@@ -48,19 +48,24 @@ const SingleAccount = ({
   );
 
   const UserName = () => (
-    <div>
+    <div className="min-w-0">
       <div
         className={cn(
-          { "font-bold": isBig },
-          "flex max-w-sm items-center gap-x-1.5"
+          "flex items-center gap-x-1.5 min-w-0",
+          isBig && "font-bold"
         )}
       >
-        <div className="truncate font-semibold">{getAccount(account).name}</div>
+        <div className="truncate font-semibold">
+          {getAccount(account).name}
+        </div>
         {(isVerified || account.hasSubscribed) && (
           <CheckBadgeIcon className="size-4 text-brand-500" />
         )}
       </div>
-      <Slug className="text-sm" slug={getAccount(account).usernameWithPrefix} />
+      <Slug
+        className="text-sm truncate"
+        slug={getAccount(account).usernameWithPrefix}
+      />
     </div>
   );
 
@@ -70,7 +75,7 @@ const SingleAccount = ({
       showUserPreview={showUserPreview}
       username={account.username?.localName}
     >
-      <div className="mr-8 flex items-center gap-x-3">
+      <div className="flex min-w-0 items-center gap-x-3">
         <UserAvatar />
         <UserName />
       </div>
@@ -79,21 +84,27 @@ const SingleAccount = ({
 
   return (
     <div className="flex flex-col gap-y-2">
-      <div className="flex items-center justify-between">
-        {linkToAccount && account.address ? (
-          <AccountLink account={account}>
+      <div className="flex items-center gap-x-3">
+        <div className="flex-1 min-w-0 truncate">
+          {linkToAccount && account.address ? (
+            <AccountLink account={account}>
+              <AccountInfo />
+            </AccountLink>
+          ) : (
             <AccountInfo />
-          </AccountLink>
-        ) : (
-          <AccountInfo />
-        )}
-        <FollowUnfollowButton
-          account={account}
-          hideFollowButton={hideFollowButton}
-          hideUnfollowButton={hideUnfollowButton}
-          small
-        />
+          )}
+        </div>
+
+        <div className="flex-shrink-0">
+          <FollowUnfollowButton
+            account={account}
+            hideFollowButton={hideFollowButton}
+            hideUnfollowButton={hideUnfollowButton}
+            small
+          />
+        </div>
       </div>
+
       {showBio && account?.metadata?.bio && (
         <div
           className={cn(

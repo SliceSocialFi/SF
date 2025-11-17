@@ -8,6 +8,7 @@ import { Card } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import FeedType from "./FeedType";
 import List from "./List";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 const Groups = () => {
   const { currentAccount } = useAccountStore();
@@ -29,7 +30,9 @@ const Groups = () => {
       }
       title="Groups"
     >
-      <FeedType feedType={feedType} setFeedType={setFeedType} />
+      <StickyFeedBar>
+        <FeedType feedType={feedType} setFeedType={setFeedType} />
+      </StickyFeedBar>
       <Card>
         <List feedType={feedType} />
       </Card>

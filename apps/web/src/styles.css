@@ -35,8 +35,13 @@
 
   body {
     @apply bg-gray-50;
-    @apply dark:bg-black;
+    /* @apply dark:bg-black; */
   }
+
+    .dark body {
+      background-color: #121212;
+      /* “dim black” – dễ chịu cho mắt hơn đen tuyệt đối */
+    }
 
   .shimmer {
     @apply animate-shimmer;
@@ -159,5 +164,303 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@keyframes ringFade {
+  from {
+    box-shadow: 0 0 0 0 var(--primary);
+  }
+
+  to {
+    box-shadow: 0 0 0 3px var(--primary);
+  }
+}
+
+@layer components {
+  .search-wrap {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.75rem;
+    background: transparent;
+    background-color: white;
+    overflow: hidden;
+    transition: border-color 0.25s ease;
+  }
+
+  .search-wrap:hover {
+    border-color: rgba(0, 0, 0, 0.28);
+  }
+
+  .search-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 3px solid var(--primary, #FF6B81);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.4s ease-out;
+    padding: 1px;
+  }
+
+  .search-wrap:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .search-wrap:focus-within {
+    border-color: transparent;
+  }
+
+  /* dark mode */
+  .dark .search-wrap {
+    border-color: rgb(63 63 70 / 1);
+    background-color: var(--app-bg);
+  }
+
+  .dark .search-wrap:hover {
+    border-color: rgb(82 82 91 / 1);
+  }
+
+  .dark .search-wrap::before {
+    background:
+        conic-gradient(from 180deg at 0% 50%, var(--primary-hover) 0 25%, transparent 0 100%),
+        conic-gradient(from 0deg at 100% 50%, var(--primary-hover) 0 25%, transparent 0 100%);
+  }
+
+  .search-wrap input {
+    border: none !important;
+    outline: none !important;
+    background: transparent;
+    box-shadow: none !important;
+  }
+
+  .feed-wrap {
+    position: relative;
+    isolation: isolate;
+    border-radius: 0.75rem;
+    transition: box-shadow .3s ease, border-color .3s ease;
+  }
+
+  .feed-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    border: 1.5px solid var(--primary);
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: opacity .25s ease, transform .4s ease-out;
+  }
+
+  .feed-wrap:hover::before,
+  .feed-wrap:focus-within::before {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .dark .feed-wrap::before {
+    border-color: var(--primary-hover);
+  }
+}
+
+@layer components {
+  .composer-ring {
+    position: relative;
+    isolation: isolate;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .composer-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 2px solid var(--primary, #FF6B81);
+    opacity: 0;
+    transform: scale(0.98);
+    transition:
+      opacity 0.75s ease,
+      transform 0.75s ease,
+      border-color 0.3s ease;
+  }
+
+  .composer-ring[data-active="true"]::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .dark .composer-ring::before {
+    border-color: var(--primary-hover, #FFA4B1);
+  }
+
+  .composer-panel {
+    position: relative;
+    isolation: isolate;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    z-index: 0;
+    background: transparent;
+    max-height: 60px;
+    opacity: 0.98;
+    transform: scale(0.995);
+    transition:
+      max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .composer-panel[data-open="true"] {
+    max-height: 800px;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .composer-panel[data-overflow="visible"] {
+    overflow: visible;
+    z-index: 60;
+    transform: none;
+  }
+
+ .composer-panel__inner {
+    overflow: visible;
+  }
+
+  .composer-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--primary, #FF6B81);
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 0.5s ease,
+      transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .composer-ring[data-active="true"]::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .dark .composer-ring::before {
+    border-color: var(--primary-hover, #FFA4B1);
+  }
+
+  .post-action {
+    @apply inline-flex items-center cursor-pointer select-none;
+  }
+
+  .post-action svg {
+    @apply transition-transform transition-colors duration-200 ease-out;
+    transform-origin: center;
+  }
+
+  .post-action:hover svg {
+    transform: scale(2);
+    color: var(--primary);
+    filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.18));
+  }
+
+  .post-action:active svg {
+    transform: scale(1);
+    filter: none;
+  }
+
+  /* COUNT — luôn liên kết màu với icon */
+  .post-action .post-action-count {
+    @apply transition-colors duration-200 ease-out;
+  }
+
+
+  .post-action-like:hover svg,
+  .post-action-like:hover .post-action-count {
+    color: #fb3a5d;
+  }
+
+  .dark .post-action-like:hover svg,
+  .dark .post-action-like:hover .post-action-count {
+    color: #e91546;
+  }
+
+  .post-action-comment:hover svg,
+  .post-action-comment:hover .post-action-count {
+    color: #3b82f6;
+  }
+
+  .dark .post-action-comment:hover svg,
+  .dark .post-action-comment:hover .post-action-count {
+    color: #60a5fa;
+  }
+
+  .post-action-repost:hover svg,
+  .post-action-repost:hover .post-action-count {
+    color: #10b981;
+  }
+
+  .dark .post-action-repost:hover svg,
+  .dark .post-action-repost:hover .post-action-count {
+    color: #34d399;
+  }
+
+  .post-action-tip:hover svg,
+  .post-action-tip:hover .post-action-count {
+    color: #f59e0b;
+  }
+
+  .dark .post-action-tip:hover svg,
+  .dark .post-action-tip:hover .post-action-count {
+    color: #fbbf24;
+  }
+
+  .suggested-follow-modal .modal-content {
+    z-index: 100;
+  }
+
+  .follow-animated {
+    position: relative;
+    isolation: isolate;
+    border-radius: 9999px;
+    /* giữ cùng bo như button */
+    overflow: hidden;
+    /* tránh viền tràn ra ngoài */
+  }
+
+  .follow-animated::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+
+    border: 2px solid var(--primary);
+    opacity: 0;
+    transform: scale(1.15);
+    /* to hơn một chút lúc chưa hover */
+    transition:
+      opacity 0.25s ease,
+      transform 0.4s ease-out;
+  }
+
+  .follow-animated:hover::before {
+    opacity: 1;
+    transform: scale(1);
+    /* thu dần về đúng nút → cảm giác viền chạy vào */
+  }
+
+  /* Dark mode: dùng màu hover cho dịu mắt hơn */
+  .dark .follow-animated::before {
+    border-color: var(--primary-hover);
   }
 }

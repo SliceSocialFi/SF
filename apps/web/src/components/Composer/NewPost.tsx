@@ -5,10 +5,9 @@ import { Card, Image } from "@/components/Shared/UI";
 import { usePostStore } from "@/store/non-persisted/post/usePostStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import NewPublication from "./NewPublication";
+import ComposerPanel from "./ComposerPanel";
 
-interface NewPostProps {
-  feed?: string;
-}
+interface NewPostProps { feed?: string; }
 
 const NewPost = ({ feed }: NewPostProps) => {
   const [searchParams] = useSearchParams();
@@ -17,29 +16,65 @@ const NewPost = ({ feed }: NewPostProps) => {
   const via = searchParams.get("via");
 
   const { currentAccount } = useAccountStore();
-  const { setPostContent } = usePostStore();
-  const [showComposer, setShowComposer] = useState(false);
+  const { setPostContent, postContent } = usePostStore(); // << lấy nội dung hiện có (đổi tên nếu khác)
 
-  const handleOpenComposer = () => {
-    setShowComposer(true);
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    if (!mounted) {
+      setMounted(true);
+      setTimeout(() => setOpen(true), 0);
+    } else {
+      setOpen(true);
+    }
   };
+
+  const handleExited = () => setMounted(false);
+  const handleDismiss = () => setOpen(false);
 
   useEffect(() => {
     if (text) {
       const content = `${text}${url ? `\n\n${url}` : ""}${via ? `\n\nvia @${via}` : ""}`;
-      handleOpenComposer();
+      if (!mounted) setMounted(true);
+      requestAnimationFrame(() => setOpen(true));
       setPostContent(content);
     }
-  }, [text, url, via, handleOpenComposer, setPostContent]);
+  }, [text, url, via, mounted, setPostContent]);
 
-  if (showComposer) {
-    return <NewPublication feed={feed} />;
+  const hasContent = Boolean(postContent && postContent.trim().length > 0);
+
+  if (mounted) {
+    return (
+      <ComposerPanel
+        isOpen={open}
+        onDismiss={handleDismiss}
+        onExited={handleExited}
+        disableDismiss={hasContent}  // << khi có nội dung, không cho đóng bằng click-away/ESC
+      >
+        <NewPublication feed={feed} />
+      </ComposerPanel>
+    );
   }
+
+  if (mounted) {
+  return (
+    <NewPublication
+      feed={feed}
+      panelProps={{
+        isOpen: open,
+        onDismiss: handleDismiss,
+        onExited: handleExited,
+        disableDismiss: hasContent,
+      }}
+    />
+  );
+}
 
   return (
     <Card
-      className="cursor-pointer space-y-3 px-5 py-4"
-      onClick={handleOpenComposer}
+      className="cursor-pointer space-y-3 px-5 py-4 transition-all duration-200 hover:shadow-sm"
+      onClick={handleOpen}
     >
       <div className="flex items-center space-x-3">
         <Image

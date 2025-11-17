@@ -1,6 +1,7 @@
 import { isRepost } from "@slice/helpers/postHelpers";
 import type { AnyPostFragment } from "@slice/indexer";
 import { memo } from "react";
+
 import CollectAction from "@/components/Post/OpenAction/CollectAction";
 import SmallCollectButton from "@/components/Post/OpenAction/CollectAction/SmallCollectButton";
 import TipAction from "@/components/Post/OpenAction/TipAction";
@@ -16,6 +17,7 @@ interface PostActionsProps {
 
 const PostActions = ({ post, showCount = false }: PostActionsProps) => {
   const targetPost = isRepost(post) ? post.repostOf : post;
+
   const hasPostAction = (targetPost.actions?.length || 0) > 0;
   const canAct =
     hasPostAction &&
@@ -29,13 +31,34 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
       onClick={stopEventPropagation}
     >
       <span className="flex items-center gap-x-6">
-        <Comment post={targetPost} showCount={showCount} />
-        <ShareMenu post={post} showCount={showCount} />
-        <Like post={targetPost} showCount={showCount} />
-        {canAct && !showCount ? <CollectAction post={targetPost} /> : null}
-        <TipAction post={targetPost} showCount={showCount} />
+        <span className="post-action post-action-comment">
+          <Comment post={targetPost} showCount={showCount} />
+        </span>
+
+        <span className="post-action post-action-repost">
+          <ShareMenu post={post} showCount={showCount} />
+        </span>
+
+        <span className="post-action post-action-like">
+          <Like post={targetPost} showCount={showCount} />
+        </span>
+
+        {canAct && !showCount ? (
+          <span className="post-action post-action-collect">
+            <CollectAction post={targetPost} />
+          </span>
+        ) : null}
+
+        <span className="post-action post-action-tip">
+          <TipAction post={targetPost} showCount={showCount} />
+        </span>
       </span>
-      {canAct ? <SmallCollectButton post={targetPost} /> : null}
+
+      {canAct ? (
+        <span className="post-action post-action-collect">
+          <SmallCollectButton post={targetPost} />
+        </span>
+      ) : null}
     </span>
   );
 };

@@ -42,7 +42,7 @@ const Modal = ({ children, onClose, show, size = "sm", title }: ModalProps) => {
     <Transition as={Fragment} show={show}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-10 flex min-h-screen items-center justify-center overflow-y-auto p-4 text-center sm:block sm:p-0"
+        className="fixed inset-0 z-10 flex min-h-screen items-center justify-center overflow-y-auto p-4 text-center sm:block sm:p-0 z-70"
         onClose={() => onClose?.()}
       >
         <span className="hidden sm:inline-block sm:h-screen sm:align-middle" />

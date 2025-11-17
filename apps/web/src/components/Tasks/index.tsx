@@ -18,6 +18,7 @@ import {
 } from "./taskFilters";
 import { apiClient } from "@/lib/apiClient";
 import TaskDetailModal from "./TaskDetailModal";
+import StickyFeedBar from "../Home/StickyFeedbar";
 
 let mockTasks: TaskItem[] = [];
 
@@ -321,38 +322,42 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-      <Tabs
-        active={activeTab}
-        className="mx-5 mb-5 md:mx-0"
-        layoutId="task_tabs"
-        setActive={(type) => setActiveTab(type as TaskFeedType)}
-        tabs={[
-          { name: "Tasks List", type: TaskFeedType.All },
-          { name: "My Tasks", type: TaskFeedType.MyTasks },
-          { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
-        ]}
-      />
-      <div className="space-y-6">
-        <div className="space-y-4">
-          {loading ? (
-            <TasksShimmer count={5} />
-          ) : filteredTasks.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-              <p className="mb-2 font-medium">No tasks found.</p>
-              <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
-            </div>
-          ) : (
-            paginatedTasks.map((task) => (
-              <div key={task.id} onClick={() => handleTaskClick(task)}>
-                <TaskCard
-                  task={task}
-                  showDelete={activeTab === TaskFeedType.PostedTasks}
-                  onDelete={handleDeleteTask}
-                />
-              </div>
-            ))
-          )}
-        </div>
+          <StickyFeedBar>
+            <Tabs
+            active={activeTab}
+            className="mx-5 mb-0 md:mx-0"
+            layoutId="task_tabs"
+            setActive={(type) => setActiveTab(type as TaskFeedType)}
+            tabs={[
+              { name: "Tasks List", type: TaskFeedType.All },
+              { name: "My Tasks", type: TaskFeedType.MyTasks },
+              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
+            ]}
+          />
+          </StickyFeedBar>
+        <div className="space-y-6">
+          <div className="space-y-4">
+            {loading ? (
+              <TasksShimmer count={5} />
+            ) : (
+              filteredTasks.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                  <p className="mb-2 font-medium">No tasks found.</p>
+                  <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
+                </div>
+              ) : (
+                paginatedTasks.map((task) => (
+                  <div key={task.id} onClick={() => handleTaskClick(task)}>
+                    <TaskCard 
+                      task={task}
+                      showDelete={activeTab === TaskFeedType.PostedTasks}
+                      onDelete={handleDeleteTask}
+                    />
+                  </div>
+                ))
+              )
+            )}
+          </div>
 
         {filteredTasks.length > 0 && (
           <div className="flex items-center justify-center gap-4 pt-4">

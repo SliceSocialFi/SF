@@ -96,22 +96,25 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
   }, [debouncedSearchText, pathname, searchAccounts, showDropdown]);
 
   return (
-    <div className="w-full">
+    <div className="w-full pt-1">
       <Form form={form} onSubmit={handleSubmit}>
-        <Input
-          className="px-3 py-3 text-sm"
-          iconLeft={<MagnifyingGlassIcon />}
-          iconRight={
-            <XMarkIcon
-              className={cn("cursor-pointer", query ? "visible" : "invisible")}
-              onClick={handleReset}
-            />
-          }
-          onClick={handleShowDropdown}
-          placeholder={placeholder}
-          type="text"
-          {...form.register("query")}
-        />
+        <div className="search-wrap rounded-xl">
+          
+          <Input
+            className="w-full px-3 py-3 text-sm bg-transparent"
+            iconLeft={<MagnifyingGlassIcon />}
+            iconRight={
+              <XMarkIcon
+                className={cn("cursor-pointer", query ? "visible" : "invisible")}
+                onClick={handleReset}
+              />
+            }
+            onClick={handleShowDropdown}
+            placeholder={placeholder}
+            type="text"
+            {...form.register("query")}
+          />
+        </div>
       </Form>
       {pathname !== "/search" && showDropdown ? (
         <div className="fixed z-10 mt-2 w-[360px]" ref={dropdownRef}>

@@ -72,10 +72,10 @@ const WhoToFollow = () => {
         <ErrorMessage error={error} title="Failed to load recommendations" />
         {recommendedAccounts?.slice(0, 5).map((account) => (
           <div
-            className="flex items-center gap-x-3 truncate"
+            className="flex items-center gap-x-3"
             key={account?.address}
           >
-            <div className="w-full">
+            <div className="w-full min-w-0">
               <SingleAccount
                 account={account}
                 hideFollowButton={currentAccount?.address === account.address}
@@ -100,7 +100,7 @@ const WhoToFollow = () => {
         show={showMore}
         title="Suggested for you"
       >
-        <Suggested accounts={recommendedAccounts} />
+      <Suggested accounts={recommendedAccounts} />
       </Modal>
     </>
   );
