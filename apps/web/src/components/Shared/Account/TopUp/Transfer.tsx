@@ -1,7 +1,3 @@
-import { ArrowUpRightIcon } from "@heroicons/react/24/outline";
-import { NATIVE_TOKEN_SYMBOL, NULL_ADDRESS } from "@slice/data/constants";
-import { useBalancesBulkQuery, useDepositMutation } from "@slice/indexer";
-import type { ApolloClientError } from "@slice/types/errors";
 import {
   type ChangeEvent,
   type RefObject,
@@ -10,11 +6,19 @@ import {
   useRef,
   useState
 } from "react";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useSwitchChain
+} from "wagmi";
+import { type Address, type Hex } from "viem";
+import type { ApolloClientError } from "@slice/types/errors";
 import { toast } from "sonner";
-import type { Hex } from "viem";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { NATIVE_TOKEN_SYMBOL } from "@slice/data/constants";
+import { useBalancesBulkQuery, useDepositMutation } from "@slice/indexer";
+import { Button, Card, Input, Spinner, Select } from "@/components/Shared/UI";
 import Skeleton from "@/components/Shared/Skeleton";
-import { Button, Card, Input, Spinner } from "@/components/Shared/UI";
+import Loader from "@/components/Shared/Loader";
 import errorToast from "@/helpers/errorToast";
 import usePreventScrollOnNumberInput from "@/hooks/usePreventScrollOnNumberInput";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
@@ -22,6 +26,11 @@ import {
   type FundingToken,
   useFundModalStore
 } from "@/store/non-persisted/modal/useFundModalStore";
+import { getChains } from "@/helpers/getChains";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
+import useBridge from "@/hooks/useBridge";
+import useTokenBalance from "@/hooks/useTokenBalance";
+import { getTokenBalanceBulk } from "@/helpers/getBalance";
 
 interface TransferProps {
   token?: FundingToken;
@@ -30,28 +39,67 @@ interface TransferProps {
 const Transfer = ({ token }: TransferProps) => {
   const { setShowFundModal, amountToTopUp } = useFundModalStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBridging, setIsBridging] = useState(false);
   const [txHash, setTxHash] = useState<Hex | null>(null);
   const [amount, setAmount] = useState(amountToTopUp ?? 1);
   const [other, setOther] = useState(!!amountToTopUp);
+  const [currentBalance, setCurrentBalance] = useState<string>("0");
+  const { address, chainId: currentChainId } = useAccount();
+  const { currentAccount } = useAccountStore();
   const inputRef = useRef<HTMLInputElement>(null);
-  usePreventScrollOnNumberInput(inputRef as RefObject<HTMLInputElement>);
-  const { address } = useAccount();
-  const handleTransactionLifecycle = useTransactionLifecycle();
+  const chains = getChains();
+  const [selectedChainId, setSelectedChainId] = useState<number>(chains.lensChain.chainId);
+  const [balanceOfSelectedChain, setBalanceOfSelectedChain] = useState<string>("0");
+  const selectedChain = Object.values(chains).find(c => c.chainId === selectedChainId) || chains.lensChain;
   const symbol = token?.symbol ?? NATIVE_TOKEN_SYMBOL;
+  const { switchChainAsync } = useSwitchChain();
+
+  const handleTransactionLifecycle = useTransactionLifecycle();
+  usePreventScrollOnNumberInput(inputRef as RefObject<HTMLInputElement>);
 
   const { data: balance, loading: balanceLoading } = useBalancesBulkQuery({
     fetchPolicy: "no-cache",
     pollInterval: 3000,
-    skip: !address,
+    skip: !currentAccount,
     variables: {
       request: {
-        address,
+        address: currentAccount?.address,
         ...(token
           ? { tokens: [token?.contractAddress] }
           : { includeNative: true })
       }
     }
   });
+
+  useEffect(() => {
+    const fecthCurrentBalance = () => {
+      if (balance && currentAccount) {
+        const bal = getTokenBalanceBulk(balance as any);
+        setCurrentBalance(String(bal));
+      }
+    };
+    fecthCurrentBalance();
+  }, [balance, currentAccount]);
+
+  const { formatted: bscBalance } = useTokenBalance({ 
+    walletAddress: address as Address, 
+    chainId: chains.bsc.chainId, 
+    tokenAddress: chains.bsc.token.address as Address 
+  });
+
+  const { formatted: lensBalance } = useTokenBalance({ 
+    walletAddress: address as Address, 
+    chainId: chains.lensChain.chainId, 
+    tokenAddress: chains.lensChain.token.address as Address 
+  });
+
+  useEffect(() => {
+    if (selectedChainId === chains.lensChain.chainId) {
+      setBalanceOfSelectedChain(String(lensBalance ?? "0"));
+    } else {
+      setBalanceOfSelectedChain(String(bscBalance ?? "0"));
+    }
+  }, [selectedChainId, bscBalance, lensBalance]);
 
   const onCompleted = async () => {
     setAmount(2);
@@ -93,13 +141,6 @@ const Transfer = ({ token }: TransferProps) => {
     onError
   });
 
-  const tokenBalance =
-    balance?.balancesBulk[0].__typename === "Erc20Amount"
-      ? Number(balance.balancesBulk[0].value).toFixed(2)
-      : balance?.balancesBulk[0].__typename === "NativeAmount"
-        ? Number(balance.balancesBulk[0].value).toFixed(2)
-        : 0;
-
   const onOtherAmount = (event: ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
     setAmount(value);
@@ -111,6 +152,7 @@ const Transfer = ({ token }: TransferProps) => {
   };
 
   const buildDepositRequest = (amount: number, token?: FundingToken) => {
+    console.log("Building deposit request with amount:", amount, "and token:", token);
     if (!token) {
       return { native: amount.toString() };
     }
@@ -125,22 +167,118 @@ const Transfer = ({ token }: TransferProps) => {
 
   const handleDeposit = async () => {
     setIsSubmitting(true);
+    if (currentChainId !== chains.lensChain.chainId) {
+      await switchChainAsync({ chainId: chains.lensChain.chainId });
+    }
     return await deposit({
       variables: { request: buildDepositRequest(amount, token) }
     });
   };
 
+  const { bridgeFunction, isLoading: isBridgeHandling } = useBridge({
+    srcChainId: selectedChain.chainId,
+    destChainId: chains.lensChain.chainId,
+    userAddress: address as Address,
+    recipientAddress: currentAccount?.address as Address,
+    tokenAddress: selectedChain.token.address as Address,
+  });
+
+  const [initialBal, setInitialBal] = useState<number | null>(null);
+  const handleBridgeTransfer = async () => {
+    if (!address) return;
+    
+    try {
+      setIsBridging(true);
+      setInitialBal(Number(currentBalance));
+
+      await bridgeFunction({
+        amount: amount.toString(),
+        onError: (error: Error) => {
+          console.error("Bridge transfer error:", error);
+          setIsBridging(false);
+          throw error;
+        }
+      });
+    } catch (error: any) {
+      console.error("Bridge transfer exception:", error);
+      setIsBridging(false);
+      errorToast(error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!initialBal) return;
+    if (!isBridgeHandling && currentBalance) {
+      const curBal = Number(initialBal);
+      const newBal = Number(currentBalance);
+      if (curBal !== newBal) {
+        onCompleted();
+        setInitialBal(null);
+        setIsBridging(false);
+      }
+    }
+  }, [isBridgeHandling, initialBal, currentBalance]);
+
+  const handleSelectChain = (chainId: number) => {
+    setSelectedChainId(chainId);
+  };
+
+  const handleTransaction = async () => {
+    if (selectedChainId !== chains.lensChain.chainId) {
+      return handleBridgeTransfer();
+    }
+    return handleDeposit();
+  };
+
+  if (isBridging) {
+    return (
+      <Card className="mt-5" forceRounded>
+        <div className="flex flex-col items-center gap-4 p-8">
+          <Loader/>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <span className="font-semibold text-lg">Bridging in progress...</span>
+            <span className="text-gray-500 text-sm dark:text-gray-400">
+              Transferring {amount} {symbol} from {selectedChain.name} to Lens Chain
+            </span>
+            <span className="text-gray-500 text-xs dark:text-gray-400">
+              This may take a few minutes. Please wait and do not close this window.
+            </span>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  const chainOptions = Object.entries(chains).map(([key, chain]) => ({
+    key,
+    value: chain.chainId,
+    label: chain.name,
+    icon: chain.icon,
+    selected: chain.chainId === selectedChainId
+  }));
+
   return (
     <Card className="mt-5" forceRounded>
-      <div className="mx-5 my-3 flex items-center justify-between">
-        <b>Purchase</b>
-        {balanceLoading ? (
-          <Skeleton className="h-2.5 w-20 rounded-full" />
-        ) : (
-          <span className="text-gray-500 text-sm dark:text-gray-200">
-            Balance : {tokenBalance} {symbol}
-          </span>
-        )}
+      <div className="mx-5 my-3 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <b>Purchase</b>
+            {balanceLoading ? (
+              <Skeleton className="h-2.5 w-20 rounded-full" />
+            ) : (
+              <span className="text-gray-500 text-sm dark:text-gray-200">
+                Balance: {balanceOfSelectedChain} {symbol}
+              </span>
+            )}
+          </div>
+          <div>
+            <Select
+              options={chainOptions}
+              onChange={handleSelectChain}
+              iconClassName="size-4 rounded-full"
+            />
+          </div>
+        </div>
       </div>
       <div className="divider" />
       <div className="space-y-5 p-5">
@@ -197,32 +335,22 @@ const Transfer = ({ token }: TransferProps) => {
             disabled
             icon={<Spinner className="my-1" size="xs" />}
           />
-        ) : Number(tokenBalance) < amount ? (
+        ) : Number(balanceOfSelectedChain) < amount ? (
           <Button
-            className="w-full"
-            onClick={() => {
-              const params = new URLSearchParams({
-                inputChain: "lens",
-                isExactOut: "false",
-                outToken: token?.contractAddress ?? NULL_ADDRESS,
-                utm_medium: "sites",
-                utm_source: "hey.xyz"
-              });
-
-              window.open(`https://oku.trade/?${params.toString()}`, "_blank");
-            }}
+            className="w-full opacity-60"
+            disabled
+            outline
           >
-            <span>Buy on Polgon</span>
-            <ArrowUpRightIcon className="size-4" />
+            <span>Insufficient Balance</span>
           </Button>
         ) : (
           <Button
             className="w-full"
-            disabled={isSubmitting || amount === 0}
+            disabled={isSubmitting || amount === 0 || isBridging}
             loading={isSubmitting}
-            onClick={handleDeposit}
+            onClick={handleTransaction}
           >
-            Purchase {amount} {symbol}
+            {selectedChainId === chains.lensChain.chainId ? "Purchase" : "Bridge"} {amount} {symbol}
           </Button>
         )}
       </div>
