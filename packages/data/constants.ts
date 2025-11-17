@@ -8,6 +8,8 @@ export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;
 export const HEY_APP = getEnvConfig().appAddress;
+export const CHAINS = getEnvConfig().chains;
+
 export const HEY_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
 export const SLICE_API_URL = process.env.SLICE_API_URL || "https://localhost:3000/";
 
@@ -44,10 +46,9 @@ export const WALLETCONNECT_PROJECT_ID = "cd542acc70c2b548030f9901a52e70c8";
 export const GIPHY_KEY = "yNwCXMKkiBrxyyFduF56xCbSuJJM8cMd"; // Read only safe key
 
 export const LENS_NAMESPACE = "lens/";
-export const NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "GHO" : "GRASS";
+export const NATIVE_TOKEN_SYMBOL = getEnvConfig().chains.lensChain.nativeToken.symbol;
 export const WRAPPED_NATIVE_TOKEN_SYMBOL = IS_MAINNET ? "WGHO" : "WGRASS";
-
-export const ERC20_TOKEN_SYMBOL = IS_MAINNET ? "RYF" : "tRYF";
+export const ERC20_TOKEN_SYMBOL = getEnvConfig().chains.lensChain.token.symbol;
 
 export const MAX_IMAGE_UPLOAD = 8;
 

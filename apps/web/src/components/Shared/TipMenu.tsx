@@ -1,7 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import {
   HEY_TREASURY,
-  NATIVE_TOKEN_SYMBOL,
   DEFAULT_COLLECT_TOKEN,
   ERC20_TOKEN_SYMBOL
 } from "@slice/data/constants";
@@ -84,7 +83,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
     setIsSubmitting(false);
     closePopover();
     updateCache();
-    toast.success(`Tipped ${amount} ${NATIVE_TOKEN_SYMBOL}`);
+    toast.success(`Tipped ${amount} ${ERC20_TOKEN_SYMBOL} successfully!`);
   };
 
   const onError = useCallback((error: ApolloClientError) => {
