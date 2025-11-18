@@ -23,6 +23,7 @@ import DeletedDetails from "./DeletedDetails";
 import Details from "./Details";
 import FeedType from "./FeedType";
 import AccountPageShimmer from "./Shimmer";
+import cn from "@/helpers/cn";
 
 const ViewAccount = () => {
   const { address, username } = useParams<{
@@ -106,13 +107,15 @@ const ViewAccount = () => {
       title={`${accountInfo.name} (${accountInfo.usernameWithPrefix}) • Slice`}
       zeroTopMargin
     >
-      <Cover
+      <div className={cn("overflow-hidden rounded-2xl backdrop-blur-sm",)}>
+        <Cover
         cover={
           account?.metadata?.coverPicture ||
           `${STATIC_IMAGES_URL}/patterns/2.svg`
         }
       />
       {renderAccountDetails()}
+      </div>
       {isDeleted || isBlockedByMe || hasBlockedMe ? (
         renderEmptyState()
       ) : (

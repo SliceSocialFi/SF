@@ -1,8 +1,8 @@
 import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
 import cn from "@/helpers/cn";
 import errorToast from "@/helpers/errorToast";
-import reloadAllTabs from "@/helpers/reloadAllTabs";
 import { signOut } from "@/store/persisted/useAuthStore";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
 
 interface LogoutProps {
   className?: string;
@@ -10,10 +10,18 @@ interface LogoutProps {
 }
 
 const Logout = ({ className = "", onClick }: LogoutProps) => {
+  const { setCurrentAccount } = useAccountStore();
+  
   const handleLogout = async () => {
     try {
+      // Clear account first
+      setCurrentAccount(undefined);
+      
+      // Sign out (clears tokens and localStorage)
       signOut();
-      reloadAllTabs();
+      
+      // Redirect to home using window.location
+      window.location.href = '/';
     } catch (error) {
       errorToast(error);
     }

@@ -51,11 +51,6 @@ const Subscribe = () => {
     errorToast(error);
   }, []);
 
-  // const tokenBalance =
-  //   balance?.balancesBulk[0].__typename === "Erc20Amount"
-  //     ? Number(balance.balancesBulk[0].value).toFixed(2)
-  //     : 0;
-
   const erc20Balance =
     balance?.balancesBulk[1].__typename === "Erc20Amount"
       ? Number(balance.balancesBulk[1].value).toFixed(2)

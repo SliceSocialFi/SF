@@ -38,6 +38,10 @@ const { store } = createPersistedTrackedStore<State>(
       set({ accessToken, refreshToken, profileId });
     },
     signOut: async () => {
+      // Reset state immediately
+      set({ accessToken: null, refreshToken: null, profileId: null });
+      
+      // Clear localStorage
       clearLocalStorage();
     }
   }),

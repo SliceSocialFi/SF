@@ -7,6 +7,7 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import LoginButton from "./LoginButton";
 import Search from "./Search";
 import Sidebar from "./Sidebar";
+import ProfileCard from "@/components/Profile/ProfileCard";
 
 interface AuthButtonsProps {
   className?: string;
@@ -34,6 +35,10 @@ interface PageLayoutProps {
   sidebar?: ReactNode;
   hideSearch?: boolean;
   zeroTopMargin?: boolean;
+  /** home = followers/following, tasks = reputation + reward */
+  profileVariant?: "home" | "tasks";
+  /** tắt ProfileCard hoàn toàn (dùng cho trang nào muốn tự sắp vị trí) */
+  showProfileCard?: boolean;
 }
 
 const PageLayout = ({
@@ -42,7 +47,9 @@ const PageLayout = ({
   description,
   sidebar = <Sidebar />,
   hideSearch = false,
-  zeroTopMargin = false
+  zeroTopMargin = false,
+  profileVariant = "home",
+  showProfileCard = true
 }: PageLayoutProps) => {
   return (
     <>
@@ -61,9 +68,11 @@ const PageLayout = ({
         />
         {children}
       </div>
+
       <aside className="no-scrollbar sticky top-5 mt-5 hidden max-h-screen w-[22.5rem] shrink-0 flex-col gap-y-5 overflow-y-auto overflow-x-clip lg:flex">
         <AuthButtons />
         {!hideSearch && <Search />}
+        {showProfileCard && <ProfileCard variant={profileVariant} />}
         {sidebar}
       </aside>
     </>

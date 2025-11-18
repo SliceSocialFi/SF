@@ -117,6 +117,7 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
             }
             onClick={handleShowDropdown}
             placeholder={placeholder}
+            skipWrapper={true}
             type="text"
             {...form.register("query")}
           />
@@ -125,7 +126,7 @@ const Search = ({ placeholder = "Search…" }: SearchProps) => {
 
       {pathname !== "/search" && showDropdown ? (
         <div className="fixed z-10 mt-2 w-[360px]" ref={dropdownRef}>
-          <Card className="max-h-[80vh] overflow-y-auto py-2">
+          <Card className="max-h-[80vh] overflow-y-auto py-2 bg-white dark:bg-black">
             {!debouncedSearchText && (
               <RecentAccounts onAccountClick={handleReset} />
             )}

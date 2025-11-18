@@ -90,7 +90,6 @@ const UserProfilePage = ({
       setLoading(true);
       try {
         const res = await apiClient.getUser(walletAddress);
-        // Map server response to local UserProfile shape if necessary
         const mapped: UserProfile = {
           walletAddress: res.walletAddress || res.address || walletAddress,
           username: res.username || res.name || (walletAddress === currentAccount?.address ? 'You' : undefined),
