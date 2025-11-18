@@ -21,7 +21,7 @@ const SignedAccount = () => {
     <Image
       alt={currentAccount?.address}
       className="size-8 cursor-pointer rounded-full border border-gray-200 dark:border-gray-700"
-      src={getAvatar(currentAccount)}
+      src={(currentAccount as any)?.metadata?.picture || "/default-avatar.png"}
     />
   );
 

@@ -6,9 +6,9 @@ const FullPageLoader = () => {
     <div className="grid h-screen place-items-center">
       <Image
         alt="Logo"
-        className="size-28"
+        className="size-28 animate-pulse"
         height={112}
-        src={`${STATIC_IMAGES_URL}/app-icon/0.png`}
+        src="/favicon.png"
         width={112}
       />
     </div>

@@ -81,7 +81,7 @@ const NewPost = ({ feed }: NewPostProps) => {
           alt={currentAccount?.address}
           className="size-11 cursor-pointer rounded-full border border-gray-200 bg-gray-200 dark:border-gray-700"
           height={44}
-          src={getAvatar(currentAccount)}
+          src={(currentAccount as any)?.metadata?.picture || "/default-avatar.png"}
           width={44}
         />
         <span className="text-gray-500 dark:text-gray-200">What's new?!</span>

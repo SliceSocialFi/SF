@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router";
 import { Card } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { apiClient } from "@/lib/apiClient";
@@ -110,23 +111,26 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
     (user?.professionalRoles || []).join(" • ") ||
     "No bio yet.";
 
-  const avatarUrl = (currentAccount as any)?.metadata?.picture ?? null;
+  const avatarUrl = (currentAccount as any)?.metadata?.picture || "/default-avatar.png";
   const coverUrl = (currentAccount as any)?.metadata?.coverPicture ?? null;
 
   // Stats cho tasks - already calculated above before early return
   const rewardPoints = user?.rewardPoints ?? 0;
   const level = user?.level ?? 1;
 
+  const accountLink = accountInfo?.link || `/${currentAccount.address}`;
+
   return (
-    <Card
-      className={cn(
-        "overflow-hidden rounded-2xl backdrop-blur-sm",
-        // Light mode
-        "border border-gray-200 bg-white/90",
-        // Dark mode
-        "dark:border-gray-700 dark:bg-black"
-      )}
-    >
+    <Link to={accountLink}>
+      <Card
+        className={cn(
+          "overflow-hidden rounded-2xl backdrop-blur-sm cursor-pointer transition-transform",
+          // Light mode
+          "border border-gray-200 bg-white/90",
+          // Dark mode
+          "dark:border-gray-700 dark:bg-black"
+        )}
+      >
       {/* Phần trên: Cover */}
       <div className="relative h-24 sm:h-28">
         {coverUrl ? (
@@ -142,17 +146,11 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
         {/* Avatar overlap */}
         <div className="absolute -bottom-10 left-4 flex items-center gap-3">
           <div className="h-18 w-18 rounded-full border-[3px] bg-gray-100 overflow-hidden border-white dark:border-gray-950 dark:bg-gray-900 mb-0">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={displayName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xl font-semibold text-gray-700 dark:text-gray-300">
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              className="h-full w-full object-cover"
+            />
           </div>
           {/* Desktop: tên + username */}
           <div className="hidden sm:flex flex-col pt-6">
@@ -247,6 +245,7 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
         )}
       </div>
     </Card>
+    </Link>
   );
 };
 
