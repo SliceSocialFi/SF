@@ -10,7 +10,6 @@ import Rewards from "@/components/Shared/Navbar/NavItems/Rewards";
 import Settings from "@/components/Shared/Navbar/NavItems/Settings";
 import Support from "@/components/Shared/Navbar/NavItems/Support";
 import SwitchAccount from "@/components/Shared/Navbar/NavItems/SwitchAccount";
-import ThemeSwitch from "@/components/Shared/Navbar/NavItems/ThemeSwitch";
 import YourAccount from "@/components/Shared/Navbar/NavItems/YourAccount";
 import cn from "@/helpers/cn";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
@@ -69,10 +68,6 @@ const MobileDrawerMenu = () => {
             <Link onClick={handleCloseDrawer} to="/bookmarks">
               <Bookmarks className={cn(itemClass, "px-4")} />
             </Link>
-            <ThemeSwitch
-              className={cn(itemClass, "px-4")}
-              onClick={handleCloseDrawer}
-            />
           </div>
           <div className="divider" />
         </div>
