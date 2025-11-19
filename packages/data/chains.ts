@@ -2,7 +2,7 @@ export const TESTNET_CHAINS = {
     lensChain: {
         name: "Lens Chain Testnet",
         chainId: 37111,
-        icon: "/lenschain-logo.png",
+        icon: "/lens-logo.png",
         token: {
             name: "Testnet Rise Your Future",
             symbol: "tRYF",
@@ -13,7 +13,7 @@ export const TESTNET_CHAINS = {
         nativeToken: {
             name: "Grass",
             symbol: "GRASS",
-            decimals: 18
+            decimals: 18,
         }
     },
     bsc: {
