@@ -4,6 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
   --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
   --font-general-sans: "General Sans", "Plus Jakarta Sans", sans-serif;
   --font-sofia-pro: "Sofia Pro", sans-serif;
@@ -29,7 +30,8 @@
 @layer base {
   :root {
     @apply text-black dark:text-white;
-    font-family: var(--font-plus-jakarta);
+    font-family: var(--font-system);
+    font-weight: 400; /* Regular weight for body text */
   }
 
   html {
@@ -38,14 +40,65 @@
 
   body {
     @apply bg-gray-50;
-    font-family: var(--font-plus-jakarta);
+    font-family: var(--font-system);
+    font-weight: 400; /* Regular weight for body text */
     /* @apply dark:bg-black; */
   }
 
     .dark body {
       background-color: #121212;
-      /* “dim black” – dễ chịu cho mắt hơn đen tuyệt đối */
+      /* "dim black" – dễ chịu cho mắt hơn đen tuyệt đối */
     }
+
+  /* Typography System - Font Weight Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-system);
+    letter-spacing: -0.02em;
+  }
+
+  h1 { font-weight: 800; } /* Heavy for main titles */
+  h2 { font-weight: 700; } /* Bold */
+  h3 { font-weight: 700; } /* Bold */
+  h4 { font-weight: 600; } /* Semibold */
+  h5 { font-weight: 600; } /* Semibold */
+  h6 { font-weight: 600; } /* Semibold */
+
+  /* Paragraphs & Body Text */
+  p {
+    font-weight: 400; /* Regular */
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  button {
+    font-weight: 600; /* Semibold for buttons */
+    letter-spacing: -0.01em;
+  }
+
+  /* Links */
+  a {
+    font-weight: 500; /* Medium for links */
+  }
+
+  /* Input & Form elements */
+  input, textarea, select {
+    font-weight: 400; /* Regular */
+  }
+
+  /* Labels */
+  label {
+    font-weight: 500; /* Medium */
+  }
+
+  /* Strong & Bold */
+  strong, b {
+    font-weight: 600; /* Semibold */
+  }
+
+  /* Small text */
+  small {
+    font-weight: 400; /* Regular */
+  }
 
   .shimmer {
     @apply animate-shimmer;
