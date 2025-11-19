@@ -21,7 +21,7 @@ import getTokenImage from "@/helpers/getTokenImage";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import useWaitForTransactionToComplete from "@/hooks/useWaitForTransactionToComplete";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import pro_image from '../../../../public/pro.png';
+import proImage from '../../../../public/pro.png';
 
 const Subscribe = () => {
   const { currentAccount } = useAccountStore();
@@ -85,7 +85,7 @@ const Subscribe = () => {
       <Image
         alt="Pro"
         className="w-32"
-        src={pro_image}
+        src={proImage}
         width={256}
       />
       <div className="max-w-md text-center text-gray-500">
