@@ -9,7 +9,6 @@ const bridgeApi = axios.create({
     },
 });
 
-// Response types
 export interface BridgeStatusResponse {
     id: string;
     status: "pending" | "processing" | "completed" | "failed";
