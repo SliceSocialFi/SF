@@ -55,10 +55,7 @@ const useBridge = ({
     const chains = getChains();
 
     const isTopUp = destChainId === chains.lensChain.chainId;
-    const isWithdraw = !isTopUp;
-
-    console.log(`BRIDGE: from(${userAddress}) on chain ${srcChainId} to(${recipientAddress}) on chain ${destChainId}`);
-
+    
     useEffect(() => {
         if (isTopUp) {
             setBridgeMethodInfo({
@@ -74,10 +71,6 @@ const useBridge = ({
             });
         }
     }, [destChainId, isTopUp, userAddress]);
-
-    console.log("Bridge method info set:", bridgeMethodInfo);
-    console.log("userAddress:", userAddress);
-    console.log("Token address:", tokenAddress);
 
     const allowanceSpender = isTopUp
         ? (BSC_POOL_CONTRACT as Address)
