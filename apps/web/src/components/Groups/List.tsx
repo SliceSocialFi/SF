@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import { WindowVirtualizer } from "virtua";
 import SingleGroup from "@/components/Shared/Group/SingleGroup";
 import GroupListShimmer from "@/components/Shared/Shimmer/GroupListShimmer";
-import { EmptyState, ErrorMessage } from "@/components/Shared/UI";
+import { EmptyState, ErrorMessage, Card } from "@/components/Shared/UI";
 import useLoadMoreOnIntersect from "@/hooks/useLoadMoreOnIntersect";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 
@@ -77,16 +77,19 @@ const List = ({ feedType }: ListProps) => {
   }
 
   return (
-    <div className="virtual-divider-list-window">
-      <WindowVirtualizer>
+    <WindowVirtualizer>
+      <div className="space-y-3">
         {groups.map((group) => (
-          <div className="p-5" key={group.address}>
+          <Card
+            key={group.address}
+            className="p-5 rounded-2xl bg-gray-950/70"
+          >
             <SingleGroup group={group} isBig showDescription />
-          </div>
+          </Card>
         ))}
         {hasMore && <span ref={loadMoreRef} />}
-      </WindowVirtualizer>
-    </div>
+      </div>
+    </WindowVirtualizer>
   );
 };
 

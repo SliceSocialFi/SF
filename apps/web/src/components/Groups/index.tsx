@@ -33,9 +33,7 @@ const Groups = () => {
       <StickyFeedBar>
         <FeedType feedType={feedType} setFeedType={setFeedType} />
       </StickyFeedBar>
-      <Card>
-        <List feedType={feedType} />
-      </Card>
+      <List feedType={feedType} />
     </PageLayout>
   );
 };
