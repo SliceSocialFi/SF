@@ -75,17 +75,17 @@ const Details = ({
     );
   };
 
+  const avatarUrl = account?.metadata?.picture || "/default-avatar.png";
+
   return (
     <div className="mb-4 space-y-3 px-5 md:px-0">
       <div className="flex items-start justify-between">
         <div className="-mt-14 sm:-mt-24 relative ml-5 size-20 sm:size-36">
-          <Image
+          <img
             alt={account.address}
-            className="size-20 cursor-pointer rounded-full bg-gray-200 ring-3 ring-gray-50 sm:size-36 dark:bg-gray-700 dark:ring-black"
-            height={128}
+            className="!size-20 cursor-pointer rounded-full bg-gray-200 ring-4 ring-gray-50 sm:!size-36 dark:bg-gray-700 dark:ring-black object-cover"
             onClick={handleShowLightBox}
-            src={getAvatar(account, TRANSFORMS.AVATAR_BIG)}
-            width={128}
+            src={avatarUrl}
           />
           <LightBox
             images={[getAvatar(account, TRANSFORMS.EXPANDED_AVATAR)]}
@@ -93,7 +93,7 @@ const Details = ({
             show={showLightBox}
           />
         </div>
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2 pt-2">
           {currentAccount?.address === account.address ? (
             <Button onClick={() => navigate("/settings")} outline>
               Edit Account

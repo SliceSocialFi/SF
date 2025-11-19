@@ -24,6 +24,7 @@ let mockTasks: TaskItem[] = [];
 
 import { useAccountQuery } from "@slice/indexer";
 import { userInfo } from "os";
+import ProfileCard from "@/components/Profile/ProfileCard";
 
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -236,23 +237,28 @@ const Tasks = () => {
   return (
     <PageLayout
       hideSearch
+      showProfileCard={false}
       sidebar={
         <div className="space-y-4">
           {/* Search Bar */}
           <div className="relative search-wrap">
-            <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 z-10" />
             <input
-              className="w-full rounded-lg border border-gray-300 bg-white py-2 pr-3 pl-10 text-sm placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              className="relative z-10 w-full bg-transparent py-2 pr-3 pl-10 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white border-none outline-none focus:ring-0"
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
               type="text"
               value={searchQuery}
             />
           </div>
+          {/* ProfileCard đặt NGAY dưới search task, dùng variant 'tasks' */}
+          <div className="mt-4">
+            <ProfileCard variant="tasks" />
+          </div>
           {/* New Task Button */}
           <NewTask onSubmit={setTasks} />
           {/* Reputation Card */}
-          <Card className="p-5">
+          {/* <Card className="p-5">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -265,10 +271,10 @@ const Tasks = () => {
                     My Reputation
                   </H6>
                 </div>
-              </div>
+              </div> */}
 
               {/* Progress Bar */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-600 dark:text-gray-400">
                     Progress
@@ -286,11 +292,11 @@ const Tasks = () => {
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Keep completing tasks to reach 100!
                 </p>
-              </div>
-            </div>
-          </Card>
+              </div> */}
+            {/* </div>
+          </Card> */}
           {/* Reward Points Card */}
-          <Card className="p-5">
+          {/* <Card className="p-5">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -313,7 +319,7 @@ const Tasks = () => {
                 </p>
               </div>
             </div>
-          </Card>
+          </Card> */}
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             © 2025 Slice GitHub

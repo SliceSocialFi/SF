@@ -1,11 +1,13 @@
-import { SwatchIcon } from "@heroicons/react/24/outline";
+import { MoonIcon, SunIcon, SwatchIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Tooltip } from "@/components/Shared/UI";
+import { useTheme } from "@/hooks/useTheme";
 import { useThemePalette } from "./useThemePalette";
 
 const ThemeSwitcher: React.FC = () => {
   const { key, setKey, palettes } = useThemePalette();
+  const { toggleTheme, theme } = useTheme();
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -86,6 +88,25 @@ const ThemeSwitcher: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             >
+            {/* Light/Dark Mode Toggle */}
+            <button
+              type="button"
+              className="mb-3 flex w-full items-center justify-between rounded-lg border border-gray-200 p-2.5 text-sm transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTheme();
+              }}
+            >
+              <span className="text-gray-700 dark:text-gray-300">
+                {theme === "light" ? "Dark mode" : "Light mode"}
+              </span>
+              {theme === "light" ? (
+                <MoonIcon className="size-5 text-gray-600 dark:text-gray-400" />
+              ) : (
+                <SunIcon className="size-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+
             <div className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
                 Pick a primary palette
             </div>

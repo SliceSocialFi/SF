@@ -27,20 +27,20 @@ const Suggested = ({ accounts }: SuggestedProps) => {
   }
 
   return (
-    <div className="max-h-[80vh] overflow-y-auto">
+    <div className="max-h-[70vh] overflow-y-auto">
       <Virtualizer>
         {accounts.slice(5).map((account, index) => (
           <motion.div
             animate="visible"
             className={cn(
-              "divider flex items-start space-x-3 p-5",
-              index === accounts.slice(5).length - 1 && "border-b-0"
+              "flex items-start space-x-3 px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors",
+              index !== accounts.slice(5).length - 1 && "border-b border-gray-200 dark:border-gray-800"
             )}
             initial="hidden"
             key={account.address}
             variants={accountsList}
           >
-            <div className="w-full">
+            <div className="w-full min-w-0">
               <SingleAccount
                 account={account}
                 hideFollowButton={currentAccount?.address === account.address}
@@ -49,7 +49,7 @@ const Suggested = ({ accounts }: SuggestedProps) => {
                 showUserPreview={false}
               />
             </div>
-            <div className="mt-3.5">
+            <div className="flex-shrink-0 pt-1">
               <DismissRecommendedAccount account={account} />
             </div>
           </motion.div>

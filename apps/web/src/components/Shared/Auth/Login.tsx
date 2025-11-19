@@ -17,7 +17,6 @@ import SingleAccount from "@/components/Shared/Account/SingleAccount";
 import Loader from "@/components/Shared/Loader";
 import { Button, Card, ErrorMessage } from "@/components/Shared/UI";
 import errorToast from "@/helpers/errorToast";
-import reloadAllTabs from "@/helpers/reloadAllTabs";
 import { signIn } from "@/store/persisted/useAuthStore";
 import { EXPANSION_EASE } from "@/variants";
 import SignupCard from "./SignupCard";
@@ -115,7 +114,9 @@ const Login = ({ setHasAccounts }: LoginProps) => {
         const accessToken = auth.data?.authenticate.accessToken;
         const refreshToken = auth.data?.authenticate.refreshToken;
         signIn({ accessToken, refreshToken });
-        reloadAllTabs();
+        
+        // Use window.location to avoid Router context issues
+        window.location.href = '/';
         return;
       }
 

@@ -9,7 +9,7 @@ const textAreaVariants = cva(
     "w-full rounded-xl border bg-white px-4 py-2 shadow-xs",
     "focus:border-gray-500 focus:ring-0",
     "disabled:bg-gray-500/20 disabled:opacity-60",
-    "dark:bg-gray-900"
+    "dark:bg-[#121212]"
   ],
   {
     defaultVariants: { error: false },
@@ -40,7 +40,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             "input-wrap",
             "border",
             error ? "!border-red-500" : "border-gray-300 dark:border-gray-700",
-            "rounded-xl bg-white dark:bg-gray-900",
+            "rounded-xl bg-white dark:bg-[#121212]",
             { "!bg-gray-500/20 opacity-60": props.disabled }
           )}
         >

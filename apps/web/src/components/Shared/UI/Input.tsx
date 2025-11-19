@@ -13,6 +13,7 @@ interface InputProps extends Omit<ComponentProps<"input">, "prefix"> {
   iconRight?: ReactNode;
   label?: ReactNode;
   prefix?: ReactNode | string;
+  skipWrapper?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -26,6 +27,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       iconRight,
       label,
       prefix,
+      skipWrapper = false,
       type = "text",
       ...props
     },
@@ -50,47 +52,75 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ) : null}
         <div className="flex gap-1">
           {prefix ? (
-            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900 rounded-xl px-3 shrink-0 ">
+            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-[#121212] rounded-xl px-3 shrink-0 ">
               <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 {prefix}
               </span>
             </div>
           ) : null}
-          <div
-            className={cn(
-              { "!bg-gray-500/20 opacity-50": props.disabled },
-              { "!border-red-500": error },
-              prefix ? "rounded-r-xl" : "rounded-xl",
-              "input-wrap flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-gray-900"
-            )}
-          >
+          {skipWrapper ? (
             <div className="relative z-10 flex w-full items-center">
-            <input
-              className={cn(
-                { "placeholder:text-red-500": error },
-                prefix ? "rounded-r-xl" : "rounded-xl",
-                "peer w-full border-none bg-transparent outline-hidden focus:ring-0",
-                className
-              )}
-              id={id}
-              ref={ref}
-              type={type}
-              {...props}
-            />
-            <span
-              className={cn({ "order-first pl-3": iconLeft }, iconStyles)}
-              tabIndex={-1}
-            >
-              {iconLeft}
-            </span>
-            <span
-              className={cn({ "order-last pr-3": iconRight }, iconStyles)}
-              tabIndex={-1}
-            >
-              {iconRight}
-            </span>
+              <input
+                className={cn(
+                  { "placeholder:text-red-500": error },
+                  "peer w-full border-none bg-transparent outline-hidden focus:ring-0",
+                  className
+                )}
+                id={id}
+                ref={ref}
+                type={type}
+                {...props}
+              />
+              <span
+                className={cn({ "order-first pl-3": iconLeft }, iconStyles)}
+                tabIndex={-1}
+              >
+                {iconLeft}
+              </span>
+              <span
+                className={cn({ "order-last pr-3": iconRight }, iconStyles)}
+                tabIndex={-1}
+              >
+                {iconRight}
+              </span>
             </div>
-          </div>
+          ) : (
+            <div
+              className={cn(
+                { "!bg-gray-500/20 opacity-50": props.disabled },
+                { "!border-red-500": error },
+                prefix ? "rounded-r-xl" : "rounded-xl",
+                "input-wrap flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-[#121212]"
+              )}
+            >
+              <div className="relative z-10 flex w-full items-center">
+                <input
+                  className={cn(
+                    { "placeholder:text-red-500": error },
+                    prefix ? "rounded-r-xl" : "rounded-xl",
+                    "peer w-full border-none bg-transparent outline-hidden focus:ring-0",
+                    className
+                  )}
+                  id={id}
+                  ref={ref}
+                  type={type}
+                  {...props}
+                />
+                <span
+                  className={cn({ "order-first pl-3": iconLeft }, iconStyles)}
+                  tabIndex={-1}
+                >
+                  {iconLeft}
+                </span>
+                <span
+                  className={cn({ "order-last pr-3": iconRight }, iconStyles)}
+                  tabIndex={-1}
+                >
+                  {iconRight}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         {!hideError && props.name ? <FieldError name={props.name} /> : null}
       </label>

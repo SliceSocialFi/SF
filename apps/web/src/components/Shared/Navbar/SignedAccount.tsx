@@ -8,7 +8,6 @@ import Logout from "@/components/Shared/Navbar/NavItems/Logout";
 import Rewards from "@/components/Shared/Navbar/NavItems/Rewards";
 import Settings from "@/components/Shared/Navbar/NavItems/Settings";
 import SwitchAccount from "@/components/Shared/Navbar/NavItems/SwitchAccount";
-import ThemeSwitch from "@/components/Shared/Navbar/NavItems/ThemeSwitch";
 import YourAccount from "@/components/Shared/Navbar/NavItems/YourAccount";
 import { Image } from "@/components/Shared/UI";
 import cn from "@/helpers/cn";
@@ -21,7 +20,7 @@ const SignedAccount = () => {
     <Image
       alt={currentAccount?.address}
       className="size-8 cursor-pointer rounded-full border border-gray-200 dark:border-gray-700"
-      src={getAvatar(currentAccount)}
+      src={(currentAccount as any)?.metadata?.picture || "/default-avatar.png"}
     />
   );
 
@@ -71,14 +70,6 @@ const SignedAccount = () => {
             }
           >
             <SwitchAccount />
-          </MenuItem>
-          <MenuItem
-            as="div"
-            className={({ focus }) =>
-              cn({ "dropdown-active": focus }, "m-2 rounded-lg")
-            }
-          >
-            <ThemeSwitch />
           </MenuItem>
           <div className="divider" />
           <MenuItem

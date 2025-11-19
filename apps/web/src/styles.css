@@ -4,6 +4,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-general-sans: "General Sans", "Plus Jakarta Sans", sans-serif;
   --font-sofia-pro: "Sofia Pro", sans-serif;
   --animate-shimmer: shimmer 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
@@ -26,7 +29,9 @@
 
 @layer base {
   :root {
-    @apply font-sofia-pro text-black dark:text-white;
+    @apply text-black dark:text-white;
+    font-family: var(--font-system);
+    font-weight: 400; /* Regular weight for body text */
   }
 
   html {
@@ -35,13 +40,65 @@
 
   body {
     @apply bg-gray-50;
+    font-family: var(--font-system);
+    font-weight: 400; /* Regular weight for body text */
     /* @apply dark:bg-black; */
   }
 
     .dark body {
       background-color: #121212;
-      /* “dim black” – dễ chịu cho mắt hơn đen tuyệt đối */
+      /* "dim black" – dễ chịu cho mắt hơn đen tuyệt đối */
     }
+
+  /* Typography System - Font Weight Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-system);
+    letter-spacing: -0.02em;
+  }
+
+  h1 { font-weight: 800; } /* Heavy for main titles */
+  h2 { font-weight: 700; } /* Bold */
+  h3 { font-weight: 700; } /* Bold */
+  h4 { font-weight: 600; } /* Semibold */
+  h5 { font-weight: 600; } /* Semibold */
+  h6 { font-weight: 600; } /* Semibold */
+
+  /* Paragraphs & Body Text */
+  p {
+    font-weight: 400; /* Regular */
+    line-height: 1.6;
+  }
+
+  /* Buttons */
+  button {
+    font-weight: 600; /* Semibold for buttons */
+    letter-spacing: -0.01em;
+  }
+
+  /* Links */
+  a {
+    font-weight: 500; /* Medium for links */
+  }
+
+  /* Input & Form elements */
+  input, textarea, select {
+    font-weight: 400; /* Regular */
+  }
+
+  /* Labels */
+  label {
+    font-weight: 500; /* Medium */
+  }
+
+  /* Strong & Bold */
+  strong, b {
+    font-weight: 600; /* Semibold */
+  }
+
+  /* Small text */
+  small {
+    font-weight: 400; /* Regular */
+  }
 
   .shimmer {
     @apply animate-shimmer;
@@ -164,6 +221,20 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+
+  /* Font utility classes */
+  .font-plus-jakarta {
+    font-family: var(--font-plus-jakarta);
+  }
+
+  .font-general-sans {
+    font-family: var(--font-general-sans);
+  }
+
+  /* Apply General Sans to all headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-general-sans);
   }
 }
 
@@ -299,24 +370,16 @@
     position: relative;
     isolation: isolate;
     border-radius: 16px;
-    background-color: #0b1220;
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    background-color: white;
+    border: 1px solid rgb(209 213 219 / 1);
     overflow: hidden;
-    transition: border-color 0.25s ease;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
     z-index: 0;
-  }
-
-  .search-wrap:hover {
-    border-color: rgba(255, 255, 255, 0.9);
   }
 
   .dark .search-wrap {
     border-color: rgb(63 63 70 / 1);
-    background-color: var(--app-bg);
-  }
-
-  .dark .search-wrap:hover {
-    border-color: rgb(82 82 91 / 1);
+    background-color: #000000;
   }
 
   .search-wrap::before {
@@ -338,11 +401,7 @@
       inset 0 0 0 4px var(--primary-hover),
       0 0 0 0 transparent;
   }
-
-  .search-wrap:focus-within {
-    border-color: transparent;
-  }
-
+  
   .search-wrap:focus-within::before {
     opacity: 1;
     animation: search-border-draw 0.6s cubic-bezier(.42, 0, .58, 1) forwards;
@@ -398,10 +457,6 @@
     box-shadow: 
       inset 0 0 0 3px var(--primary-hover),
       0 0 0 0 transparent;
-  }
-
-  .input-wrap:focus-within {
-    border-color: transparent;
   }
 
   .input-wrap:focus-within::before {

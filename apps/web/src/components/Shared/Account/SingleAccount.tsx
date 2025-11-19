@@ -42,7 +42,7 @@ const SingleAccount = ({
       )}
       height={isBig ? 56 : 44}
       loading="lazy"
-      src={getAvatar(account)}
+      src={(account as any)?.metadata?.picture || "/default-avatar.png"}
       width={isBig ? 56 : 44}
     />
   );

@@ -27,15 +27,6 @@ const LoginButton = ({
   return (
     <Button
       className={className}
-      icon={
-        <img
-          alt="Lens Logo"
-          className="mr-0.5 h-3"
-          height={12}
-          src={`${STATIC_IMAGES_URL}/brands/lens.svg`}
-          width={19}
-        />
-      }
       onClick={handleClick}
       size={isBig ? "lg" : "md"}
     >
