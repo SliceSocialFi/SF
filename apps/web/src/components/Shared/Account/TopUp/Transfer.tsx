@@ -281,6 +281,7 @@ const Transfer = ({ token }: TransferProps) => {
           </div>
           <div>
             <Select
+              className="dark:bg-[#121212]"
               options={chainOptions}
               onChange={handleSelectChain}
               iconClassName="size-4 rounded-full"
@@ -292,28 +293,28 @@ const Transfer = ({ token }: TransferProps) => {
       <div className="space-y-5 p-5">
         <div className="flex space-x-4 text-sm">
           <Button
-            className="w-full"
+            className="w-full dark:bg-[#121212]"
             onClick={() => handleSetAmount(1)}
             outline={amount !== 1}
           >
             1
           </Button>
           <Button
-            className="w-full"
+            className="w-full dark:bg-[#121212]"
             onClick={() => handleSetAmount(2)}
             outline={amount !== 2}
           >
             2
           </Button>
           <Button
-            className="w-full"
+            className="w-full dark:bg-[#121212]"
             onClick={() => handleSetAmount(5)}
             outline={amount !== 5}
           >
             5
           </Button>
           <Button
-            className="w-full"
+            className="w-full dark:bg-[#121212]"
             onClick={() => {
               handleSetAmount(other ? 1 : 10);
               setOther(!other);
@@ -344,7 +345,7 @@ const Transfer = ({ token }: TransferProps) => {
             icon={<Spinner className="my-1" size="xs" />}
           />
         ) : Number(balanceOfSelectedChain) < amount ? (
-          <Button className="w-full opacity-60" disabled outline>
+          <Button className="w-full opacity-60 dark:bg-[#121212]" disabled outline>
             <span>Insufficient Balance</span>
           </Button>
         ) : (

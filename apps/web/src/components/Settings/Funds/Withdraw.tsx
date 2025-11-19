@@ -171,7 +171,7 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
       <Modal onClose={() => setShowModal(false)} show={showModal} title="Withdraw">
         <Card className="m-3" forceRounded>
           {isBridging ? (
-            <div className="flex flex-col items-center gap-4 p-8">
+            <div className="flex flex-col items-center gap-4 p-10">
               <Loader />
               <div className="flex flex-col items-center gap-2 text-center">
                 <span className="font-semibold text-lg">Bridging in progress...</span>
@@ -195,6 +195,7 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
                   </div>
                   <div>
                     <Select
+                      className="dark:bg-[#121212]"
                       options={chainOptions}
                       onChange={handleSelectChain}
                       iconClassName="size-4 rounded-full"
