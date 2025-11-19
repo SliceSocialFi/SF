@@ -1,4 +1,4 @@
-import { NATIVE_TOKEN_SYMBOL } from "@slice/data/constants";
+import { NATIVE_TOKEN_SYMBOL, ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
 import type { ApolloClientError } from "@slice/types/errors";
 import { useWithdrawMutation } from "@slice/indexer";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -14,6 +14,7 @@ import { getChains } from "@/helpers/getChains";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import usePreventScrollOnNumberInput from "@/hooks/usePreventScrollOnNumberInput";
 import useBridge from "@/hooks/useBridge";
+import { estimateBridgeFee, type EstimateFeeResponse } from "@/lib/api/bridge-api";
 
 interface WithdrawProps {
   currency?: Address;
@@ -34,8 +35,10 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
   const chains = getChains();
   const [selectedChainId, setSelectedChainId] = useState<number>(chains.lensChain.chainId);
   const selectedChain = Object.values(chains).find(c => c.chainId === selectedChainId) || chains.lensChain;
-  const symbol = currency ? "tRYF" : NATIVE_TOKEN_SYMBOL;
+  const symbol = currency ? ERC20_TOKEN_SYMBOL : NATIVE_TOKEN_SYMBOL;
   const { switchChainAsync } = useSwitchChain();
+  const [feeEstimate, setFeeEstimate] = useState<EstimateFeeResponse | null>(null);
+  const [isFetchingFee, setIsFetchingFee] = useState(false);
 
   const handleTransactionLifecycle = useTransactionLifecycle();
   usePreventScrollOnNumberInput(inputRef as any);
@@ -138,8 +141,35 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
     }
   }, [isBridgeHandling, initialValue, value]);
 
+  useEffect(() => {
+    const fetchFeeEstimate = async () => {
+      if (selectedChainId === chains.bsc.chainId && Number(inputValue) >= 10) {
+        try {
+          setIsFetchingFee(true);
+          const estimate = await estimateBridgeFee(inputValue);
+          setFeeEstimate(estimate);
+        } catch (error) {
+          console.error("Failed to estimate bridge fee:", error);
+          setFeeEstimate(null);
+        } finally {
+          setIsFetchingFee(false);
+        }
+      } else {
+        setFeeEstimate(null);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchFeeEstimate, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [selectedChainId, inputValue, chains.bsc.chainId]);
+
   const handleSelectChain = (chainId: number) => {
     setSelectedChainId(chainId);
+    if (chainId === chains.bsc.chainId) {
+      setInputValue("10");
+    } else {
+      setInputValue(value);
+    }
   };
 
   const handleTransaction = async () => {
@@ -202,28 +232,58 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
                   </div>
                 </div>
               </div>
-              <div className="mb-5 flex items-center gap-2">
-                <Input
-                  inputMode="decimal"
-                  onChange={(e) => setInputValue(e.target.value)}
-                  ref={inputRef}
-                  step="any"
-                  type="number"
-                  value={inputValue}
-                />
-                <Button onClick={() => setInputValue(value)} size="lg">
-                  Max
-                </Button>
+              <div className="mb-5">
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="no-spinner"
+                    inputMode="decimal"
+                    max={1000}
+                    min={selectedChainId === chains.bsc.chainId ? 10 : undefined}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder={selectedChainId === chains.bsc.chainId ? "10" : "0"}
+                    ref={inputRef}
+                    step="any"
+                    type="number"
+                    value={inputValue}
+                  />
+                  <Button onClick={() => setInputValue(value)} size="lg">
+                    Max
+                  </Button>
+                </div>
+                {selectedChainId === chains.bsc.chainId && (
+                  <div className="mt-2 flex flex-col gap-1">
+                    {isFetchingFee ? (
+                      <span className="text-gray-500 text-xs dark:text-gray-400">
+                        Calculating fee...
+                      </span>
+                    ) : feeEstimate && Number(inputValue) >= 10 ? (
+                      <span className="font-medium text-sm">
+                        You will receive: {feeEstimate.totalReceiveAmount} {symbol}
+                      </span>
+                    ) : null}
+                  </div>
+                )}
               </div>
-              <Button
-                className="w-full"
-                disabled={isSubmitting || !inputValue || inputValue === "0" || isBridging}
-                loading={isSubmitting || isBridging}
-                onClick={handleTransaction}
-                size="lg"
-              >
-                {selectedChainId === chains.bsc.chainId ? "Bridge" : "Withdraw"} {inputValue} {symbol}
-              </Button>
+              {Number(inputValue) < 10 && selectedChainId === chains.bsc.chainId ? (
+                <Button
+                  className="w-full opacity-60"
+                  disabled
+                  outline
+                  size="lg"
+                >
+                  <span>Minimum 10 tokens required</span>
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  disabled={isSubmitting || !inputValue || inputValue === "0" || isBridging}
+                  loading={isSubmitting || isBridging}
+                  onClick={handleTransaction}
+                  size="lg"
+                >
+                  {selectedChainId === chains.bsc.chainId ? "Bridge" : "Withdraw"} {inputValue} {symbol}
+                </Button>
+              )}
             </div>
           )}
         </Card>

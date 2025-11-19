@@ -211,7 +211,6 @@ const useBridge = ({
             const amountParsed = parseEther(amount || '0');
             const needsApprove = allowance !== undefined && allowance < amountParsed;
 
-            console.log("Bridging amount:", amountParsed);
             if (isTopUp) {
                 if (needsApprove) {
                     setPendingBridge({ amount: amountParsed, recipient: recipientAddress });

@@ -31,6 +31,7 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import useBridge from "@/hooks/useBridge";
 import useTokenBalance from "@/hooks/useTokenBalance";
 import { getTokenBalanceBulk } from "@/helpers/getBalance";
+import { estimateBridgeFee, type EstimateFeeResponse } from "@/lib/api/bridge-api";
 
 interface TransferProps {
   token?: FundingToken;
@@ -53,6 +54,8 @@ const Transfer = ({ token }: TransferProps) => {
   const selectedChain = Object.values(chains).find(c => c.chainId === selectedChainId) || chains.lensChain;
   const symbol = token?.symbol ?? NATIVE_TOKEN_SYMBOL;
   const { switchChainAsync } = useSwitchChain();
+  const [feeEstimate, setFeeEstimate] = useState<EstimateFeeResponse | null>(null);
+  const [isFetchingFee, setIsFetchingFee] = useState(false);
 
   const handleTransactionLifecycle = useTransactionLifecycle();
   usePreventScrollOnNumberInput(inputRef as RefObject<HTMLInputElement>);
@@ -219,8 +222,37 @@ const Transfer = ({ token }: TransferProps) => {
     }
   }, [isBridgeHandling, initialBal, currentBalance]);
 
+  useEffect(() => {
+    const fetchFeeEstimate = async () => {
+      if (selectedChainId === chains.bsc.chainId && amount >= 10) {
+        try {
+          setIsFetchingFee(true);
+          const estimate = await estimateBridgeFee(amount);
+          setFeeEstimate(estimate);
+        } catch (error) {
+          console.error("Failed to estimate bridge fee:", error);
+          setFeeEstimate(null);
+        } finally {
+          setIsFetchingFee(false);
+        }
+      } else {
+        setFeeEstimate(null);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchFeeEstimate, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [selectedChainId, amount, chains.bsc.chainId]);
+
   const handleSelectChain = (chainId: number) => {
     setSelectedChainId(chainId);
+    if (chainId === chains.bsc.chainId) {
+      setAmount(10);
+      setOther(true);
+    } else {
+      setAmount(1);
+      setOther(false);
+    }
   };
 
   const handleTransaction = async () => {
@@ -282,66 +314,99 @@ const Transfer = ({ token }: TransferProps) => {
       </div>
       <div className="divider" />
       <div className="space-y-5 p-5">
-        <div className="flex space-x-4 text-sm">
-          <Button
-            className="w-full"
-            onClick={() => handleSetAmount(1)}
-            outline={amount !== 1}
-          >
-            1
-          </Button>
-          <Button
-            className="w-full"
-            onClick={() => handleSetAmount(2)}
-            outline={amount !== 2}
-          >
-            2
-          </Button>
-          <Button
-            className="w-full"
-            onClick={() => handleSetAmount(5)}
-            outline={amount !== 5}
-          >
-            5
-          </Button>
-          <Button
-            className="w-full"
-            onClick={() => {
-              handleSetAmount(other ? 1 : 10);
-              setOther(!other);
-            }}
-            outline={!other}
-          >
-            Other
-          </Button>
-        </div>
-        {other ? (
+        {selectedChainId === chains.bsc.chainId ? (
           <div>
             <Input
               className="no-spinner"
               max={1000}
+              min={10}
               onChange={onOtherAmount}
-              placeholder="300"
+              placeholder="10"
               prefix={symbol}
               ref={inputRef}
               type="number"
               value={amount}
             />
+            <div className="mt-2 flex flex-col gap-1">
+              {isFetchingFee ? (
+                <span className="text-gray-500 text-xs dark:text-gray-400">
+                  Calculating fee...
+                </span>
+              ) : feeEstimate && amount >= 10 ? (
+                <span className="font-medium text-sm">
+                  You will receive: {feeEstimate.totalReceiveAmount} {symbol}
+                </span>
+              ) : null}
+            </div>
           </div>
-        ) : null}
+        ) : (
+          <>
+            <div className="flex space-x-4 text-sm">
+              <Button
+                className="w-full"
+                onClick={() => handleSetAmount(1)}
+                outline={amount !== 1}
+              >
+                1
+              </Button>
+              <Button
+                className="w-full"
+                onClick={() => handleSetAmount(2)}
+                outline={amount !== 2}
+              >
+                2
+              </Button>
+              <Button
+                className="w-full"
+                onClick={() => handleSetAmount(5)}
+                outline={amount !== 5}
+              >
+                5
+              </Button>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  handleSetAmount(other ? 1 : 10);
+                  setOther(!other);
+                }}
+                outline={!other}
+              >
+                Other
+              </Button>
+            </div>
+            {other ? (
+              <div>
+                <Input
+                  className="no-spinner"
+                  max={1000}
+                  onChange={onOtherAmount}
+                  placeholder="300"
+                  prefix={symbol}
+                  ref={inputRef}
+                  type="number"
+                  value={amount}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
         {balanceLoading ? (
           <Button
             className="flex w-full justify-center"
             disabled
             icon={<Spinner className="my-1" size="xs" />}
           />
-        ) : Number(balanceOfSelectedChain) < amount ? (
+        ) : Number(balanceOfSelectedChain) < amount || (selectedChainId === chains.bsc.chainId && amount < 10) ? (
           <Button
             className="w-full opacity-60"
             disabled
             outline
           >
-            <span>Insufficient Balance</span>
+            <span>
+              {selectedChainId === chains.bsc.chainId && amount < 10
+                ? "Minimum 10 tokens required"
+                : "Insufficient Balance"}
+            </span>
           </Button>
         ) : (
           <Button

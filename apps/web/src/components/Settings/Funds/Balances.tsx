@@ -44,7 +44,7 @@ const Balances = () => {
           {symbol}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Withdraw currency={currency} refetch={refetch} value={value} />
+          <Withdraw currency={currency} refetch={refetch} value={"1"} />
           {/* {!currency && <Wrap refetch={refetch} value={value} />}
           {currency === DEFAULT_COLLECT_TOKEN && (
             <Unwrap refetch={refetch} value={value} />
