@@ -76,7 +76,8 @@ export default defineConfig({
     // Provide a safe default for HEY_API_URL to avoid build-time errors.
     EnvironmentPlugin({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
-      LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet"
+      LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet",
+      BRIDGE_API_URL: process.env.BRIDGE_API_URL ?? "http://localhost:8787/"
     })
   ],
 server: {

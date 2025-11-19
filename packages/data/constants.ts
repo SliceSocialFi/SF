@@ -70,3 +70,5 @@ export const PERMISSIONS = {
   STAFF: "0xA7f2835e54998c6d7d4A0126eC0ebE91b5E43c69",
   SUBSCRIPTION: "0x780B6Db2237677554faDe2b20fC68005a9FD2064"
 } as const;
+
+export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";

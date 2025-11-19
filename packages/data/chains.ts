@@ -44,7 +44,7 @@ export const MAINNET_CHAINS = {
             name: "Rise Your Future",
             symbol: "RYF",
             decimals: 18,
-            address: "0x93198F5e56443286b50Cf749dFb6A27f251aA630", // Need updated
+            address: "0x93198F5e56443286b50Cf749dFb6A27f251aA630",
             icon: "/ryf-token-logo.png"
         },
         nativeToken: {
