@@ -125,7 +125,7 @@ const List = ({ feedType }: ListProps) => {
   }
 
   return (
-    <Card className="virtual-divider-list-window">
+    <div>
       <WindowVirtualizer>
         {notifications.map((notification) => {
           if (!("id" in notification)) {
@@ -138,19 +138,22 @@ const List = ({ feedType }: ListProps) => {
             ];
 
           return (
-            <div
-              className={cn({
-                "p-5": notification.__typename !== "FollowNotification"
-              })}
+            <Card
+              className={cn(
+                "mb-3",
+                {
+                  "p-5": notification.__typename !== "FollowNotification"
+                }
+              )}
               key={notification.id}
             >
               {Component && <Component notification={notification as never} />}
-            </div>
+            </Card>
           );
         })}
         {hasMore && <span ref={loadMoreRef} />}
       </WindowVirtualizer>
-    </Card>
+    </div>
   );
 };
 
