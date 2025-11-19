@@ -12,7 +12,7 @@ export const H2 = forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ as = "h2", children, className = "" }, ref) =>
     createElement(
       as,
-      { className: cn("text-3xl font-bold", className), ref },
+      { className: cn("text-3xl font-bold font-general-sans", className), ref },
       children
     )
 );
@@ -21,7 +21,7 @@ export const H3 = forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ as = "h3", children, className = "" }, ref) =>
     createElement(
       as,
-      { className: cn("text-2xl font-bold", className), ref },
+      { className: cn("text-2xl font-bold font-general-sans", className), ref },
       children
     )
 );
@@ -30,7 +30,7 @@ export const H4 = forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ as = "h4", children, className = "" }, ref) =>
     createElement(
       as,
-      { className: cn("text-xl font-bold", className), ref },
+      { className: cn("text-xl font-bold font-general-sans", className), ref },
       children
     )
 );
@@ -39,7 +39,7 @@ export const H5 = forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ as = "h5", children, className = "" }, ref) =>
     createElement(
       as,
-      { className: cn("text-lg font-bold", className), ref },
+      { className: cn("text-lg font-bold font-general-sans", className), ref },
       children
     )
 );
@@ -48,7 +48,7 @@ export const H6 = forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ as = "h6", children, className = "" }, ref) =>
     createElement(
       as,
-      { className: cn("text-sm font-bold", className), ref },
+      { className: cn("text-sm font-bold font-general-sans", className), ref },
       children
     )
 );
