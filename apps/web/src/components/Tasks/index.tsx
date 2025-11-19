@@ -252,7 +252,9 @@ const Tasks = () => {
             />
           </div>
           {/* ProfileCard đặt NGAY dưới search task, dùng variant 'tasks' */}
-          <ProfileCard variant="tasks" />
+          <div className="mt-4">
+            <ProfileCard variant="tasks" />
+          </div>
           {/* New Task Button */}
           <NewTask onSubmit={setTasks} />
           {/* Reputation Card */}

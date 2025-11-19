@@ -11,7 +11,7 @@ import type { ReactNode, SyntheticEvent } from "react";
 import { Fragment, memo } from "react";
 
 const modalVariants = cva(
-  "inline-block w-full scale-100 rounded-xl bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:align-middle dark:bg-[#121212]",
+  "inline-block w-full scale-100 rounded-xl bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:align-middle dark:bg-black",
   {
     defaultVariants: { size: "sm" },
     variants: {

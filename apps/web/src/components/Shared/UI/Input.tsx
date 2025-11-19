@@ -52,7 +52,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ) : null}
         <div className="flex gap-1">
           {prefix ? (
-            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900 rounded-xl px-3 shrink-0 ">
+            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-[#121212] rounded-xl px-3 shrink-0 ">
               <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 {prefix}
               </span>
@@ -90,7 +90,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 { "!bg-gray-500/20 opacity-50": props.disabled },
                 { "!border-red-500": error },
                 prefix ? "rounded-r-xl" : "rounded-xl",
-                "input-wrap flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-gray-900"
+                "input-wrap flex w-full items-center border border-gray-300 bg-white focus-within:border-gray-500 dark:border-gray-700 dark:bg-[#121212]"
               )}
             >
               <div className="relative z-10 flex w-full items-center">

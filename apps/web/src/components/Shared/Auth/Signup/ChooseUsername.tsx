@@ -25,6 +25,7 @@ import uploadMetadata from "@/helpers/uploadMetadata";
 import useHandleWrongNetwork from "@/hooks/useHandleWrongNetwork";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import { useSignupStore } from ".";
+import cn from "@/helpers/cn";
 
 export const SignupMessage = () => (
   <AuthMessage
@@ -178,6 +179,7 @@ const ChooseUsername = () => {
       >
         <div className="mb-5">
           <Input
+            className="w-full px-3 py-3 text-sm"
             hideError
             placeholder="username"
             prefix="@lens/"

@@ -221,7 +221,7 @@ const PersonalizeSettingsForm = () => {
         <div>
           <label className="label">X</label>
           <div className="flex items-stretch gap-2">
-            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900 rounded-xl px-3 shrink-0">
+            <div className="input-wrap flex items-center border border-gray-300 bg-white dark:border-gray-700 dark:bg-[#121212] rounded-xl px-3 shrink-0">
               <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                 https://x.com/
               </span>
