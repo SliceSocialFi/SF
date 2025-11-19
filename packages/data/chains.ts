@@ -39,7 +39,7 @@ export const MAINNET_CHAINS = {
     lensChain: {
         name: "Lens Chain",
         chainId: 232,
-        icon: "/lenschain-logo.png",
+        icon: "/lens-logo.png",
         token: {
             name: "Rise Your Future",
             symbol: "RYF",

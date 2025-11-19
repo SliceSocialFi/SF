@@ -83,7 +83,7 @@ const ThemeSwitcher: React.FC = () => {
             ref={panelRef}
             style={{ position: "fixed", top: pos.top, left: pos.left, zIndex: 1000 }}
             className="w-64 rounded-xl border border-gray-200 bg-white p-3 shadow-xs
-                        dark:border-gray-700 dark:bg-gray-900"
+                        dark:border-gray-700 dark:bg-[#121212]"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
@@ -111,7 +111,6 @@ const ThemeSwitcher: React.FC = () => {
                 Pick a primary palette
             </div>
 
-            {/* 2 cột để rộng rãi hơn */}
             <div className="grid grid-cols-2 gap-2">
                 {items.map(([k, p]) => (
                 <button
