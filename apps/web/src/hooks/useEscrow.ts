@@ -291,7 +291,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         toast.info("Cancelling escrow...", { id: "cancel" });
  
         // Gọi BACKEND API
-        const response = await fetch(`${SLICE_API_URL}/escrow/cancel`, {
+        const response = await fetch(`${SLICE_API_URL}escrow/cancel`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -333,7 +333,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         }
         // console.log("Token for adminReleaseEscrow:", token);
         // Call backend API which handles admin release
-        const apiUrl = (`${SLICE_API_URL}/tasks/${taskId}/release`);
+        const apiUrl = (`${SLICE_API_URL}tasks/${taskId}/release`);
         console.log("🔗 Calling API:", apiUrl);
         console.log("📦 Payload:", { reason });
 
