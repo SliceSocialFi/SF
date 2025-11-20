@@ -27,6 +27,7 @@ let mockTasks: TaskItem[] = [];
 import { useAccountQuery } from "@slice/indexer";
 import { userInfo } from "os";
 import ProfileCard from "@/components/Profile/ProfileCard";
+import MobileHeader from "@/components/Shared/MobileHeader";
 
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
@@ -269,6 +270,8 @@ const Tasks = () => {
     >
       {/* Tabs navigation */}
       <StickyFeedBar>
+        {/* Mobile Header with Search */}
+        <MobileHeader searchPlaceholder="Search tasks..." />
         <div className="px-5 md:px-0">
           <Tabs
             active={activeTab}
@@ -348,12 +351,12 @@ const Tasks = () => {
       {/* Floating Action Button for Mobile */}
       {!showMobileDrawer && (
         <button
-          className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full task-gradient shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
+          className="fixed right-5 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
           onClick={() => setIsNewTaskModalOpen(true)}
           type="button"
           aria-label="Create new task"
         >
-          <PlusIcon className="h-6 w-6 text-white" />
+          <PlusIcon className="size-6 text-white stroke-[2.5]" />
         </button>
       )}
 
