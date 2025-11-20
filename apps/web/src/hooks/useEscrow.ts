@@ -330,7 +330,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         if (!token) {
           throw new Error("Please login again!");
         }
-        console.log("Token for adminReleaseEscrow:", token);
+        // console.log("Token for adminReleaseEscrow:", token);
         // Call backend API which handles admin release
         const apiUrl = getApiUrl(`/tasks/${taskId}/release`);
         console.log("🔗 Calling API:", apiUrl);
