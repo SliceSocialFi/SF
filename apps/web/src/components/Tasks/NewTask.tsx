@@ -90,10 +90,22 @@ const TaskAgreementSchema = z
 
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 
-const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+interface NewTaskProps {
+  onSubmit?: (tasks: any) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+const NewTask = ({ onSubmit = (tasks: any) => {}, isOpen: externalIsOpen, onClose: externalOnClose }: NewTaskProps) => {
+  const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentAccount } = useAccountStore();
+
+  // Use external control if provided, otherwise use internal state
+  const isModalOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsModalOpen;
+  const setIsModalOpen = externalOnClose !== undefined 
+    ? (value: boolean) => !value && externalOnClose() 
+    : setInternalIsModalOpen;
 
   const form = useZodForm({
     defaultValues: {
@@ -221,30 +233,36 @@ const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
 
 
   const handleClose = () => {
-    setIsModalOpen(false);
+    if (externalOnClose) {
+      externalOnClose();
+    } else {
+      setInternalIsModalOpen(false);
+    }
     form.reset();
   };
 
   return (
     <>
-      <Card
-        className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-        onClick={() => setIsModalOpen(true)}
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full task-gradient">
-            <PlusIcon className="h-5 w-5 text-white" />
+      {externalIsOpen === undefined && (
+        <Card
+          className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+          onClick={() => setInternalIsModalOpen(true)}
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full task-gradient">
+              <PlusIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <H5 className="text-gray-900 dark:text-white">
+                Create Task Agreement
+              </H5>
+              <p className="text-gray-500 text-sm dark:text-gray-400">
+                Create detailed agreement and find the right freelancer
+              </p>
+            </div>
           </div>
-          <div>
-            <H5 className="text-gray-900 dark:text-white">
-              Create Task Agreement
-            </H5>
-            <p className="text-gray-500 text-sm dark:text-gray-400">
-              Create detailed agreement and find the right freelancer
-            </p>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       <Modal
         onClose={handleClose}
@@ -259,7 +277,6 @@ const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
           onError={(errors) => {
             console.debug("Validation errors", errors);
 
-            // traverse errors object to collect messages and determine first field path
             const messages: string[] = [];
             let firstPath: string | null = null;
 

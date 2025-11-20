@@ -2,11 +2,13 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button, Card, H5, H6, Modal, Tabs } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import PageLayout from "../Shared/PageLayout";
 import NewTask from "./NewTask";
 import TaskCard, { type TaskItem } from "./TaskCard";
@@ -29,6 +31,7 @@ import ProfileCard from "@/components/Profile/ProfileCard";
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<TaskItem[]>(mockTasks);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<TaskFeedType>(TaskFeedType.All);
@@ -36,6 +39,7 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const { currentAccount } = useAccountStore();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   interface User {
     profileId: string;
     username?: string;
@@ -257,69 +261,7 @@ const Tasks = () => {
           </div>
           {/* New Task Button */}
           <NewTask onSubmit={setTasks} />
-          {/* Reputation Card */}
-          {/* <Card className="p-5">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
-                    <span className="text-xl text-yellow-600 dark:text-yellow-400">
-                      ⭐
-                    </span>
-                  </div>
-                  <H6 className="text-gray-900 dark:text-white">
-                    My Reputation
-                  </H6>
-                </div>
-              </div> */}
-
-              {/* Progress Bar */}
-              {/* <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Progress
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-white">
-                    {reputation}
-                  </span>
-                </div>
-                <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
-                    style={{ width: `${progressWidth}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Keep completing tasks to reach 100!
-                </p>
-              </div> */}
-            {/* </div>
-          </Card> */}
-          {/* Reward Points Card */}
-          {/* <Card className="p-5">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                    <span className="text-xl text-green-600 dark:text-green-400">
-                      💎
-                    </span>
-                  </div>
-                  <H6 className="text-gray-900 dark:text-white">
-                    Reward Points
-                  </H6>
-                </div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {rewardPoints}
-                </div>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Total points earned
-                </p>
-              </div>
-            </div>
-          </Card> */}
+          
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             © 2025 Slice GitHub
@@ -328,19 +270,20 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-          <StickyFeedBar>
-            <Tabs
-            active={activeTab}
-            className="mx-5 mb-0 md:mx-0"
-            layoutId="task_tabs"
-            setActive={(type) => setActiveTab(type as TaskFeedType)}
-            tabs={[
-              { name: "Tasks List", type: TaskFeedType.All },
-              { name: "My Tasks", type: TaskFeedType.MyTasks },
-              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
-            ]}
-          />
-          </StickyFeedBar>
+        <StickyFeedBar>
+          <Tabs
+          active={activeTab}
+          className="mx-5 mb-0 md:mx-0"
+          layoutId="task_tabs"
+          setActive={(type) => setActiveTab(type as TaskFeedType)}
+          tabs={[
+            { name: "Tasks List", type: TaskFeedType.All },
+            { name: "My Tasks", type: TaskFeedType.MyTasks },
+            { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
+          ]}
+        />
+        </StickyFeedBar>
+
         <div className="space-y-6">
           <div className="space-y-4">
             {loading ? (
@@ -401,6 +344,26 @@ const Tasks = () => {
         onClose={handleCloseModal}
         task={selectedTask}
       />
+
+      {!showMobileDrawer && (
+        <button
+          className="fixed right-6 bottom-12 z-50 flex h-14 w-14 items-center justify-center rounded-full task-gradient shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
+          onClick={() => setIsNewTaskModalOpen(true)}
+          type="button"
+          aria-label="Create new task"
+        >
+          <PlusIcon className="h-6 w-6 text-white" />
+        </button>
+      )}
+
+      {/* Mobile New Task Modal */}
+      <div className="md:hidden">
+        <NewTask 
+          onSubmit={setTasks}
+          isOpen={isNewTaskModalOpen}
+          onClose={() => setIsNewTaskModalOpen(false)}
+        />
+      </div>
     </PageLayout>
   );
 };
