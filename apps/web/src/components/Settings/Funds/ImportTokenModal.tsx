@@ -92,7 +92,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
 
     if (isChecking) {
         return (
-        <Modal show={show} onClose={handleSkip} title="Import Token">
+        <Modal show={show} onClose={onClose} title="Import Token">
             <div className="flex flex-col items-center gap-4 p-10">
                 <Loader />
                 <span className="text-gray-500 text-sm dark:text-gray-400">
@@ -108,7 +108,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
     }
 
     return (
-        <Modal show={show} title="Import Token to Wallet">
+        <Modal show={show} onClose={onClose} title="Import Token to Wallet">
             <Card className="m-3" forceRounded>
                 <div className="p-5 space-y-5">
                     <div className="flex flex-col items-center gap-3 text-center">
