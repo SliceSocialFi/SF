@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import EnvironmentPlugin from "vite-plugin-environment";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const dependenciesToChunk = {
   aws: ["@aws-sdk/client-s3", "@aws-sdk/lib-storage"],
@@ -78,6 +79,12 @@ export default defineConfig({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
       LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet",
       BRIDGE_API_URL: process.env.BRIDGE_API_URL ?? "http://localhost:8787/"
+    }),
+    visualizer({
+      open: true,
+      filename: "stats.html",
+      gzipSize: true,
+      brotliSize: true
     })
   ],
 server: {

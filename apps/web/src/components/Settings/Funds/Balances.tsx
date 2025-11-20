@@ -20,9 +20,9 @@ const Balances = () => {
       request: {
         address: currentAccount?.address,
         //includeNative: true,
-        tokens: tokens.map((token) => token.contractAddress)
-      }
-    }
+        tokens: tokens.map((token) => token.contractAddress),
+      },
+    },
   });
 
   interface TokenBalanceProps {

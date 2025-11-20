@@ -1,6 +1,7 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
 import getEnvConfig from "./utils/getEnvConfig";
+import { MAINNET_CONTRACTS, TESTNET_CONTRACTS } from "./contracts";
 
 // Lens and Hey Env Config
 export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
@@ -73,3 +74,10 @@ export const PERMISSIONS = {
 } as const;
 
 export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";
+export const TASK_ESCROW_POOL_ADDRESS = IS_MAINNET
+  ? MAINNET_CONTRACTS.taskEscrowPool
+  : TESTNET_CONTRACTS.taskEscrowPool;
+
+export const ERC20_TOKEN_ADDRESS = IS_MAINNET
+  ? MAINNET_CONTRACTS.defaultToken
+  : TESTNET_CONTRACTS.defaultToken;

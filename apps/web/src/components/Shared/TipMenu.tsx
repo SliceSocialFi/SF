@@ -2,7 +2,7 @@ import { useApolloClient } from "@apollo/client";
 import {
   HEY_TREASURY,
   DEFAULT_COLLECT_TOKEN,
-  ERC20_TOKEN_SYMBOL
+  ERC20_TOKEN_SYMBOL,
 } from "@slice/data/constants";
 import {
   type AccountFragment,
@@ -10,7 +10,7 @@ import {
   type TippingAmountInput,
   useBalancesBulkQuery,
   useExecuteAccountActionMutation,
-  useExecutePostActionMutation
+  useExecutePostActionMutation,
 } from "@slice/indexer";
 import type { ApolloClientError } from "@slice/types/errors";
 import type { ChangeEvent, RefObject } from "react";
@@ -52,9 +52,9 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       request: {
         address: currentAccount?.address,
         tokens: [DEFAULT_COLLECT_TOKEN],
-        includeNative: true
+        includeNative: true,
       },
-    }
+    },
   });
 
   const updateCache = () => {
@@ -65,16 +65,16 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
 
       cache.modify({
         fields: { hasTipped: () => true },
-        id: cache.identify(post.operations)
+        id: cache.identify(post.operations),
       });
       cache.modify({
         fields: {
           stats: (existingData) => ({
             ...existingData,
-            tips: existingData.tips + 1
-          })
+            tips: existingData.tips + 1,
+          }),
         },
-        id: cache.identify(post)
+        id: cache.identify(post),
       });
     }
   };
@@ -114,10 +114,10 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       return await handleTransactionLifecycle({
         onCompleted,
         onError,
-        transactionData: executePostAction
+        transactionData: executePostAction,
       });
     },
-    onError
+    onError,
   });
 
   const [executeAccountAction] = useExecuteAccountActionMutation({
@@ -129,10 +129,10 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       return await handleTransactionLifecycle({
         onCompleted,
         onError,
-        transactionData: executeAccountAction
+        transactionData: executeAccountAction,
       });
     },
-    onError
+    onError,
   });
 
   const handleSetAmount = (amount: number) => {
@@ -153,25 +153,25 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       // 11 is a calculated value based on the referral pool of 20% and the Lens fee of 2.1% after the 1.5% lens fees cut
       erc20: {
         currency: DEFAULT_COLLECT_TOKEN,
-        value: cryptoRate.toString()
+        value: cryptoRate.toString(),
       },
-      referrals: [{ address: HEY_TREASURY, percent: 11 }]
+      referrals: [{ address: HEY_TREASURY, percent: 11 }],
     };
 
     if (post) {
       const variables = {
-        request: { action: { tipping }, post: post.id }
+        request: { action: { tipping }, post: post.id },
       };
       return executePostAction({
-        variables
+        variables,
       });
     }
 
     if (account) {
       return executeAccountAction({
         variables: {
-          request: { account: account.address, action: { tipping } }
-        }
+          request: { account: account.address, action: { tipping } },
+        },
       });
     }
   };
@@ -259,7 +259,9 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           disabled={!amount || isSubmitting || !canTip}
           onClick={handleTip}
         >
-          <b>Tip {amount} {ERC20_TOKEN_SYMBOL}</b>
+          <b>
+            Tip {amount} {ERC20_TOKEN_SYMBOL}
+          </b>
         </Button>
       ) : (
         <TopUpButton

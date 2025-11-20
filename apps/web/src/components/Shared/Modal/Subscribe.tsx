@@ -4,12 +4,12 @@ import {
   PERMISSIONS,
   STATIC_IMAGES_URL,
   SUBSCRIPTION_AMOUNT,
-  ERC20_TOKEN_SYMBOL
+  ERC20_TOKEN_SYMBOL,
 } from "@slice/data/constants";
 import {
   type AccountFragment,
   useBalancesBulkQuery,
-  useJoinGroupMutation
+  useJoinGroupMutation,
 } from "@slice/indexer";
 import type { ApolloClientError } from "@slice/types/errors";
 import { useCallback, useState } from "react";
@@ -21,7 +21,7 @@ import getTokenImage from "@/helpers/getTokenImage";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import useWaitForTransactionToComplete from "@/hooks/useWaitForTransactionToComplete";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import proImage from '../../../../public/pro.png';
+import proImage from "../../../../public/pro.png";
 
 const Subscribe = () => {
   const { currentAccount } = useAccountStore();
@@ -37,9 +37,9 @@ const Subscribe = () => {
       request: {
         address: currentAccount?.address,
         tokens: [DEFAULT_COLLECT_TOKEN],
-        includeNative: true
-      }
-    }
+        includeNative: true,
+      },
+    },
   });
 
   const onCompleted = async (hash: string) => {
@@ -64,17 +64,17 @@ const Subscribe = () => {
       return await handleTransactionLifecycle({
         onCompleted,
         onError,
-        transactionData: joinGroup
+        transactionData: joinGroup,
       });
     },
-    onError
+    onError,
   });
 
   const handleSubscribe = async () => {
     setIsSubmitting(true);
 
     return await joinGroup({
-      variables: { request: { group: PERMISSIONS.SUBSCRIPTION } }
+      variables: { request: { group: PERMISSIONS.SUBSCRIPTION } },
     });
   };
 
@@ -82,12 +82,7 @@ const Subscribe = () => {
 
   return (
     <div className="mx-5 my-10 flex flex-col items-center gap-y-8">
-      <Image
-        alt="Pro"
-        className="w-32"
-        src={proImage}
-        width={256}
-      />
+      <Image alt="Pro" className="w-32" src={proImage} width={256} />
       <div className="max-w-md text-center text-gray-500">
         {hasSubscribed ? (
           <div className="text-gray-500">
@@ -95,7 +90,7 @@ const Subscribe = () => {
           </div>
         ) : (
           <>
-            Join Hey Pro for {" "}
+            Join Hey Pro for{" "}
             <b className="inline-flex items-center gap-x-1">
               {SUBSCRIPTION_AMOUNT}{" "}
               <Tooltip content={ERC20_TOKEN_SYMBOL} placement="top">
@@ -163,7 +158,7 @@ const Subscribe = () => {
               outline
               token={{
                 contractAddress: DEFAULT_COLLECT_TOKEN,
-                symbol: ERC20_TOKEN_SYMBOL
+                symbol: ERC20_TOKEN_SYMBOL,
               }}
             />
           )}
