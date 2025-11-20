@@ -1,32 +1,6 @@
 version: "3.9"
 
 services:
-  db:
-    image: postgres:15
-    container_name: hey-db
-    restart: always
-    environment:
-      POSTGRES_USER: hey
-      POSTGRES_PASSWORD: hey_password
-      POSTGRES_DB: hey_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    container_name: hey-api
-    restart: always
-    env_file:
-      - ./apps/api/.env
-    ports:
-      - "4000:4000"
-    depends_on:
-      - db
-
   web:
     build:
       context: ./apps/web
@@ -35,11 +9,6 @@ services:
     restart: always
     environment:
       - LENS_NETWORK=staging
-      - HEY_API_URL=http://hey-api:4000
+      - HEY_API_URL=https://slice-api-indol.vercel.app/
     ports:
       - "3000:80"
-    depends_on:
-      - api
-
-volumes:
-  db_data:

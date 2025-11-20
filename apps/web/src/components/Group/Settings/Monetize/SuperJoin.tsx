@@ -1,8 +1,6 @@
 import {
   DEFAULT_COLLECT_TOKEN,
-  IS_MAINNET,
-  STATIC_IMAGES_URL,
-  WRAPPED_NATIVE_TOKEN_SYMBOL
+  ERC20_TOKEN_SYMBOL
 } from "@slice/data/constants";
 import {
   type GroupFragment,
@@ -32,6 +30,7 @@ import { getSimplePaymentDetails } from "@/helpers/rules";
 import usePreventScrollOnNumberInput from "@/hooks/usePreventScrollOnNumberInput";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
 import useWaitForTransactionToComplete from "@/hooks/useWaitForTransactionToComplete";
+import getTokenImage from "@/helpers/getTokenImage";
 
 interface SuperJoinProps {
   group: GroupFragment;
@@ -128,15 +127,13 @@ const SuperJoin = ({ group }: SuperJoinProps) => {
           placeholder="1"
           prefix={
             <Tooltip
-              content={`Payable in ${WRAPPED_NATIVE_TOKEN_SYMBOL}`}
+              content={`Payable in ${ERC20_TOKEN_SYMBOL}`}
               placement="top"
             >
               <Image
-                alt={WRAPPED_NATIVE_TOKEN_SYMBOL}
+                alt={ERC20_TOKEN_SYMBOL}
                 className="size-5 rounded-full"
-                src={`${STATIC_IMAGES_URL}/tokens/${
-                  IS_MAINNET ? "gho.svg" : "grass.svg"
-                }`}
+                src={getTokenImage(ERC20_TOKEN_SYMBOL)}
               />
             </Tooltip>
           }

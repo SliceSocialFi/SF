@@ -1,8 +1,5 @@
 import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
-import {
-  DEFAULT_COLLECT_TOKEN,
-  STATIC_IMAGES_URL
-} from "@slice/data/constants";
+import { DEFAULT_COLLECT_TOKEN } from "@slice/data/constants";
 import { tokens } from "@slice/data/tokens";
 import type { CollectActionType } from "@slice/types/hey";
 import { motion } from "motion/react";
@@ -11,6 +8,7 @@ import { Input, Select } from "@/components/Shared/UI";
 import { useCollectActionStore } from "@/store/non-persisted/post/useCollectActionStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { EXPANSION_EASE } from "@/variants";
+import getTokenImage from "@/helpers/getTokenImage";
 
 interface AmountConfigProps {
   setCollectType: (data: CollectActionType) => void;
@@ -93,8 +91,8 @@ const AmountConfig = ({ setCollectType }: AmountConfigProps) => {
                   });
                 }}
                 options={tokens.map((token) => ({
-                  icon: `${STATIC_IMAGES_URL}/tokens/${token.symbol.toLowerCase()}.svg`,
-                  label: token.name,
+                  icon: getTokenImage(token.symbol),
+                  label: token.symbol,
                   selected:
                     token.contractAddress ===
                     collectAction.payToCollect?.erc20?.currency,

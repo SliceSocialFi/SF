@@ -56,6 +56,6 @@ function walk(dir) {
   }
 }
 
-console.log("🚀 Starting rename @hey → @slice ...");
+console.log("🚀 Starting rename @slice → @slice ...");
 walk(rootDir);
 console.log("🎉 Done!");

@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import EnvironmentPlugin from "vite-plugin-environment";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { visualizer } from "rollup-plugin-visualizer";
 
 const dependenciesToChunk = {
   aws: ["@aws-sdk/client-s3", "@aws-sdk/lib-storage"],
@@ -75,8 +76,26 @@ export default defineConfig({
     // Expose env vars to client-side code (process.env.*)
     // Provide a safe default for HEY_API_URL to avoid build-time errors.
     EnvironmentPlugin({
-      SLICE_API_URL: "https://api.hey.xyz",
-      LENS_NETWORK: undefined
+      SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
+      LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet"
+    }),
+    visualizer({
+      open: true,
+      filename: "stats.html",
+      gzipSize: true,
+      brotliSize: true
     })
-  ]
+  ],
+server: {
+    port: Number(process.env.PORT) || 5173,
+    proxy: {
+      // tất cả request tới /api/* được proxy tới slice-api (removes CORS issues in dev)
+      '/api': {
+        target: 'https://slice-api-indol.vercel.app',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
 });

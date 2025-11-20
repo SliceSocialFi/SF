@@ -6,6 +6,7 @@ import {
   type AccountFragment,
   useBalancesBulkQuery
 } from "@slice/indexer";
+import { DEFAULT_COLLECT_TOKEN } from "@slice/data/constants";
 import TopUpButton from "@/components/Shared/Account/TopUp/Button";
 import Loader from "@/components/Shared/Loader";
 import LoginButton from "@/components/Shared/LoginButton";
@@ -32,7 +33,11 @@ const SuperFollow = () => {
     pollInterval: 3000,
     skip: !assetAddress || !currentAccount?.address,
     variables: {
-      request: { address: currentAccount?.address, tokens: [assetAddress] }
+      request: {
+        address: currentAccount?.address,
+        tokens: [DEFAULT_COLLECT_TOKEN],
+        includeNative: true
+      }
     }
   });
 
@@ -44,12 +49,17 @@ const SuperFollow = () => {
     return <Loader className="my-10" message="Loading Super follow" />;
   }
 
-  const tokenBalance =
-    balance?.balancesBulk[0].__typename === "Erc20Amount"
-      ? balance.balancesBulk[0].value
+  // const tokenBalance =
+  //   balance?.balancesBulk[0].__typename === "Erc20Amount"
+  //     ? balance.balancesBulk[0].value
+  //     : 0;
+
+  const erc20Balance =
+    balance?.balancesBulk[1].__typename === "Erc20Amount"
+      ? Number(balance.balancesBulk[1].value).toFixed(2)
       : 0;
 
-  const hasEnoughBalance = Number(tokenBalance) >= Number(amount || 0);
+  const hasEnoughBalance = Number(erc20Balance) >= Number(amount || 0);
 
   return (
     <div className="p-5">
@@ -95,7 +105,7 @@ const SuperFollow = () => {
           ) : (
             <TopUpButton
               amountToTopUp={
-                Math.ceil((amount - Number(tokenBalance)) * 20) / 20
+                Math.ceil((amount - Number(erc20Balance)) * 20) / 20
               }
               className="w-full"
               token={{ contractAddress: assetAddress, symbol: assetSymbol }}

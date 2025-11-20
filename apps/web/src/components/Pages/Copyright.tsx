@@ -113,7 +113,7 @@ const Copyright = () => {
                 </p>
                 <p className="linkify leading-7">
                   Email:{" "}
-                  <Link to="mailto:copyright@hey.xyz">copyright@hey.xyz</Link>
+                  <Link to="mailto:copyright@slice.xyz">copyright@slice.xyz</Link>
                 </p>
               </div>
               {/* DMCA Notice of Alleged Infringement ("Notice") ends */}

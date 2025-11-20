@@ -14,6 +14,7 @@ import {
   TextArea,
   useZodForm
 } from "@/components/Shared/UI";
+import type { TaskItem } from "@/components/Shared/Sidebar/TaskSystem";
 
 // Client validation should match backend zod schema to avoid 400s.
 // Backend requires: title >=3, objective/deliverables/acceptanceCriteria >=10,
@@ -41,7 +42,7 @@ const TaskAgreementSchema = z.object({
 
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 
-const NewTask = () => {
+const NewTask = ({ onSubmit = (tasks:any) => {} }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentAccount } = useAccountStore();
@@ -102,6 +103,66 @@ const NewTask = () => {
       await apiClient.createTask(payload as any);
 
       toast.success("Task agreement posted successfully!");
+
+      
+
+      const tasks = await apiClient.listTasks(); // refresh task list cache
+
+      try {
+              const res = await apiClient.listTasks();
+              // Attempt to map server task shape to local TaskItem
+              const mapped = (res || []).map((t: any) => {
+                // Calculate days since created
+                let postedDays = 0;
+                if (t.createdAt) {
+                  const createdDate = new Date(t.createdAt);
+                  const now = new Date();
+                  const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+                  postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                }
+      
+                return {
+                  id: t.id || t.taskId,
+                  companyLogo: t.companyLogo || t.company?.logo || "",
+                  companyName: t.companyName || t.company?.name || t.ownerName || "",
+                  jobTitle: t.title || t.jobTitle,
+                  description: t.description || t.summary || "",
+                  skills: t.skills || [],
+                  location: t.location || "",
+                  salary: t.salary || "",
+                  postedDays,
+                  owner: t.owner || { id: t.ownerId || t.ownerProfileId, name: t.ownerName || "" },
+                  rewardTokens: t.rewardPoints || t.rewardTokens || 0,
+                  // backend-compatible fields
+                  employerProfileId: t.employerProfileId || t.ownerProfileId || t.ownerId,
+                  freelancerProfileId: t.freelancerProfileId ?? null,
+                  title: t.title,
+                  rewardPoints: t.rewardPoints || t.rewardTokens || 0,
+                  createdAt: t.createdAt,
+                  deadline: t.deadline,
+                  objective: t.objective,
+                  deliverables: t.deliverables,
+                  acceptanceCriteria: t.acceptanceCriteria,
+                  status: t.status || "open",
+                  assigneeId: t.assigneeId,
+                  applicants: t.applications || t.applicants || []
+                } as TaskItem;
+              });
+      
+              // Sort by createdAt descending (newest first)
+              const sorted = mapped.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return dateB - dateA;
+              });
+      
+              onSubmit(sorted);
+            } catch (err) {
+              console.error("Failed to load tasks:", err);
+            }
+
+
+
       setIsModalOpen(false);
       form.reset();
     } catch (error: any) {

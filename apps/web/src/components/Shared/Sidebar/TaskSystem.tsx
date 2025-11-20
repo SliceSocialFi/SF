@@ -17,7 +17,7 @@ interface TaskOwner {
   };
 }
 
-interface TaskItem {
+export interface TaskItem {
   id: string;
   companyLogo: string;
   companyName: string;
@@ -29,6 +29,7 @@ interface TaskItem {
   postedDays: number;
   owner: TaskOwner;
   rewardTokens: number;
+  createdAt?: string;
 }
 
 const mockTasks: TaskItem[] = [
@@ -100,6 +101,7 @@ const mockTasks: TaskItem[] = [
 ];
 
 const TaskCard = ({ task }: { task: TaskItem }) => {
+  console.log("Rendering TaskCard for task:", task);
   return (
     <Card className="cursor-pointer space-y-3 p-4 transition-shadow hover:shadow-md">
       {/* Header */}

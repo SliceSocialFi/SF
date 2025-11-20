@@ -20,15 +20,9 @@ const testnetTokens = [
   {
     contractAddress: TESTNET_CONTRACTS.defaultToken,
     decimals: 18,
-    name: "Wrapped RYF",
-    symbol: "RYF"
+    name: "Testnet Rise Your Future",
+    symbol: "tRYF"
   }
-  // {
-  //   contractAddress: "0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39",
-  //   decimals: 18, // Điều chỉnh nếu token dùng decimals khác
-  //   name: "RYF coin",
-  //   symbol: "YOUR_TOKEN"
-  // }
 ];
 
 export const tokens = IS_MAINNET ? mainnetTokens : testnetTokens;
