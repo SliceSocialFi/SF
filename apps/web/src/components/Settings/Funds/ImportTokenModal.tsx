@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWatchAsset, useSwitchChain, useReadContract } from "wagmi";
-import { erc20Abi } from "viem";
 import { Button, Card, Image, Modal } from "@/components/Shared/UI";
 import Loader from "@/components/Shared/Loader";
 import { getChains } from "@/helpers/getChains";
@@ -20,6 +19,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
     const [isChecking, setIsChecking] = useState(true);
     const [missingChains, setMissingChains] = useState<string[]>([]);
     const [isImporting, setIsImporting] = useState(false);
+    const [importingChain, setImportingChain] = useState<ChainKey | null>(null);
     
     const { watchAssetAsync } = useWatchAsset();
     const { switchChainAsync } = useSwitchChain();
@@ -50,6 +50,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
     const handleImportToken = async (chainKey: ChainKey) => {
         try {
             setIsImporting(true);
+            setImportingChain(chainKey);
             const chain = chains[chainKey];
             
             // Switch to correct chain first
@@ -61,6 +62,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
                     console.error("Chain switch error:", error);
                     toast.error(`Failed to switch chain: ${error.message}`);
                     setIsImporting(false);
+                    setImportingChain(null);
                     return;
                 }
             }
@@ -82,6 +84,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
             toast.error(`Failed to import token: ${error.message}`);
         } finally {
             setIsImporting(false);
+            setImportingChain(null);
         }
     };
 
@@ -130,7 +133,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
 
                     <div className="space-y-3">
                         {missingChains.map((chainKey) => (
-                            <div className="flex items-center justify-between py-3 px-4 rounded-2xl bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-700">
+                            <div key={chainKey} className="flex items-center justify-between py-3 px-4 rounded-2xl bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-gray-700">
                                 <div className="flex items-center gap-3">
                                     <Image
                                         alt={chains[chainKey as keyof typeof chains].name}
@@ -149,6 +152,7 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
                                 <Button
                                     onClick={() => handleImportToken(chainKey as ChainKey)}
                                     disabled={isImporting}
+                                    loading={importingChain === chainKey}
                                     size="sm"
                                     outline
                                 >
