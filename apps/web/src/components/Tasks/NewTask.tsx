@@ -16,30 +16,6 @@ import {
 } from "@/components/Shared/UI";
 import type { TaskItem } from "@/components/Shared/Sidebar/TaskSystem";
 
-// Client validation should match backend zod schema to avoid 400s.
-// Backend requires: title >=3, objective/deliverables/acceptanceCriteria >=10,
-// rewardPoints positive integer, deadline is optional ISO datetime.
-// const TaskAgreementSchema = z.object({
-//   title: z.string().min(1, "Title must be at least 3 characters"),
-//   objective: z.string().min(1, "Objective must be at least 10 characters"),
-//   deliverables: z.string().min(1, "Deliverables must be at least 10 characters"),
-//   acceptanceCriteria: z.string().min(1, "Acceptance criteria must be at least 10 characters"),
-//   rewardPoints: z.number().int().positive("Reward must be a positive integer"),
-//   // Accept a simple date from the <input type="date" /> (YYYY-MM-DD) and
-//   // preprocess it into an ISO datetime string so server's z.string().datetime()
-//   // validation will pass. Deadline is optional.
-//   deadline: z.preprocess((val) => {
-//     if (!val) return undefined;
-//     if (typeof val === "string") {
-//       // If the input is a plain date (YYYY-MM-DD), create an ISO at midnight UTC
-//       // new Date('YYYY-MM-DD') interprets as UTC by most browsers; normalize anyway
-//       const d = new Date(val);
-//       if (!isNaN(d.getTime())) return d.toISOString();
-//     }
-//     return val;
-//   }, z.string().datetime().optional())
-// });
-
 const TaskAgreementSchema = z
   .object({
     title: z
@@ -63,7 +39,6 @@ const TaskAgreementSchema = z
       .int()
       .positive("Reward must be a positive integer")
       .min(1, "Reward must be at least 1 point"),
-    // deadline: nhận từ <input type="date" /> => string YYYY-MM-DD
     deadline: z.preprocess(
       (val) => {
         if (!val) return undefined;

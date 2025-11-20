@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   BellIcon as BellIconSolid,
+  ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   GlobeAltIcon as GlobeSolid,
   HomeIcon as HomeIconSolid
 } from "@heroicons/react/24/solid";
@@ -17,8 +18,8 @@ import { Link, useLocation } from "react-router";
 import { Image } from "@/components/Shared/UI";
 import useHasNewNotifications from "@/hooks/useHasNewNotifications";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
+import { useThemeModalStore } from "@/store/non-persisted/modal/useThemeModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import { useState } from "react";
 import MobileDrawerMenu from "./MobileDrawerMenu";
 import ThemeSwitcherPanel from "@/components/Shared/Theme/ThemeSwitcherPanel";
 
@@ -59,8 +60,8 @@ const BottomNavigation = () => {
   const { currentAccount } = useAccountStore();
   const { show: showMobileDrawer, setShow: setShowMobileDrawer } =
     useMobileDrawerModalStore();
+  const { show: showThemeModal, setShow: setShowThemeModal } = useThemeModalStore();
   const hasNewNotifications = useHasNewNotifications();
-  const [showThemeModal, setShowThemeModal] = useState(false);
 
   const handleAccountClick = () => setShowMobileDrawer(true);
 
@@ -82,7 +83,7 @@ const BottomNavigation = () => {
       label: "Tasks",
       outline: <ClipboardDocumentListIcon className="size-6" />,
       path: "/tasks",
-      solid: <ClipboardDocumentListIcon className="size-6" />
+      solid: <ClipboardDocumentListIconSolid className="size-6" />
     },
     {
       label: "Explore",

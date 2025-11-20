@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button, Card, H5, H6, Modal, Tabs } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
+import { useThemeModalStore } from "@/store/non-persisted/modal/useThemeModalStore";
 import PageLayout from "../Shared/PageLayout";
 import NewTask from "./NewTask";
 import TaskCard, { type TaskItem } from "./TaskCard";
@@ -41,6 +42,7 @@ const Tasks = () => {
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const { currentAccount } = useAccountStore();
   const { show: showMobileDrawer } = useMobileDrawerModalStore();
+  const { show: showThemeModal } = useThemeModalStore();
   interface User {
     profileId: string;
     username?: string;
@@ -244,7 +246,7 @@ const Tasks = () => {
       hideSearch
       showProfileCard={false}
       sidebar={
-        <div className="space-y-4 pt-1">
+        <div className="space-y-5 pt-1">
           {/* Search Bar - Desktop Only */}
           <div className="hidden md:block relative search-wrap">
             <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 z-10" />
@@ -349,9 +351,9 @@ const Tasks = () => {
       />
 
       {/* Floating Action Button for Mobile */}
-      {!showMobileDrawer && (
+      {!showMobileDrawer && !showThemeModal && (
         <button
-          className="fixed right-5 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
+          className="fixed right-5 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] shadow-lg transition-all hover:scale-110 active:scale-95 md:hidden"
           onClick={() => setIsNewTaskModalOpen(true)}
           type="button"
           aria-label="Create new task"
