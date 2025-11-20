@@ -3,16 +3,17 @@
 /**
  * Lấy URL API chuẩn dựa trên biến môi trường
  */
+// import { SLICE_API_URL } from "@slice/data/constants";
 
-export const getApiUrl = (path: string) => {
-  const baseUrl = process.env.SLICE_API_URL || "http://localhost:3000";
-  // Xử lý trường hợp user lỡ thêm dấu / ở cuối env
-  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  // Xử lý trường hợp path không có dấu / ở đầu
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+// export const getApiUrl = (path: string) => {
+//   const baseUrl = SLICE_API_URL || "http://localhost:3000";
+//   // Xử lý trường hợp user lỡ thêm dấu / ở cuối env
+//   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+//   // Xử lý trường hợp path không có dấu / ở đầu
+//   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
-  return `${cleanBaseUrl}${cleanPath}`;
-};
+//   return `${cleanBaseUrl}${cleanPath}`;
+// };
 
 /**
  * Lấy Access Token từ LocalStorage (hỗ trợ nested JSON của Zustand/Redux)
