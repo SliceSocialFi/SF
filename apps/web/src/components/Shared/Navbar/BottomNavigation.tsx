@@ -1,5 +1,6 @@
 import {
   BellIcon,
+  ClipboardDocumentListIcon,
   GlobeAltIcon as GlobeOutline,
   HomeIcon,
   MagnifyingGlassIcon
@@ -74,10 +75,10 @@ const BottomNavigation = () => {
       solid: <HomeIconSolid className="size-6" />
     },
     {
-      label: "Search",
-      outline: <MagnifyingGlassIcon className="size-6" />,
-      path: "/search",
-      solid: <MagnifyingGlassIcon className="size-6" />
+      label: "Tasks",
+      outline: <ClipboardDocumentListIcon className="size-6" />,
+      path: "/tasks",
+      solid: <ClipboardDocumentListIcon className="size-6" />
     },
     {
       label: "Explore",

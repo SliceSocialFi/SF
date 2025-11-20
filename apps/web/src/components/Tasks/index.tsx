@@ -243,22 +243,20 @@ const Tasks = () => {
       hideSearch
       showProfileCard={false}
       sidebar={
-        <div className="space-y-4">
-          {/* Search Bar */}
-          <div className="relative search-wrap">
+        <div className="space-y-4 pt-1">
+          {/* Search Bar - Desktop Only */}
+          <div className="hidden md:block relative search-wrap">
             <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 z-10" />
             <input
-              className="relative z-10 w-full bg-transparent py-2 pr-3 pl-10 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white border-none outline-none focus:ring-0"
+              className="relative z-10 w-full bg-transparent py-3 pr-3 pl-10 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white border-none outline-none focus:ring-0"
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
               type="text"
               value={searchQuery}
             />
           </div>
-          {/* ProfileCard đặt NGAY dưới search task, dùng variant 'tasks' */}
-          <div className="mt-4">
-            <ProfileCard variant="tasks" />
-          </div>
+          {/* ProfileCard */}
+          <ProfileCard variant="tasks" />
           {/* New Task Button */}
           <NewTask onSubmit={setTasks} />
           
@@ -270,21 +268,23 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-        <StickyFeedBar>
+      <StickyFeedBar>
+        <div className="px-5 md:px-0">
           <Tabs
-          active={activeTab}
-          className="mx-5 mb-0 md:mx-0"
-          layoutId="task_tabs"
-          setActive={(type) => setActiveTab(type as TaskFeedType)}
-          tabs={[
-            { name: "Tasks List", type: TaskFeedType.All },
-            { name: "My Tasks", type: TaskFeedType.MyTasks },
-            { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
-          ]}
-        />
-        </StickyFeedBar>
+            active={activeTab}
+            className="mb-0"
+            layoutId="task_tabs"
+            setActive={(type) => setActiveTab(type as TaskFeedType)}
+            tabs={[
+              { name: "Tasks List", type: TaskFeedType.All },
+              { name: "My Tasks", type: TaskFeedType.MyTasks },
+              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
+            ]}
+          />
+        </div>
+      </StickyFeedBar>
 
-        <div className="space-y-6">
+      <div className="space-y-6">
           <div className="space-y-4">
             {loading ? (
               <TasksShimmer count={5} />
@@ -345,9 +345,10 @@ const Tasks = () => {
         task={selectedTask}
       />
 
+      {/* Floating Action Button for Mobile */}
       {!showMobileDrawer && (
         <button
-          className="fixed right-6 bottom-12 z-50 flex h-14 w-14 items-center justify-center rounded-full task-gradient shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
+          className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full task-gradient shadow-lg transition-transform hover:scale-110 active:scale-95 md:hidden"
           onClick={() => setIsNewTaskModalOpen(true)}
           type="button"
           aria-label="Create new task"
@@ -356,14 +357,14 @@ const Tasks = () => {
         </button>
       )}
 
-      {/* Mobile New Task Modal */}
-      <div className="md:hidden">
+      {/* Modal for creating new task (controlled by FAB on mobile) */}
+      {isNewTaskModalOpen && (
         <NewTask 
           onSubmit={setTasks}
           isOpen={isNewTaskModalOpen}
           onClose={() => setIsNewTaskModalOpen(false)}
         />
-      </div>
+      )}
     </PageLayout>
   );
 };
