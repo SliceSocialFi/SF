@@ -114,7 +114,7 @@ const ViewPost = () => {
       } • Slice`}
       zeroTopMargin
     >
-      <div className="space-y-5 px-3">
+      <div className="space-y-5">
         {showQuotes ? (
           <Quotes post={targetPost} />
         ) : (

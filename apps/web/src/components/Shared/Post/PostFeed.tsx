@@ -35,23 +35,15 @@ const PostFeed = <T extends { id: string }>({
   }
 
   if (!items?.length) {
-    return (
-      <div className="px-3">
-        <EmptyState icon={emptyIcon} message={emptyMessage} />
-      </div>
-    );
+    return <EmptyState icon={emptyIcon} message={emptyMessage} />;
   }
 
   if (error) {
-    return (
-      <div className="px-3">
-        <ErrorMessage error={error} title={errorTitle} />
-      </div>
-    );
+    return <ErrorMessage error={error} title={errorTitle} />;
   }
 
   return (
-    <div className="space-y-3 px-3 rounded">
+    <div className="space-y-3">
       <WindowVirtualizer>
         {items.map((item) => (
           <Card key={item.id} className="mb-3">

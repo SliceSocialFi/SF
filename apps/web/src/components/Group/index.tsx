@@ -18,7 +18,7 @@ const ViewGroup = () => {
 
   const { data, loading, error } = useGroupQuery({
     skip: !address,
-    variables: { request: { group: address } },
+    variables: { request: { group: address } }
   });
 
   if (!address || loading) {
@@ -39,7 +39,11 @@ const ViewGroup = () => {
 
   return (
     <PageLayout title={group.metadata?.name} zeroTopMargin>
-      <Cover cover={group.metadata?.coverPicture || "/cover.png"} />
+      <Cover
+        cover={
+          group.metadata?.coverPicture || `${STATIC_IMAGES_URL}/patterns/2.svg`
+        }
+      />
       <Details group={group} />
       {isBanned && (
         <WarningMessage

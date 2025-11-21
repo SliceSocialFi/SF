@@ -15,7 +15,7 @@ const ContentFeedType = ({
   layoutId
 }: ContentFeedTypeProps) => {
   const tabs = [
-    { name: "All", type: "" },
+    { name: "All posts", type: "" },
     { name: "Text", type: MainContentFocus.TextOnly },
     { name: "Video", type: MainContentFocus.Video },
     { name: "Audio", type: MainContentFocus.Audio },

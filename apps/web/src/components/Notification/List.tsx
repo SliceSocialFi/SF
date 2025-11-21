@@ -125,7 +125,7 @@ const List = ({ feedType }: ListProps) => {
   }
 
   return (
-    <div className="px-3">
+    <div>
       <WindowVirtualizer>
         {notifications.map((notification) => {
           if (!("id" in notification)) {

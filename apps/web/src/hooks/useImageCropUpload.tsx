@@ -1,7 +1,7 @@
 import {
   DEFAULT_AVATAR,
   STATIC_IMAGES_URL,
-  type TRANSFORMS
+  type TRANSFORMS,
 } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
 import imageKit from "@slice/helpers/imageKit";
@@ -28,7 +28,7 @@ const useImageCropUpload = ({
   setSrc,
   aspect,
   transform,
-  label
+  label,
 }: UseImageCropUploadProps) => {
   const [pictureSrc, setPictureSrc] = useState(src);
   const [showModal, setShowModal] = useState(false);
@@ -80,10 +80,7 @@ const useImageCropUpload = ({
   };
 
   const pictureUrl =
-    pictureSrc ||
-    (label === "avatar"
-      ? DEFAULT_AVATAR
-      : `${STATIC_IMAGES_URL}/patterns/2.svg`);
+    pictureSrc || (label === "avatar" ? DEFAULT_AVATAR : "/cover.png");
   const renderPictureUrl = pictureUrl
     ? imageKit(sanitizeDStorageUrl(pictureUrl), transform)
     : "";
@@ -107,7 +104,7 @@ const useImageCropUpload = ({
     showModal,
     uploadedPicture,
     uploading,
-    zoom
+    zoom,
   };
 };
 

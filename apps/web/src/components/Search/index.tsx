@@ -34,12 +34,10 @@ const Search = () => {
       </div>
       <FeedType feedType={feedType as SearchTabFocus} />
       {!q && (
-        <div className="px-3">
-          <EmptyState
-            icon={<MagnifyingGlassIcon className="size-8" />}
-            message="Search for accounts or posts"
-          />
-        </div>
+        <EmptyState
+          icon={<MagnifyingGlassIcon className="size-8" />}
+          message="Search for accounts or posts"
+        />
       )}
       {q && feedType === SearchTabFocus.Accounts ? (
         <Accounts query={q as string} />

@@ -2,7 +2,6 @@ import { NotificationFeedType } from "@slice/data/enums";
 import { useState } from "react";
 import NotLoggedIn from "@/components/Shared/NotLoggedIn";
 import PageLayout from "@/components/Shared/PageLayout";
-import MobileHeader from "@/components/Shared/MobileHeader";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import FeedType from "./FeedType";
 import List from "./List";
@@ -21,7 +20,6 @@ const Notification = () => {
   return (
     <PageLayout title="Notifications">
       <StickyFeedBar>
-        <MobileHeader searchPlaceholder="Search notifications..." />
         <FeedType feedType={feedType} setFeedType={setFeedType} />
       </StickyFeedBar>
       <List feedType={feedType} />

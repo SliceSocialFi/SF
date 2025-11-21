@@ -106,7 +106,6 @@ const ViewAccount = () => {
     <PageLayout
       title={`${accountInfo.name} (${accountInfo.usernameWithPrefix}) • Slice`}
       zeroTopMargin
-      showProfileCard={false}
     >
       <div className={cn("overflow-hidden rounded-2xl backdrop-blur-sm",)}>
         <Cover
@@ -122,11 +121,7 @@ const ViewAccount = () => {
       ) : (
         <>
           <FeedType feedType={feedType} setFeedType={setFeedType} />
-          {currentAccount?.address === account?.address && (
-            <div className="mb-3">
-              <NewPost />
-            </div>
-          )}
+          {currentAccount?.address === account?.address && <NewPost />}
           {(feedType === AccountFeedType.Feed ||
             feedType === AccountFeedType.Replies ||
             feedType === AccountFeedType.Media ||

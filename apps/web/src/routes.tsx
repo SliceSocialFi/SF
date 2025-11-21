@@ -1,95 +1,90 @@
-import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes as RouterRoutes } from "react-router";
+import ViewAccount from "@/components/Account";
+import Bookmarks from "@/components/Bookmarks";
 import Layout from "@/components/Common/Layout";
+import Explore from "@/components/Explore";
+import ViewGroup from "@/components/Group";
+import GroupSettings from "@/components/Group/Settings";
+import { default as GroupMonetizeSettings } from "@/components/Group/Settings/Monetize";
+import { default as GroupPersonalizeSettings } from "@/components/Group/Settings/Personalize";
+import RulesSettings from "@/components/Group/Settings/Rules";
+import Groups from "@/components/Groups";
+import Home from "@/components/Home";
+import Notification from "@/components/Notification";
+import Tasks from "@/components/Tasks";
+import Copyright from "@/components/Pages/Copyright";
+import Guidelines from "@/components/Pages/Guidelines";
+import Privacy from "@/components/Pages/Privacy";
+import Support from "@/components/Pages/Support";
+import Terms from "@/components/Pages/Terms";
+import ViewPost from "@/components/Post";
+import Search from "@/components/Search";
+import AccountSettings from "@/components/Settings";
+import BlockedSettings from "@/components/Settings/Blocked";
+import DeveloperSettings from "@/components/Settings/Developer";
+import FundsSettings from "@/components/Settings/Funds";
+import ManagerSettings from "@/components/Settings/Manager";
+import { default as AccountMonetizeSettings } from "@/components/Settings/Monetize";
+import { default as AccountPersonalizeSettings } from "@/components/Settings/Personalize";
+import SessionsSettings from "@/components/Settings/Sessions";
+import UsernameSettings from "@/components/Settings/Username";
 import Custom404 from "@/components/Shared/404";
-import PostsShimmer from "@/components/Shared/Shimmer/PostsShimmer";
-import AccountPageShimmer from "@/components/Account/Shimmer";
-
-// Lazy load heavy components
-const Home = lazy(() => import("@/components/Home"));
-const Explore = lazy(() => import("@/components/Explore"));
-const ViewAccount = lazy(() => import("@/components/Account"));
-const Bookmarks = lazy(() => import("@/components/Bookmarks"));
-const ViewGroup = lazy(() => import("@/components/Group"));
-const GroupSettings = lazy(() => import("@/components/Group/Settings"));
-const GroupMonetizeSettings = lazy(() => import("@/components/Group/Settings/Monetize"));
-const GroupPersonalizeSettings = lazy(() => import("@/components/Group/Settings/Personalize"));
-const RulesSettings = lazy(() => import("@/components/Group/Settings/Rules"));
-const Groups = lazy(() => import("@/components/Groups"));
-const Notification = lazy(() => import("@/components/Notification"));
-const Tasks = lazy(() => import("@/components/Tasks"));
-const Copyright = lazy(() => import("@/components/Pages/Copyright"));
-const Guidelines = lazy(() => import("@/components/Pages/Guidelines"));
-const Privacy = lazy(() => import("@/components/Pages/Privacy"));
-const Support = lazy(() => import("@/components/Pages/Support"));
-const Terms = lazy(() => import("@/components/Pages/Terms"));
-const ViewPost = lazy(() => import("@/components/Post"));
-const Search = lazy(() => import("@/components/Search"));
-const AccountSettings = lazy(() => import("@/components/Settings"));
-const BlockedSettings = lazy(() => import("@/components/Settings/Blocked"));
-const DeveloperSettings = lazy(() => import("@/components/Settings/Developer"));
-const FundsSettings = lazy(() => import("@/components/Settings/Funds"));
-const ManagerSettings = lazy(() => import("@/components/Settings/Manager"));
-const AccountMonetizeSettings = lazy(() => import("@/components/Settings/Monetize"));
-const AccountPersonalizeSettings = lazy(() => import("@/components/Settings/Personalize"));
-const SessionsSettings = lazy(() => import("@/components/Settings/Sessions"));
-const UsernameSettings = lazy(() => import("@/components/Settings/Username"));
-const RewardsSettings = lazy(() => import("./components/Settings/Rewards"));
-const Staff = lazy(() => import("./components/Staff"));
+import RewardsSettings from "./components/Settings/Rewards";
+import Staff from "./components/Staff";
 
 const Routes = () => {
   return (
     <BrowserRouter>
       <RouterRoutes>
         <Route element={<Layout />} path="/">
-          <Route element={<Suspense fallback={<PostsShimmer />}><Home /></Suspense>} index />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Explore /></Suspense>} path="explore" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Search /></Suspense>} path="search" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Groups /></Suspense>} path="groups" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Bookmarks /></Suspense>} path="bookmarks" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Notification /></Suspense>} path="notifications" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Tasks /></Suspense>} path="tasks" />
-          <Route element={<Suspense fallback={<AccountPageShimmer />}><ViewAccount /></Suspense>} path="account/:address" />
-          <Route element={<Suspense fallback={<AccountPageShimmer />}><ViewAccount /></Suspense>} path="u/:username" />
+          <Route element={<Home />} index />
+          <Route element={<Explore />} path="explore" />
+          <Route element={<Search />} path="search" />
+          <Route element={<Groups />} path="groups" />
+          <Route element={<Bookmarks />} path="bookmarks" />
+          <Route element={<Notification />} path="notifications" />
+          <Route element={<Tasks />} path="tasks" />
+          <Route element={<ViewAccount />} path="account/:address" />
+          <Route element={<ViewAccount />} path="u/:username" />
           <Route path="g/:address">
-            <Route element={<Suspense fallback={<PostsShimmer />}><ViewGroup /></Suspense>} index />
+            <Route element={<ViewGroup />} index />
             <Route path="settings">
-              <Route element={<Suspense fallback={<PostsShimmer />}><GroupSettings /></Suspense>} index />
+              <Route element={<GroupSettings />} index />
               <Route
-                element={<Suspense fallback={<PostsShimmer />}><GroupPersonalizeSettings /></Suspense>}
+                element={<GroupPersonalizeSettings />}
                 path="personalize"
               />
-              <Route element={<Suspense fallback={<PostsShimmer />}><GroupMonetizeSettings /></Suspense>} path="monetize" />
-              <Route element={<Suspense fallback={<PostsShimmer />}><RulesSettings /></Suspense>} path="rules" />
+              <Route element={<GroupMonetizeSettings />} path="monetize" />
+              <Route element={<RulesSettings />} path="rules" />
             </Route>
           </Route>
           <Route path="posts/:slug">
-            <Route element={<Suspense fallback={<PostsShimmer />}><ViewPost /></Suspense>} index />
-            <Route element={<Suspense fallback={<PostsShimmer />}><ViewPost /></Suspense>} path="quotes" />
+            <Route element={<ViewPost />} index />
+            <Route element={<ViewPost />} path="quotes" />
           </Route>
           <Route path="settings">
-            <Route element={<Suspense fallback={<PostsShimmer />}><AccountSettings /></Suspense>} index />
+            <Route element={<AccountSettings />} index />
             <Route
-              element={<Suspense fallback={<PostsShimmer />}><AccountPersonalizeSettings /></Suspense>}
+              element={<AccountPersonalizeSettings />}
               path="personalize"
             />
-            <Route element={<Suspense fallback={<PostsShimmer />}><AccountMonetizeSettings /></Suspense>} path="monetize" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><RewardsSettings /></Suspense>} path="rewards" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><BlockedSettings /></Suspense>} path="blocked" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><DeveloperSettings /></Suspense>} path="developer" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><FundsSettings /></Suspense>} path="funds" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><ManagerSettings /></Suspense>} path="manager" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><SessionsSettings /></Suspense>} path="sessions" />
-            <Route element={<Suspense fallback={<PostsShimmer />}><UsernameSettings /></Suspense>} path="username" />
+            <Route element={<AccountMonetizeSettings />} path="monetize" />
+            <Route element={<RewardsSettings />} path="rewards" />
+            <Route element={<BlockedSettings />} path="blocked" />
+            <Route element={<DeveloperSettings />} path="developer" />
+            <Route element={<FundsSettings />} path="funds" />
+            <Route element={<ManagerSettings />} path="manager" />
+            <Route element={<SessionsSettings />} path="sessions" />
+            <Route element={<UsernameSettings />} path="username" />
           </Route>
           <Route path="staff">
-            <Route element={<Suspense fallback={<PostsShimmer />}><Staff /></Suspense>} index />
+            <Route element={<Staff />} index />
           </Route>
-          <Route element={<Suspense fallback={<PostsShimmer />}><Support /></Suspense>} path="support" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Terms /></Suspense>} path="terms" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Privacy /></Suspense>} path="privacy" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Guidelines /></Suspense>} path="guidelines" />
-          <Route element={<Suspense fallback={<PostsShimmer />}><Copyright /></Suspense>} path="copyright" />
+          <Route element={<Support />} path="support" />
+          <Route element={<Terms />} path="terms" />
+          <Route element={<Privacy />} path="privacy" />
+          <Route element={<Guidelines />} path="guidelines" />
+          <Route element={<Copyright />} path="copyright" />
           <Route element={<Custom404 />} path="*" />
         </Route>
       </RouterRoutes>

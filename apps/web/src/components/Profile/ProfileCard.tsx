@@ -1,4 +1,3 @@
-import { CheckBadgeIcon } from "@heroicons/react/24/solid";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { Card } from "@/components/Shared/UI";
@@ -155,14 +154,9 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
           </div>
           {/* Desktop: tên + username */}
           <div className="hidden sm:flex flex-col pt-6">
-            <div className="flex items-center gap-1">
-              <span className="text-base font-semibold text-gray-900 dark:text-white">
-                {displayName}
-              </span>
-              {(currentAccount as any)?.hasSubscribed && (
-                <CheckBadgeIcon className="size-4 text-brand-500" />
-              )}
-            </div>
+            <span className="text-base font-semibold text-gray-900 dark:text-white">
+              {displayName}
+            </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">
               {usernameWithPrefix}
             </span>
@@ -174,11 +168,8 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
       <div className="pt-12 px-4 pb-4 space-y-4">
         {/* Mobile: tên + username */}
         <div className="sm:hidden">
-          <div className="flex items-center gap-1 text-base font-semibold text-gray-900 dark:text-white">
+          <div className="text-base font-semibold text-gray-900 dark:text-white">
             {displayName}
-            {(currentAccount as any)?.hasSubscribed && (
-              <CheckBadgeIcon className="size-4 text-brand-500" />
-            )}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {usernameWithPrefix}

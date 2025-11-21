@@ -2,14 +2,11 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
-  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button, Card, H5, H6, Modal, Tabs } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
-import { useThemeModalStore } from "@/store/non-persisted/modal/useThemeModalStore";
 import PageLayout from "../Shared/PageLayout";
 import NewTask from "./NewTask";
 import TaskCard, { type TaskItem } from "./TaskCard";
@@ -21,19 +18,15 @@ import {
 } from "./taskFilters";
 import { apiClient } from "@/lib/apiClient";
 import TaskDetailModal from "./TaskDetailModal";
-import StickyFeedBar from "../Home/StickyFeedbar";
 
 let mockTasks: TaskItem[] = [];
 
 import { useAccountQuery } from "@slice/indexer";
 import { userInfo } from "os";
-import ProfileCard from "@/components/Profile/ProfileCard";
-import MobileHeader from "@/components/Shared/MobileHeader";
 
 const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState<TaskItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<TaskItem[]>(mockTasks);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<TaskFeedType>(TaskFeedType.All);
@@ -41,8 +34,6 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const { currentAccount } = useAccountStore();
-  const { show: showMobileDrawer } = useMobileDrawerModalStore();
-  const { show: showThemeModal } = useThemeModalStore();
   interface User {
     profileId: string;
     username?: string;
@@ -90,7 +81,7 @@ const Tasks = () => {
       console.error("Error fetching account data:", error);
       return null;
     }
-    console.log("data", data);
+    // console.log("data", data);
     return {
       name: data?.data?.account?.metadata?.name,
       avatar: data?.data?.account?.metadata?.picture,
@@ -246,25 +237,83 @@ const Tasks = () => {
       hideSearch
       showProfileCard={false}
       sidebar={
-        <div className="space-y-5 pt-1">
-          {/* Search Bar - Desktop Only */}
-          <div className="hidden md:block relative search-wrap">
+        <div className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative search-wrap">
             <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 z-10" />
             <input
-              className="relative z-10 w-full bg-transparent py-3 pr-3 pl-10 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white border-none outline-none focus:ring-0"
+              className="relative z-10 w-full bg-transparent py-2 pr-3 pl-10 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-white border-none outline-none focus:ring-0"
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
               type="text"
               value={searchQuery}
             />
           </div>
-          {/* ProfileCard */}
-          <ProfileCard variant="tasks" />
           {/* New Task Button */}
-          <div className="pt-4">
-            <NewTask onSubmit={setTasks} />
-          </div>
-          
+          <NewTask onSubmit={setTasks} />
+          {/* Reputation Card */}
+          {/* <Card className="p-5">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+                    <span className="text-xl text-yellow-600 dark:text-yellow-400">
+                      ⭐
+                    </span>
+                  </div>
+                  <H6 className="text-gray-900 dark:text-white">
+                    My Reputation
+                  </H6>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+          {/* <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Progress
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {reputation}
+                  </span>
+                </div>
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
+                    style={{ width: `${progressWidth}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Keep completing tasks to reach 100!
+                </p>
+              </div>
+            </div>
+          </Card>
+          {/* Reward Points Card */}
+          {/* <Card className="p-5">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                    <span className="text-xl text-green-600 dark:text-green-400">
+                      💎
+                    </span>
+                  </div>
+                  <H6 className="text-gray-900 dark:text-white">
+                    Reward Points
+                  </H6>
+                </div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {rewardPoints}
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Total points earned
+                </p>
+              </div>
+            </div>
+          </Card>
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             © 2025 Slice GitHub
@@ -273,47 +322,38 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-      <StickyFeedBar>
-        {/* Mobile Header with Search */}
-        <MobileHeader searchPlaceholder="Search tasks..." />
-        <div className="px-5 md:px-0">
-          <Tabs
-            active={activeTab}
-            className="mb-0"
-            layoutId="task_tabs"
-            setActive={(type) => setActiveTab(type as TaskFeedType)}
-            tabs={[
-              { name: "Tasks List", type: TaskFeedType.All },
-              { name: "My Tasks", type: TaskFeedType.MyTasks },
-              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
-            ]}
-          />
-        </div>
-      </StickyFeedBar>
-
+      <Tabs
+        active={activeTab}
+        className="mx-5 mb-5 md:mx-0"
+        layoutId="task_tabs"
+        setActive={(type) => setActiveTab(type as TaskFeedType)}
+        tabs={[
+          { name: "Tasks List", type: TaskFeedType.All },
+          { name: "My Tasks", type: TaskFeedType.MyTasks },
+          { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
+        ]}
+      />
       <div className="space-y-6">
-          <div className="space-y-4 px-3">
-            {loading ? (
-              <TasksShimmer count={5} />
-            ) : (
-              filteredTasks.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                  <p className="mb-2 font-medium">No tasks found.</p>
-                  <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
-                </div>
-              ) : (
-                paginatedTasks.map((task) => (
-                  <div key={task.id} onClick={() => handleTaskClick(task)}>
-                    <TaskCard 
-                      task={task}
-                      showDelete={activeTab === TaskFeedType.PostedTasks}
-                      onDelete={handleDeleteTask}
-                    />
-                  </div>
-                ))
-              )
-            )}
-          </div>
+        <div className="space-y-4">
+          {loading ? (
+            <TasksShimmer count={5} />
+          ) : filteredTasks.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <p className="mb-2 font-medium">No tasks found.</p>
+              <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
+            </div>
+          ) : (
+            paginatedTasks.map((task) => (
+              <div key={task.id} onClick={() => handleTaskClick(task)}>
+                <TaskCard
+                  task={task}
+                  showDelete={activeTab === TaskFeedType.PostedTasks}
+                  onDelete={handleDeleteTask}
+                />
+              </div>
+            ))
+          )}
+        </div>
 
         {filteredTasks.length > 0 && (
           <div className="flex items-center justify-center gap-4 pt-4">
@@ -351,27 +391,6 @@ const Tasks = () => {
         onClose={handleCloseModal}
         task={selectedTask}
       />
-
-      {/* Floating Action Button for Mobile */}
-      {!showMobileDrawer && !showThemeModal && (
-        <button
-          className="fixed right-5 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] shadow-lg transition-all hover:scale-110 active:scale-95 md:hidden"
-          onClick={() => setIsNewTaskModalOpen(true)}
-          type="button"
-          aria-label="Create new task"
-        >
-          <PlusIcon className="size-6 text-white stroke-[2.5]" />
-        </button>
-      )}
-
-      {/* Modal for creating new task (controlled by FAB on mobile) */}
-      {isNewTaskModalOpen && (
-        <NewTask 
-          onSubmit={setTasks}
-          isOpen={isNewTaskModalOpen}
-          onClose={() => setIsNewTaskModalOpen(false)}
-        />
-      )}
     </PageLayout>
   );
 };
