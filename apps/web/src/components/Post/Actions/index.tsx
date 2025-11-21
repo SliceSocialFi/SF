@@ -45,7 +45,7 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
         <TipAction post={targetPost} showCount={showCount} />
       </span>
 
-      {canAct && !showCount ? (
+      {canAct ? (
         <span className="post-action post-action-collect sm:ml-auto">
           <CollectAction post={targetPost} />
         </span>
