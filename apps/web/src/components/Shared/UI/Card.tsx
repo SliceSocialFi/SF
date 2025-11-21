@@ -7,7 +7,7 @@ const cardVariants = cva(
     defaultVariants: { forceRounded: false },
     variants: {
       forceRounded: {
-        false: "rounded-none border-y md:rounded-xl md:border",
+        false: "rounded-xl border",
         true: "rounded-xl border"
       }
     }

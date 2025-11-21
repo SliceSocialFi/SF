@@ -10,7 +10,9 @@ import Rewards from "@/components/Shared/Navbar/NavItems/Rewards";
 import Settings from "@/components/Shared/Navbar/NavItems/Settings";
 import Support from "@/components/Shared/Navbar/NavItems/Support";
 import SwitchAccount from "@/components/Shared/Navbar/NavItems/SwitchAccount";
+import Tasks from "@/components/Shared/Navbar/NavItems/Tasks";
 import YourAccount from "@/components/Shared/Navbar/NavItems/YourAccount";
+
 import cn from "@/helpers/cn";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -56,6 +58,9 @@ const MobileDrawerMenu = () => {
             >
               <YourAccount className={cn(itemClass, "px-4")} />
             </AccountLink>
+            <Link onClick={handleCloseDrawer} to="/tasks">
+              <Tasks className={cn(itemClass, "px-4")} />
+            </Link>
             <Link onClick={handleCloseDrawer} to="/settings/rewards">
               <Rewards className={cn(itemClass, "px-4")} />
             </Link>

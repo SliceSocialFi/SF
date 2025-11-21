@@ -46,14 +46,16 @@ const NewPost = ({ feed }: NewPostProps) => {
 
   if (mounted) {
     return (
-      <ComposerPanel
-        isOpen={open}
-        onDismiss={handleDismiss}
-        onExited={handleExited}
-        disableDismiss={hasContent}  // << khi có nội dung, không cho đóng bằng click-away/ESC
-      >
-        <NewPublication feed={feed} />
-      </ComposerPanel>
+      <div className="px-3">
+        <ComposerPanel
+          isOpen={open}
+          onDismiss={handleDismiss}
+          onExited={handleExited}
+          disableDismiss={hasContent}
+        >
+          <NewPublication feed={feed} />
+        </ComposerPanel>
+      </div>
     );
   }
 
@@ -72,21 +74,23 @@ const NewPost = ({ feed }: NewPostProps) => {
 }
 
   return (
-    <Card
-      className="cursor-pointer space-y-3 px-5 py-4 transition-all duration-200 hover:shadow-sm"
-      onClick={handleOpen}
-    >
-      <div className="flex items-center space-x-3">
-        <Image
-          alt={currentAccount?.address}
-          className="size-11 cursor-pointer rounded-full border border-gray-200 bg-gray-200 dark:border-gray-700"
-          height={44}
-          src={(currentAccount as any)?.metadata?.picture || "/default-avatar.png"}
-          width={44}
-        />
-        <span className="text-gray-500 dark:text-gray-200">What's new?!</span>
-      </div>
-    </Card>
+    <div className="px-3">
+      <Card
+        className="cursor-pointer px-5 pt-4 pb-3 transition-all duration-200 hover:shadow-sm"
+        onClick={handleOpen}
+      >
+        <div className="flex items-center space-x-3">
+          <Image
+            alt={currentAccount?.address}
+            className="size-11 cursor-pointer rounded-full border border-gray-200 bg-gray-200 dark:border-gray-700"
+            height={44}
+            src={(currentAccount as any)?.metadata?.picture || "/default-avatar.png"}
+            width={44}
+          />
+          <span className="text-gray-500 dark:text-gray-200">What's new?!</span>
+        </div>
+      </Card>
+    </div>
   );
 };
 

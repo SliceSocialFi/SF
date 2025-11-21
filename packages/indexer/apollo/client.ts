@@ -10,7 +10,16 @@ export const createApolloClient = (authLink?: ApolloLink) =>
     connectToDevTools: true,
     link: authLink
       ? from([authLink, retryLink, httpLink])
-      : from([retryLink, httpLink])
+      : from([retryLink, httpLink]),
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: "cache-and-network",
+        nextFetchPolicy: "cache-first",
+      },
+      query: {
+        fetchPolicy: "cache-first",
+      },
+    },
   });
 
 const apolloClient = createApolloClient();
