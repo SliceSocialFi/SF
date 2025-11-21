@@ -3,12 +3,13 @@
  * Refactored to use wagmi + viem for better error handling
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { 
   useAccount, 
   usePublicClient, 
   useWalletClient,
+  useSwitchChain
 } from "wagmi";
 import { 
   formatUnits, 
@@ -29,13 +30,20 @@ interface UseEscrowOptions {
 }
 
 export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
+  const { switchChainAsync } = useSwitchChain();
   
   const [isDepositing, setIsDepositing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isReleasing, setIsReleasing] = useState(false);
+
+  useEffect(() => {
+    if (chain?.id !== CHAIN.id) {
+      switchChainAsync({ chainId: CHAIN.id });
+    }
+  }, [chain, switchChainAsync]);
 
   /**
    * Check token allowance using viem

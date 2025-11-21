@@ -37,7 +37,7 @@ export default class ApiClient {
   constructor(baseUrl?: string) {
     // In dev prefer a local proxy to avoid CORS preflight; fallback to SLICE_API_URL in prod
     if (import.meta.env?.DEV) {
-      this.baseUrl = baseUrl || 'http://localhost:3000'
+      this.baseUrl = baseUrl || SLICE_API_URL || 'http://localhost:3000'
     } else {
       this.baseUrl = baseUrl || SLICE_API_URL
     }
