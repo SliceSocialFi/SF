@@ -1,0 +1,34 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* General Sans from CDN */
+@font-face {
+  font-family: "General Sans";
+  src: url("https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap");
+  font-display: swap;
+}
+
+/* Fallback Sofia Pro fonts */
+@font-face {
+  font-family: "Sofia Pro";
+  src: url("./assets/fonts/SofiaProSoftReg.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sofia Pro";
+  src: url("./assets/fonts/SofiaProSoftMed.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sofia Pro";
+  src: url("./assets/fonts/SofiaProSoftBold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,0 +1,48 @@
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import cn from "@/helpers/cn";
+import errorToast from "@/helpers/errorToast";
+import { signOut } from "@/store/persisted/useAuthStore";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
+
+interface LogoutProps {
+  className?: string;
+  onClick?: () => void;
+}
+
+const Logout = ({ className = "", onClick }: LogoutProps) => {
+  const { setCurrentAccount } = useAccountStore();
+  
+  const handleLogout = async () => {
+    try {
+      // Clear account first
+      setCurrentAccount(undefined);
+      
+      // Sign out (clears tokens and localStorage)
+      signOut();
+      
+      // Redirect to home using window.location
+      window.location.href = '/';
+    } catch (error) {
+      errorToast(error);
+    }
+  };
+
+  return (
+    <button
+      className={cn(
+        "flex w-full items-center space-x-1.5 px-2 py-1.5 text-left text-gray-700 text-sm dark:text-gray-200",
+        className
+      )}
+      onClick={async () => {
+        await handleLogout();
+        onClick?.();
+      }}
+      type="button"
+    >
+      <ArrowRightStartOnRectangleIcon className="size-4" />
+      <div>Logout</div>
+    </button>
+  );
+};
+
+export default Logout;

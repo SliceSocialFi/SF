@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary: #FF6B81;
+    --primary-foreground: #ffffff;
+    --primary-hover: #FFA4B1;
+    --primary-active: #E9566B;
+
+    --ring: var(--primary);
+    --muted: #FFE4E9;
+    /* viền/card nhạt tùy ý */
+}
+
+/* Dark mode có thể giữ nguyên hoặc tinh chỉnh theo ý bạn */
+.dark {
+    --primary: #FF6B81;
+    --primary-foreground: #ffffff;
+    --primary-hover: #FFA4B1;
+    --primary-active: #E9566B;
+
+    --ring: var(--primary);
+    --muted: #3f1720;
+    /* tuỳ chọn: nhạt kiểu dark */
+}

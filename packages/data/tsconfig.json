@@ -1,0 +1,3 @@
+{
+  "extends": "@slice/config/base.tsconfig.json"
+}

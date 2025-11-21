@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: hey-web
+    restart: always
+    environment:
+      - LENS_NETWORK=staging
+      - HEY_API_URL=https://slice-api-indol.vercel.app/
+    ports:
+      - "3000:80"

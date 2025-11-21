@@ -1,0 +1,26 @@
+{
+  "name": "@slice/indexer",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0",
+  "main": "generated.ts",
+  "scripts": {
+    "codegen": "graphql-codegen",
+    "typecheck": "tsc --pretty"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.14.0",
+    "@slice/data": "workspace:*",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/fragment-matcher": "^6.0.0",
+    "@graphql-codegen/typescript": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^5.0.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.3",
+    "@slice/config": "workspace:*",
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  }
+}
