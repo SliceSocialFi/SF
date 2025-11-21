@@ -106,6 +106,7 @@ const ViewAccount = () => {
     <PageLayout
       title={`${accountInfo.name} (${accountInfo.usernameWithPrefix}) • Slice`}
       zeroTopMargin
+      showProfileCard={false}
     >
       <div className={cn("overflow-hidden rounded-2xl backdrop-blur-sm",)}>
         <Cover
