@@ -23,7 +23,7 @@ const Explore = () => {
       }
       title="Explore"
     >
-      <div className="sm:px-0 space-y-3">
+      <div className="space-y-3">
         <StickyFeedBar>
           <MobileHeader searchPlaceholder="Search users..." />
           <ContentFeedType

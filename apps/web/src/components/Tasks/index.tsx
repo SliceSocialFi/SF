@@ -292,7 +292,7 @@ const Tasks = () => {
       </StickyFeedBar>
 
       <div className="space-y-6">
-          <div className="space-y-4">
+          <div className="space-y-4 px-3">
             {loading ? (
               <TasksShimmer count={5} />
             ) : (

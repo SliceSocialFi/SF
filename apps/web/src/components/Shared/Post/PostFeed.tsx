@@ -35,11 +35,19 @@ const PostFeed = <T extends { id: string }>({
   }
 
   if (!items?.length) {
-    return <EmptyState icon={emptyIcon} message={emptyMessage} />;
+    return (
+      <div className="px-3">
+        <EmptyState icon={emptyIcon} message={emptyMessage} />
+      </div>
+    );
   }
 
   if (error) {
-    return <ErrorMessage error={error} title={errorTitle} />;
+    return (
+      <div className="px-3">
+        <ErrorMessage error={error} title={errorTitle} />
+      </div>
+    );
   }
 
   return (
