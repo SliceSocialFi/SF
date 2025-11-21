@@ -255,7 +255,8 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
   });
 
   return (
-    <ComposerPanel 
+    <div>
+      <ComposerPanel 
       isOpen={panelProps?.isOpen ?? true}
       onDismiss={panelProps?.onDismiss}
       onExited={panelProps?.onExited}
@@ -316,6 +317,7 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
           </div>
         </Card>
     </ComposerPanel>
+    </div>
   );
 };
 

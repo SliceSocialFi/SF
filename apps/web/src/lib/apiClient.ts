@@ -37,7 +37,7 @@ export default class ApiClient {
   constructor(baseUrl?: string) {
     // In dev prefer a local proxy to avoid CORS preflight; fallback to SLICE_API_URL in prod
     if (import.meta.env?.DEV) {
-      this.baseUrl = baseUrl || 'http://localhost:3000'
+      this.baseUrl = baseUrl || SLICE_API_URL || 'http://localhost:3000'
     } else {
       this.baseUrl = baseUrl || SLICE_API_URL
     }
@@ -137,10 +137,10 @@ export default class ApiClient {
     return this.request(`/tasks/${encodeURIComponent(taskId)}`, { method: 'PATCH' })
   }
 
-  async confirmDeposit(taskId: string, payload: { onChainTaskId: string; depositedTxHash: string }) {
-    return this.request(`/tasks/${encodeURIComponent(taskId)}/confirm-deposit`, { method: 'PATCH', body: JSON.stringify(payload) })
+  async completeTaskAndUpdateUser(taskId: string, profileId: string, payload: { rewardPoints: number; reputationScore: number }) {
+    await this.request(`/tasks/complete/${encodeURIComponent(taskId)}`, { method: 'PUT' })
+    await this.adjustUserPoints(profileId, payload)
   }
-
   // ==================== APPLICATIONS ====================
   
   async listApplications(): Promise<any[]> {
@@ -155,7 +155,7 @@ export default class ApiClient {
     return this.request('/applications', { method: 'POST', body: JSON.stringify(payload) })
   }
 
-  async submitOutcome(applicationId: string, payload: { outcome: string; outcomeType: 'text' | 'file' }) {
+  async submitOutcome(applicationId: string, payload: { outcome?: string; outcomeType?: 'text' | 'file' }) {
     return this.request(`/applications/${encodeURIComponent(applicationId)}/submit`, { method: 'POST', body: JSON.stringify(payload) })
   }
 
@@ -217,20 +217,6 @@ export default class ApiClient {
 
   async deleteNotification(notificationId: string) {
     return this.request(`/notifications/${encodeURIComponent(notificationId)}`, { method: 'DELETE' })
-  }
-
-  // ==================== ESCROW ====================
-  
-  async getEscrowTask(taskId: string): Promise<any> {
-    return this.request(`/escrow/task/${encodeURIComponent(taskId)}`, { method: 'GET' })
-  }
-
-  async getEscrowByExternalId(externalTaskId: string): Promise<any> {
-    return this.request(`/escrow/external/${encodeURIComponent(externalTaskId)}`, { method: 'GET' })
-  }
-
-  async syncEscrowEvents(): Promise<any> {
-    return this.request('/escrow/sync', { method: 'POST' })
   }
 
   // ==================== CONVENIENCE METHODS ====================

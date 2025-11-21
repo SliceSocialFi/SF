@@ -13,7 +13,6 @@ import ApplicationList from "./Applications/ApplicationList";
 import ApplyModal from "./Applications/ApplyModal";
 import SubmitOutcomeModal from "./Applications/SubmitOutcomeModal";
 import PostRateModal from "./Applications/PostRateModal";
-import { EscrowManager } from "@/components/Escrow";
 
 const TaskDetailModal = ({
   task,
@@ -25,7 +24,7 @@ const TaskDetailModal = ({
   onClose: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState<
-    "details" | "applications" | "submit work" | "escrow"
+    "details" | "applications" | "submit work"
   >("details");
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -55,15 +54,6 @@ const TaskDetailModal = ({
     myApplication &&
     ((myApplication as any).status === "accepted" ||
       (myApplication as any).status === "needs_revision");
-
-  // Check if user is freelancer (assigned to task)
-  const isFreelancer =
-    task.freelancerProfileId &&
-    currentAccount?.address?.toLowerCase() ===
-      task.freelancerProfileId.toLowerCase();
-
-  // Show escrow tab for employer or assigned freelancer
-  // const showEscrowTab = isOwner || isFreelancer;
 
   const handleApplicationUpdate = () => {
     setRefreshKey((prev) => prev + 1);
@@ -120,10 +110,6 @@ const TaskDetailModal = ({
   if (canSubmitOutcome) {
     tabList.push({ name: "Submit Work", type: "submit work" });
   }
-  // Add Escrow tab for employer or assigned freelancer
-  // if (showEscrowTab) {
-  //   tabList.push({ name: "Escrow", type: "escrow" });
-  // }
 
   return (
     <>
@@ -181,9 +167,7 @@ const TaskDetailModal = ({
             active={activeTab}
             layoutId="task_detail_tabs"
             setActive={(type) =>
-              setActiveTab(
-                type as "details" | "applications" | "submit work" //| "escrow"
-              )
+              setActiveTab(type as "details" | "applications" | "submit work")
             }
             tabs={tabList}
           />
@@ -254,8 +238,6 @@ const TaskDetailModal = ({
               onApplicationUpdate={handleApplicationUpdate}
               rewardPoints={task.rewardPoints}
               onOpenRate={(id: string) => setRatingAppId(id)}
-              taskExternalId={task.id}
-              taskRewardAmount={task.rewardPoints?.toString() || "100"}
             />
           </div>
           {/* Submit Work Tab */}
@@ -292,19 +274,6 @@ const TaskDetailModal = ({
               </div>
             </div>
           )}
-          {/* Escrow Tab */}
-          {/* {activeTab === "escrow" && showEscrowTab && (
-            <div className="mt-4">
-              <EscrowManager
-                taskId={task.id}
-                freelancerAddress={task.freelancerProfileId || undefined}
-                employerAddress={task.employerProfileId}
-                currentUserAddress={currentAccount?.address}
-                defaultAmount={task.rewardPoints?.toString() || "100"}
-                defaultDeadlineDays={7}
-              />
-            </div>
-          )} */}
           {/* Action Buttons */}
           <div className="flex gap-3 border-gray-200 border-t pt-4 dark:border-gray-700">
             {isOwner ? (
@@ -381,9 +350,10 @@ const TaskDetailModal = ({
         isResubmit={Boolean(
           myApplication && (myApplication as any).status === "needs_revision"
         )}
-        // profileId={currentAccount?.address || ""}
-        // rewardPoints={task.rewardPoints}
-        // reputationScore={1}
+        taskId={task.id}
+        profileId={currentAccount?.address || ""}
+        rewardPoints={task.rewardPoints}
+        reputationScore={1}
       />
       {/* Post Rate Modal - mounted and controlled by ratingAppId */}
       <PostRateModal

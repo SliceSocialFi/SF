@@ -6,7 +6,7 @@ import getAvatar from "@slice/helpers/getAvatar";
 import type { AccountFragment } from "@slice/indexer";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import FollowUnfollowButton from "@/components/Shared/Account/FollowUnfollowButton";
 import TipButton from "@/components/Shared/Account/TipButton";
@@ -19,6 +19,7 @@ import getMentions from "@/helpers/getMentions";
 import { useTheme } from "@/hooks/useTheme";
 import { useProModalStore } from "@/store/non-persisted/modal/useProModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { apiClient } from "@/lib/apiClient";
 import Followerings from "./Followerings";
 import FollowersYouKnowOverview from "./FollowersYouKnowOverview";
 import AccountMenu from "./Menu";
@@ -40,6 +41,22 @@ const Details = ({
   const { setShow: setShowProModal } = useProModalStore();
   const [showLightBox, setShowLightBox] = useState<boolean>(false);
   const { theme } = useTheme();
+  const [reputation, setReputation] = useState<number>(0);
+  const [level, setLevel] = useState<number>(1);
+
+  useEffect(() => {
+    const loadUserReputation = async () => {
+      try {
+        if (!account?.address) return;
+        const data = await apiClient.getUser(account.address);
+        setReputation(typeof data?.reputationScore === "number" ? data.reputationScore : Number(data?.reputation) || 0);
+        setLevel(Number(data?.level) || 1);
+      } catch (err) {
+        console.error("Failed to load user reputation", err);
+      }
+    };
+    loadUserReputation();
+  }, [account?.address]);
 
   const handleShowLightBox = useCallback(() => {
     setShowLightBox(true);
@@ -75,7 +92,7 @@ const Details = ({
     );
   };
 
-  const avatarUrl = account?.metadata?.picture || "/default-avatar.png";
+  const avatarUrl = getAvatar(account);
 
   return (
     <div className="mb-4 space-y-3 px-5 md:px-0">
@@ -185,10 +202,31 @@ const Details = ({
           <MetaDetails icon={<CalendarIcon className="size-4" />}>
             Joined {dayjs(account.createdAt).format("MMM YYYY")}
           </MetaDetails>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            Your reputation points: 0
-          </div>
         </div>
+        
+        {/* Reputation Progress Bar - chỉ hiển thị cho chính chủ account */}
+        {currentAccount?.address === account.address && (
+          <div className="space-y-2 pt-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-500 dark:text-gray-400">
+                Reputation progress
+              </span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {reputation}
+              </span>
+            </div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(0, reputation))}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>Level {level}</span>
+              <span>Reach 100 to level up</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

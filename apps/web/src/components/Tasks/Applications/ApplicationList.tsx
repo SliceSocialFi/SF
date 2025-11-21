@@ -5,10 +5,6 @@ import type { Application } from "@/types/task-api";
 import ApplicationCard from "./ApplicationCard";
 import { Spinner } from "@/components/Shared/UI";
 import { useAccountQuery } from "@slice/indexer";
-import { EscrowDeposit } from "@/components/Escrow";
-import Modal from "@/components/Shared/UI/Modal";
-import { useEscrow } from "@/hooks/useEscrow";
-import { useWallet } from "@/hooks/useWallet";
 
 interface ApplicationListProps {
   taskId: string;
@@ -17,9 +13,6 @@ interface ApplicationListProps {
   onApplicationUpdate?: () => void;
   onOpenRate?: (applicationId: string) => void;
   rewardPoints?: number;
-  // Escrow props (required for new flow)
-  taskExternalId?: string; // UUID of task for escrow
-  taskRewardAmount?: string; // Reward amount in token units (e.g., "100")
 }
 
 const ApplicationList = ({
@@ -29,28 +22,9 @@ const ApplicationList = ({
   onApplicationUpdate,
   onOpenRate,
   rewardPoints,
-  taskExternalId,
-  taskRewardAmount = "100",
 }: ApplicationListProps) => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
-  // Escrow deposit modal state
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [pendingApplication, setPendingApplication] =
-    useState<Application | null>(null);
-
-  // Wallet and escrow hooks for release
-  const { isConnected } = useWallet();
-  const { adminReleaseEscrow, isReleasing } = useEscrow({
-    onSuccess: (tx) => {
-      toast.success(
-        `Payment released to freelancer! Tx: ${tx.txHash.slice(0, 10)}...`
-      );
-    },
-    onError: (err) => {
-      console.error("Release escrow error:", err);
-    },
-  });
 
   useEffect(() => {
     loadApplications();
@@ -111,68 +85,35 @@ const ApplicationList = ({
     }
   };
 
-  const handleAccept = (id: string) => {
-    // NEW FLOW: Don't call API immediately!
-    // Instead, open escrow deposit modal first
-    const app = applications.find((a) => a.id === id);
-    if (!app) {
-      toast.error("Application not found");
+  const handleAccept = async (id: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to accept this application? This will reject other submitted applications."
+      )
+    )
       return;
-    }
-
-    if (!taskExternalId) {
-      toast.error("Task external ID not found. Cannot proceed with escrow.");
-      return;
-    }
-
-    // Set pending application and show modal
-    setPendingApplication(app);
-    setShowDepositModal(true);
-  };
-
-  // Called AFTER escrow deposit succeeds
-  const handleDepositSuccess = async (
-    txHash: string,
-    onChainTaskId?: string
-  ) => {
-    if (!pendingApplication) return;
-
     try {
-      // Step 1: Confirm deposit to backend (save onChainTaskId and txHash)
-      if (onChainTaskId && taskExternalId) {
-        toast.info("Confirming deposit on backend...");
-        await apiClient.confirmDeposit(taskExternalId, {
-          onChainTaskId,
-          depositedTxHash: txHash,
-        });
-      }
+      // Accept selected application
+      await apiClient.acceptApplication(id);
 
-      // Step 2: Accept the application on backend
-      await apiClient.acceptApplication(pendingApplication.id);
-
-      // Step 3: Reject all other submitted applications for this task
+      // Reject all other submitted applications for this task
       const others = applications.filter(
-        (a) => a.id !== pendingApplication.id && a.status === "submitted"
+        (a) => a.id !== id && a.status === "submitted"
       );
       await Promise.all(
-        others.map((a) => apiClient.rejectApplication(a.id).catch(() => {}))
+        others.map((a) =>
+          apiClient.rejectApplication(a.id).catch((e) => {
+            console.error("Failed to reject application", a.id, e);
+          })
+        )
       );
 
-      toast.success(
-        `Application accepted! Escrow deposited (Tx: ${txHash.slice(0, 10)}...)`
-      );
-
-      // Close modal and reset state
-      setShowDepositModal(false);
-      setPendingApplication(null);
-
-      // Reload and notify parent
+      toast.success("Application accepted and others rejected");
       await loadApplications();
       onApplicationUpdate?.();
     } catch (error: any) {
-      toast.error(
-        error?.body?.message || "Failed to accept application after deposit"
-      );
+      console.error("accept error", error);
+      toast.error(error?.body?.message || "Failed to accept application");
     }
   };
 
@@ -211,54 +152,28 @@ const ApplicationList = ({
   };
 
   const handleApprove = async (id: string) => {
-    if (!confirm("Approve this submission and release payment from escrow?"))
+    if (!confirm("Approve this submission and mark application as completed?"))
       return;
-
-    if (!isConnected) {
-      toast.error("Please connect wallet to release payment");
-      return;
-    }
-
-    if (!taskExternalId) {
-      toast.error("Task external ID not found. Cannot release escrow.");
-      return;
-    }
-
     try {
-      const app = applications.find((a) => a.id === id);
-      if (!app) {
-        toast.error("Application not found");
-        return;
-      }
-
-      const freelancerProfileId = app.applicantProfileId;
-
-      // Call backend API to release escrow (admin action)
-      // Backend will handle: get on-chain ID, call contract release(), update DB
-      toast.info("Releasing payment from escrow...");
-      await adminReleaseEscrow(
-        taskExternalId, // Pass DB UUID, not on-chain ID
-        `Work approved for application ${id} by employer`
-      );
-
-      // Update application status to completed
       await apiClient.updateApplication(id, { status: "completed" });
-
-      // Mark task as completed
       await apiClient.updateTask(taskId, { status: "completed" });
-
-      toast.success("Work approved and payment released successfully!");
+      // Award reward points and update reputation for the freelancer
+      const app = applications.find((a) => a.id === id);
+      const freelancerProfileId = app?.applicantProfileId;
+      if (freelancerProfileId) {
+        await apiClient.completeTaskAndUpdateUser(taskId, freelancerProfileId, {
+          rewardPoints: rewardPoints ?? 0,
+          reputationScore: 1,
+        });
+      }
+      toast.success("Submission approved and application completed");
       await loadApplications();
-
-      // Ask parent to open rating modal
+      // Ask parent to open rating modal so employer can post a rating for the freelancer
       onOpenRate?.(id);
       onApplicationUpdate?.();
     } catch (error: any) {
-      toast.error(
-        error?.shortMessage ||
-          error?.message ||
-          "Failed to approve and release payment"
-      );
+      console.error("approve error", error);
+      toast.error(error?.body?.message || "Failed to approve submission");
     }
   };
 
@@ -279,72 +194,32 @@ const ApplicationList = ({
   }
 
   return (
-    <>
-      <div className="space-y-3">
-        {applications.map((app) => (
-          <ApplicationCard
-            key={app.id}
-            application={app}
-            showActions={isEmployer}
-            onAccept={handleAccept}
-            onApprove={handleApprove}
-            onRating={handleRating}
-            // View profile navigates to user page (safe fallback)
-            onViewProfile={(username: string) => {
-              if (!username) return;
-              window.location.href = `/u/${username}`;
-            }}
-            {...(isEmployer
-              ? {
-                  onRequestRevision: handleRequestRevision,
-                  onReject: handleReject,
-                }
-              : {
-                  onReject: handleReject,
-                  onRequestRevision: handleRequestRevision,
-                })}
-          />
-        ))}
-      </div>
-
-      {/* Escrow Deposit Modal (NEW FLOW) */}
-      <Modal
-        show={showDepositModal}
-        onClose={() => {
-          setShowDepositModal(false);
-          setPendingApplication(null);
-        }}
-        title="Deposit Escrow to Accept Application"
-        size="md"
-      >
-        <div className="p-6">
-          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-            <p className="text-blue-800 text-sm dark:text-blue-200">
-              <strong>New Flow:</strong> You must deposit escrow funds before
-              accepting this application. The funds will be locked on-chain
-              until the task is completed.
-            </p>
-          </div>
-
-          {pendingApplication && (
-            <div className="mb-4">
-              <p className="text-gray-600 text-sm dark:text-gray-400">
-                Accepting application from:{" "}
-                <strong>{pendingApplication.applicantName || "Unknown"}</strong>
-              </p>
-            </div>
-          )}
-
-          <EscrowDeposit
-            taskId={taskExternalId}
-            freelancerAddress={pendingApplication?.applicantProfileId}
-            defaultAmount={taskRewardAmount}
-            defaultDeadlineDays={7}
-            onSuccess={handleDepositSuccess}
-          />
-        </div>
-      </Modal>
-    </>
+    <div className="space-y-3">
+      {applications.map((app) => (
+        <ApplicationCard
+          key={app.id}
+          application={app}
+          showActions={isEmployer}
+          onAccept={handleAccept}
+          onApprove={handleApprove}
+          onRating={handleRating}
+          // View profile navigates to user page (safe fallback)
+          onViewProfile={(username: string) => {
+            if (!username) return;
+            window.location.href = `/u/${username}`;
+          }}
+          {...(isEmployer
+            ? {
+                onRequestRevision: handleRequestRevision,
+                onReject: handleReject,
+              }
+            : {
+                onReject: handleReject,
+                onRequestRevision: handleRequestRevision,
+              })}
+        />
+      ))}
+    </div>
   );
 };
 

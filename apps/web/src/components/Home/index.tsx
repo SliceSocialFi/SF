@@ -2,6 +2,7 @@ import { HomeFeedType } from "@slice/data/enums";
 import NewPost from "@/components/Composer/NewPost";
 import ExploreFeed from "@/components/Explore/ExploreFeed";
 import PageLayout from "@/components/Shared/PageLayout";
+import MobileHeader from "@/components/Shared/MobileHeader";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useHomeTabStore } from "@/store/persisted/useHomeTabStore";
 import FeedType from "./FeedType";
@@ -21,6 +22,7 @@ const Home = () => {
       {loggedInWithAccount ? (
         <>
           <StickyFeedBar>
+            <MobileHeader searchPlaceholder="Search users..." />
             <FeedType />
           </StickyFeedBar>  
           <NewPost />

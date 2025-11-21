@@ -12,7 +12,7 @@ const Oembed = ({ url }: OembedProps) => {
   const { data, error, isLoading } = useQuery({
     enabled: Boolean(url),
     queryFn: () => hono.oembed.get(url),
-    queryKey: ["oembed", url],
+    queryKey: ["oembed", url]
   });
 
   if (isLoading || error || !data) {
@@ -26,7 +26,7 @@ const Oembed = ({ url }: OembedProps) => {
   const og = {
     description: data?.description,
     title: data?.title,
-    url: url as string,
+    url: url as string
   };
 
   if (!og.title) {

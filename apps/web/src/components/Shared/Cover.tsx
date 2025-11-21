@@ -1,7 +1,7 @@
 import {
   BRAND_COLOR,
   STATIC_IMAGES_URL,
-  TRANSFORMS
+  TRANSFORMS,
 } from "@slice/data/constants";
 import imageKit from "@slice/helpers/imageKit";
 import sanitizeDStorageUrl from "@slice/helpers/sanitizeDStorageUrl";
@@ -13,7 +13,7 @@ interface CoverProps {
 const Cover = ({ cover }: CoverProps) => {
   const isDefaultCover = cover.includes(STATIC_IMAGES_URL);
   const backgroundImage = isDefaultCover
-    ? `${STATIC_IMAGES_URL}/patterns/2.svg`
+    ? "/cover.png"
     : imageKit(sanitizeDStorageUrl(cover), TRANSFORMS.COVER);
 
   const backgroundStyles = {
@@ -21,7 +21,7 @@ const Cover = ({ cover }: CoverProps) => {
     backgroundImage: `url(${backgroundImage})`,
     backgroundPosition: "center center",
     backgroundRepeat: isDefaultCover ? "repeat" : "no-repeat",
-    backgroundSize: isDefaultCover ? "30%" : "cover"
+    backgroundSize: isDefaultCover ? "30%" : "cover",
   };
 
   return (

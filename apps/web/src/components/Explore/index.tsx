@@ -2,6 +2,7 @@ import type { MainContentFocus } from "@slice/indexer";
 import { useState } from "react";
 import Footer from "@/components/Shared/Footer";
 import PageLayout from "@/components/Shared/PageLayout";
+import MobileHeader from "@/components/Shared/MobileHeader";
 import ContentFeedType from "@/components/Shared/Post/ContentFeedType";
 import WhoToFollow from "@/components/Shared/Sidebar/WhoToFollow";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -22,10 +23,9 @@ const Explore = () => {
       }
       title="Explore"
     >
-      
-      <div className="sm:px-0 space-y-3">
-        
+      <div className="space-y-3">
         <StickyFeedBar>
+          <MobileHeader searchPlaceholder="Search users..." />
           <ContentFeedType
             focus={focus}
             layoutId="explore_tab"
