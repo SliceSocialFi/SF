@@ -48,30 +48,38 @@ const Accounts = ({ query }: AccountsProps) => {
 
   if (!accounts?.length) {
     return (
-      <EmptyState
-        icon={<UsersIcon className="size-8" />}
-        message={
-          <span>
-            No accounts for <b>&ldquo;{query}&rdquo;</b>
-          </span>
-        }
-      />
+      <div className="px-3">
+        <EmptyState
+          icon={<UsersIcon className="size-8" />}
+          message={
+            <span>
+              No accounts for <b>&ldquo;{query}&rdquo;</b>
+            </span>
+          }
+        />
+      </div>
     );
   }
 
   if (error) {
-    return <ErrorMessage error={error} title="Failed to load accounts" />;
+    return (
+      <div className="px-3">
+        <ErrorMessage error={error} title="Failed to load accounts" />
+      </div>
+    );
   }
 
   return (
-    <WindowVirtualizer>
-      {accounts.map((account) => (
-        <Card className="mb-5 p-5" key={account.address}>
-          <SingleAccount account={account} isBig showBio />
-        </Card>
-      ))}
-      {hasMore && <span ref={loadMoreRef} />}
-    </WindowVirtualizer>
+    <div className="px-3">
+      <WindowVirtualizer>
+        {accounts.map((account) => (
+          <Card className="mb-5 p-5" key={account.address}>
+            <SingleAccount account={account} isBig showBio />
+          </Card>
+        ))}
+        {hasMore && <span ref={loadMoreRef} />}
+      </WindowVirtualizer>
+    </div>
   );
 };
 

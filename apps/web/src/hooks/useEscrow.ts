@@ -23,7 +23,6 @@ import { ESCROW_ABI } from "@/lib/abis";
 import { getToken } from "@/helpers/api";
 
 
-
 interface UseEscrowOptions {
   onSuccess?: (tx: EscrowTransaction) => void;
   onError?: (error: Error) => void;
@@ -331,7 +330,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         if (!token) {
           throw new Error("Please login again!");
         }
-        // console.log("Token for adminReleaseEscrow:", token);
+        console.log("Token for adminReleaseEscrow:", token);
         // Call backend API which handles admin release
         const apiUrl = (`${SLICE_API_URL}/tasks/${taskId}/release`);
         console.log("🔗 Calling API:", apiUrl);

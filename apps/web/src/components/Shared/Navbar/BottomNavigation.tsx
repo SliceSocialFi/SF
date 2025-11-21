@@ -1,11 +1,14 @@
 import {
   BellIcon,
+  ClipboardDocumentListIcon,
   GlobeAltIcon as GlobeOutline,
   HomeIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  SwatchIcon
 } from "@heroicons/react/24/outline";
 import {
   BellIcon as BellIconSolid,
+  ClipboardDocumentListIcon as ClipboardDocumentListIconSolid,
   GlobeAltIcon as GlobeSolid,
   HomeIcon as HomeIconSolid
 } from "@heroicons/react/24/solid";
@@ -15,8 +18,10 @@ import { Link, useLocation } from "react-router";
 import { Image } from "@/components/Shared/UI";
 import useHasNewNotifications from "@/hooks/useHasNewNotifications";
 import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
+import { useThemeModalStore } from "@/store/non-persisted/modal/useThemeModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import MobileDrawerMenu from "./MobileDrawerMenu";
+import ThemeSwitcherPanel from "@/components/Shared/Theme/ThemeSwitcherPanel";
 
 interface NavigationItemProps {
   path: string;
@@ -55,6 +60,7 @@ const BottomNavigation = () => {
   const { currentAccount } = useAccountStore();
   const { show: showMobileDrawer, setShow: setShowMobileDrawer } =
     useMobileDrawerModalStore();
+  const { show: showThemeModal, setShow: setShowThemeModal } = useThemeModalStore();
   const hasNewNotifications = useHasNewNotifications();
 
   const handleAccountClick = () => setShowMobileDrawer(true);
@@ -74,10 +80,10 @@ const BottomNavigation = () => {
       solid: <HomeIconSolid className="size-6" />
     },
     {
-      label: "Search",
-      outline: <MagnifyingGlassIcon className="size-6" />,
-      path: "/search",
-      solid: <MagnifyingGlassIcon className="size-6" />
+      label: "Tasks",
+      outline: <ClipboardDocumentListIcon className="size-6" />,
+      path: "/tasks",
+      solid: <ClipboardDocumentListIconSolid className="size-6" />
     },
     {
       label: "Explore",
@@ -96,6 +102,13 @@ const BottomNavigation = () => {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-[5] border-gray-200 border-t bg-white pb-safe md:hidden dark:border-gray-800 dark:bg-black">
       {showMobileDrawer && <MobileDrawerMenu />}
+      {showThemeModal && (
+        <div className="fixed inset-0 z-10 bg-black/50" onClick={() => setShowThemeModal(false)}>
+          <div className="fixed bottom-[4.5rem] right-3" onClick={(e) => e.stopPropagation()}>
+            <ThemeSwitcherPanel onClose={() => setShowThemeModal(false)} />
+          </div>
+        </div>
+      )}
       <div className="flex justify-between">
         {navigationItems.map(({ path, label, outline, solid }) => (
           <NavigationItem
@@ -109,20 +122,14 @@ const BottomNavigation = () => {
             solid={solid}
           />
         ))}
-        {currentAccount && (
-          <button
-            aria-label="Your account"
-            className="m-auto h-fit"
-            onClick={handleAccountClick}
-            type="button"
-          >
-            <Image
-              alt={currentAccount.address}
-              className="m-0.5 size-6 rounded-full border border-gray-200 dark:border-gray-700"
-              src={getAvatar(currentAccount)}
-            />
-          </button>
-        )}
+        <button
+          aria-label="Theme settings"
+          className="relative mx-auto my-3"
+          onClick={() => setShowThemeModal(!showThemeModal)}
+          type="button"
+        >
+          <SwatchIcon className="size-6" />
+        </button>
       </div>
     </nav>
   );

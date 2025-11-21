@@ -1,7 +1,14 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
+import {
+  BSC_POOL_CONTRACT_MAINNET,
+  BSC_POOL_CONTRACT_TESTNET,
+  LENS_BRIDGE_MINTER_CONTRACT_MAINNET,
+  LENS_BRIDGE_MINTER_CONTRACT_TESTNET,
+  MAINNET_CONTRACTS,
+  TESTNET_CONTRACTS
+} from "./contracts";
 import getEnvConfig from "./utils/getEnvConfig";
-import { MAINNET_CONTRACTS, TESTNET_CONTRACTS } from "./contracts";
 
 // Lens and Hey Env Config
 export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
@@ -29,8 +36,7 @@ export const BRAND_COLOR = "#FB3A5D";
 export const STATIC_ASSETS_URL = "https://static.hey.xyz";
 export const STATIC_IMAGES_URL = `${STATIC_ASSETS_URL}/images`;
 export const LENS_MEDIA_SNAPSHOT_URL = "https://ik.imagekit.io/lens";
-// export const DEFAULT_AVATAR = `${STATIC_IMAGES_URL}/default.png`;
-export const DEFAULT_AVATAR = `./default-avatar.png`;
+export const DEFAULT_AVATAR = "/default-avatar.png";
 export const PLACEHOLDER_IMAGE = `${STATIC_IMAGES_URL}/placeholder.webp`;
 export const BLOCK_EXPLORER_URL = IS_MAINNET
   ? "https://lenscan.io"
@@ -74,6 +80,17 @@ export const PERMISSIONS = {
 } as const;
 
 export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";
+
+export const BSC_POOL_CONTRACT =
+  IS_MAINNET
+    ? BSC_POOL_CONTRACT_MAINNET
+    : BSC_POOL_CONTRACT_TESTNET;
+
+export const LENS_BRIDGE_MINTER_CONTRACT =
+  IS_MAINNET
+    ? LENS_BRIDGE_MINTER_CONTRACT_MAINNET
+    : LENS_BRIDGE_MINTER_CONTRACT_TESTNET;
+
 export const TASK_ESCROW_POOL_ADDRESS = IS_MAINNET
   ? MAINNET_CONTRACTS.taskEscrowPool
   : TESTNET_CONTRACTS.taskEscrowPool;

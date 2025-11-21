@@ -64,41 +64,43 @@ const FullPost = ({ hasHiddenComments, post }: FullPostProps) => {
                   : null}
               </div>
               <PostStats post={targetPost} />
-              <div className="divider" />
-              <div className="flex items-center justify-between">
-                <PostActions post={targetPost} showCount />
-                {hasHiddenComments ? (
-                  <div className="mt-2">
-                    <button
-                      aria-label="Like"
-                      className={cn(
-                        showHiddenComments
-                          ? "text-black hover:bg-gray-500/20"
-                          : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
-                        "rounded-full p-1.5 outline-offset-2"
-                      )}
-                      onClick={() => setShowHiddenComments(!showHiddenComments)}
-                      type="button"
-                    >
-                      <Tooltip
-                        content={
-                          showHiddenComments
-                            ? "Hide hidden comments"
-                            : "Show hidden comments"
-                        }
-                        placement="top"
-                        withDelay
-                      >
-                        <QueueListIcon className="size-5" />
-                      </Tooltip>
-                    </button>
-                  </div>
-                ) : null}
-              </div>
+              <div className="divider mb-5" />
             </>
           )}
         </div>
       </div>
+      {!targetPost.isDeleted && (
+        <div className="flex items-center justify-between">
+          <PostActions post={targetPost} showCount />
+          {hasHiddenComments ? (
+            <div className="mt-2">
+              <button
+                aria-label="Like"
+                className={cn(
+                  showHiddenComments
+                    ? "text-black hover:bg-gray-500/20"
+                    : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
+                  "rounded-full p-1.5 outline-offset-2"
+                )}
+                onClick={() => setShowHiddenComments(!showHiddenComments)}
+                type="button"
+              >
+                <Tooltip
+                  content={
+                    showHiddenComments
+                      ? "Hide hidden comments"
+                      : "Show hidden comments"
+                  }
+                  placement="top"
+                  withDelay
+                >
+                  <QueueListIcon className="size-5" />
+                </Tooltip>
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
     </article>
   );
 };

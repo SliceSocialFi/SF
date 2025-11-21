@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { createConfig, WagmiProvider } from "wagmi";
 import { injected, walletConnect } from "wagmi/connectors";
 import { bscTestnet, bsc } from "wagmi/chains";
+import { http } from "viem";
 import getRpc from "@/helpers/getRpc";
 
 const connectors = [
