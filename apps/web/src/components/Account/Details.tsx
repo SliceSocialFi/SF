@@ -75,7 +75,7 @@ const Details = ({
     );
   };
 
-  const avatarUrl = account?.metadata?.picture || "/default-avatar.png";
+  const avatarUrl = getAvatar(account);
 
   return (
     <div className="mb-4 space-y-3 px-5 md:px-0">
