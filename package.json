@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "baseline-browser-mapping": "^2.8.30",
     "husky": "^9.1.7",
     "tsconfig-paths": "^4.2.0"
   },

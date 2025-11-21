@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
-    "start": "vite preview",
+    "start": "vite preview --port 5173",
     "typecheck": "tsc --pretty"
   },
   "dependencies": {
