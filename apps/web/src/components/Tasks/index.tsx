@@ -261,7 +261,9 @@ const Tasks = () => {
           {/* ProfileCard */}
           <ProfileCard variant="tasks" />
           {/* New Task Button */}
-          <NewTask onSubmit={setTasks} />
+          <div className="pt-4">
+            <NewTask onSubmit={setTasks} />
+          </div>
           
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">

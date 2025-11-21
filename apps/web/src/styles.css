@@ -31,7 +31,8 @@
   :root {
     @apply text-black dark:text-white;
     font-family: var(--font-system);
-    font-weight: 400; /* Regular weight for body text */
+    font-weight: 400;
+    line-height: 100%;
   }
 
   html {
@@ -41,16 +42,13 @@
   body {
     @apply bg-gray-50;
     font-family: var(--font-system);
-    font-weight: 400; /* Regular weight for body text */
-    /* @apply dark:bg-black; */
+    font-weight: 400;
   }
 
     .dark body {
       background-color: #121212;
-      /* "dim black" – dễ chịu cho mắt hơn đen tuyệt đối */
     }
 
-  /* Typography System - Font Weight Hierarchy */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-system);
     letter-spacing: -0.02em;

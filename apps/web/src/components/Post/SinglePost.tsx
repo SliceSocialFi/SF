@@ -38,13 +38,18 @@ const SinglePost = ({
           {post.isDeleted ? (
             <HiddenPost type={post.__typename} />
           ) : (
-            <>
-              <PostBody post={rootPost} showMore={showMore} />
-              <PostActions post={rootPost} />
-            </>
+            <PostBody post={rootPost} showMore={showMore} />
           )}
         </div>
       </div>
+      {!post.isDeleted && (
+        <div className="sm:flex sm:items-start sm:gap-x-3">
+          <div className="hidden sm:block sm:w-[40px]" />
+          <div className="w-full sm:w-[calc(100%-55px)]">
+            <PostActions post={rootPost} />
+          </div>
+        </div>
+      )}
     </PostWrapper>
   );
 };
