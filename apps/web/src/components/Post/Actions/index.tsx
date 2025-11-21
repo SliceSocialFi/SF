@@ -26,30 +26,27 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
 
   return (
     <div
-      className="mt-3 flex w-full items-center gap-x-3 sm:gap-x-4 justify-start sm:-ml-14 sm:pl-14 sm:justify-between" 
+      className="mt-3 flex w-full items-center gap-x-3 sm:gap-x-4 justify-start sm:-ml-14 sm:pl-14" 
       onClick={stopEventPropagation}
     >
-      {/* Nhóm 4 action chính */}
-      <div className="flex items-center gap-x-3 sm:gap-x-3">
-        <span className="post-action post-action-comment">
-          <Comment post={targetPost} showCount={showCount} />
-        </span>
+      <span className="post-action post-action-comment">
+        <Comment post={targetPost} showCount={showCount} />
+      </span>
 
-        <span className="post-action post-action-repost">
-          <ShareMenu post={targetPost} showCount={showCount} />
-        </span>
+      <span className="post-action post-action-repost">
+        <ShareMenu post={targetPost} showCount={showCount} />
+      </span>
 
-        <span className="post-action post-action-like">
-          <Like post={targetPost} showCount={showCount} />
-        </span>
+      <span className="post-action post-action-like">
+        <Like post={targetPost} showCount={showCount} />
+      </span>
 
-        <span className="post-action post-action-tip">
-          <TipAction post={targetPost} showCount={showCount} />
-        </span>
-      </div>
+      <span className="post-action post-action-tip">
+        <TipAction post={targetPost} showCount={showCount} />
+      </span>
 
       {canAct && !showCount ? (
-        <span className="post-action post-action-collect">
+        <span className="post-action post-action-collect sm:ml-auto">
           <CollectAction post={targetPost} />
         </span>
       ) : null}
