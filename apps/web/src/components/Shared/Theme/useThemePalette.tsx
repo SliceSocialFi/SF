@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode, type FC } from "react";
 import { PALETTES, type Palette } from "./palettes";
 
 const STORAGE_KEY = "sf_theme_palette";
@@ -31,7 +31,16 @@ function injectPalette(p: Palette) {
   style.textContent = css;
 }
 
-export function useThemePalette() {
+interface ThemePaletteContextValue {
+  key: string;
+  setKey: (key: string) => void;
+  palette: Palette;
+  palettes: typeof PALETTES;
+}
+
+const ThemePaletteContext = createContext<ThemePaletteContextValue | null>(null);
+
+export const ThemePaletteProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [key, setKey] = useState<string>(() => {
     return localStorage.getItem(STORAGE_KEY) || "watermelon";
   });
@@ -42,10 +51,24 @@ export function useThemePalette() {
     localStorage.setItem(STORAGE_KEY, key);
   }, [key]);
 
-  return {
-    key,
-    setKey,
-    palette: PALETTES[key] ?? PALETTES.watermelon,
-    palettes: PALETTES,
-  };
+  return (
+    <ThemePaletteContext.Provider
+      value={{
+        key,
+        setKey,
+        palette: PALETTES[key] ?? PALETTES.watermelon,
+        palettes: PALETTES,
+      }}
+    >
+      {children}
+    </ThemePaletteContext.Provider>
+  );
+};
+
+export function useThemePalette() {
+  const context = useContext(ThemePaletteContext);
+  if (!context) {
+    throw new Error("useThemePalette must be used within ThemePaletteProvider");
+  }
+  return context;
 }

@@ -20,7 +20,14 @@ interface SubmitOutcomeModalProps {
   onClose: () => void;
   applicationId: string;
   onSuccess?: () => void;
+  // If this submission is a resubmit after a "needs_revision" outcome,
+  // parent may pass taskId/profileId and reward payload so we can complete
+  // the task and update user points in one flow.
   isResubmit?: boolean;
+  taskId?: string;
+  profileId?: string;
+  rewardPoints?: number;
+  reputationScore?: number;
 }
 
 const SubmitOutcomeModal = ({
@@ -29,6 +36,10 @@ const SubmitOutcomeModal = ({
   applicationId,
   onSuccess,
   isResubmit,
+  taskId,
+  profileId,
+  rewardPoints,
+  reputationScore,
 }: SubmitOutcomeModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,16 +50,24 @@ const SubmitOutcomeModal = ({
       outcomeType: "text" as const,
     },
   });
+
   const handleSubmit = async (data: z.infer<typeof SubmitOutcomeSchema>) => {
     setIsSubmitting(true);
     try {
+      // Persist the outcome first
       await apiClient.submitOutcome(applicationId, data);
 
-      toast.success(
-        isResubmit
-          ? "Work resubmitted! Waiting for employer review."
-          : "Work submitted successfully!"
-      );
+      // If this submission is a resubmit (needs_revision -> final submission),
+      // call completeTaskAndUpdateUser to mark the task completed and award points.
+      if (isResubmit && taskId && profileId) {
+        await apiClient.completeTaskAndUpdateUser(taskId, profileId, {
+          rewardPoints: rewardPoints ?? 0,
+          reputationScore: reputationScore ?? 0,
+        });
+        toast.success("Work submitted and task completed. Points awarded.");
+      } else {
+        toast.success("Work submitted successfully!");
+      }
 
       onSuccess?.();
       onClose();

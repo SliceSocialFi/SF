@@ -8,8 +8,7 @@ export const MAINNET_CONTRACTS = {
 
 export const TESTNET_CONTRACTS = {
   app: "0x688419B0299f3Ed8E80eBCa71ad05Ac23d20822b",
-  defaultToken: "0x7326D8584c6b891B2f4B194CDF5ba746dD0D4080", // tRYF on lens testnet
-  taskEscrowPool: "0x95207816564EB34b13De560a4F572b45e3001bc2"
+  defaultToken: "0x7326D8584c6b891B2f4B194CDF5ba746dD0D4080" // tRYF on lens testnet
 } as const;
 
 export const BSC_POOL_CONTRACT =

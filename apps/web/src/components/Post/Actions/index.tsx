@@ -3,7 +3,6 @@ import type { AnyPostFragment } from "@slice/indexer";
 import { memo } from "react";
 
 import CollectAction from "@/components/Post/OpenAction/CollectAction";
-import SmallCollectButton from "@/components/Post/OpenAction/CollectAction/SmallCollectButton";
 import TipAction from "@/components/Post/OpenAction/TipAction";
 import stopEventPropagation from "@/helpers/stopEventPropagation";
 import Comment from "./Comment";
@@ -27,11 +26,11 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
 
   return (
     <div
-      className="mt-3 flex w-full items-center justify-center gap-x-4 sm:justify-between sm:gap-x-6 -ml-14 pl-14" 
+      className="mt-3 flex w-full items-center gap-x-3 sm:gap-x-4 justify-start sm:-ml-14 sm:pl-14 sm:justify-between" 
       onClick={stopEventPropagation}
     >
-      {/* Nhóm 4 action chính – luôn canh GIỮA trên mobile */}
-      <div className="flex items-center gap-x-4 sm:gap-x-6">
+      {/* Nhóm 4 action chính */}
+      <div className="flex items-center gap-x-3 sm:gap-x-3">
         <span className="post-action post-action-comment">
           <Comment post={targetPost} showCount={showCount} />
         </span>
@@ -47,17 +46,11 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
         <span className="post-action post-action-tip">
           <TipAction post={targetPost} showCount={showCount} />
         </span>
-
-        {canAct && !showCount ? (
-          <span className="post-action post-action-collect">
-            <CollectAction post={targetPost} />
-          </span>
-        ) : null}
       </div>
 
-      {canAct ? (
-        <span className="post-action post-action-collect hidden sm:inline-flex ml-auto shrink-0">
-          <SmallCollectButton post={targetPost} />
+      {canAct && !showCount ? (
+        <span className="post-action post-action-collect">
+          <CollectAction post={targetPost} />
         </span>
       ) : null}
     </div>
