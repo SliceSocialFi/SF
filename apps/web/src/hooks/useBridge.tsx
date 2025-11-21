@@ -17,7 +17,7 @@ import {
 import {
     BSC_POOL_CONTRACT,
     LENS_BRIDGE_MINTER_CONTRACT
-} from "@slice/data/contracts";
+} from "@slice/data/constants";
 
 interface BridgeProps {
     srcChainId: number;

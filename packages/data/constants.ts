@@ -1,5 +1,11 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
+import {
+  BSC_POOL_CONTRACT_MAINNET,
+  BSC_POOL_CONTRACT_TESTNET,
+  LENS_BRIDGE_MINTER_CONTRACT_MAINNET,
+  LENS_BRIDGE_MINTER_CONTRACT_TESTNET
+} from "./contracts";
 import getEnvConfig from "./utils/getEnvConfig";
 
 // Lens and Hey Env Config
@@ -72,3 +78,13 @@ export const PERMISSIONS = {
 } as const;
 
 export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";
+
+export const BSC_POOL_CONTRACT =
+  IS_MAINNET
+    ? BSC_POOL_CONTRACT_MAINNET
+    : BSC_POOL_CONTRACT_TESTNET;
+
+export const LENS_BRIDGE_MINTER_CONTRACT =
+  IS_MAINNET
+    ? LENS_BRIDGE_MINTER_CONTRACT_MAINNET
+    : LENS_BRIDGE_MINTER_CONTRACT_TESTNET;
