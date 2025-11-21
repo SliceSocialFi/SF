@@ -20,8 +20,7 @@ import {
 import type { EscrowDepositParams, EscrowTransaction } from "@slice/types/escrow";
 import { TASK_ESCROW_POOL_ADDRESS, ERC20_TOKEN_ADDRESS, CHAIN, SLICE_API_URL } from "@slice/data/constants";
 import { ESCROW_ABI } from "@/lib/abis";
-import { getToken } from "@/helpers/api";
-
+import { getApiUrl, getToken } from "@/helpers/api";
 
 
 interface UseEscrowOptions {
@@ -291,7 +290,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         toast.info("Cancelling escrow...", { id: "cancel" });
  
         // Gọi BACKEND API
-        const response = await fetch(`${SLICE_API_URL}escrow/cancel`, {
+        const response = await fetch(`${SLICE_API_URL}/escrow/cancel`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -331,9 +330,9 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         if (!token) {
           throw new Error("Please login again!");
         }
-        // console.log("Token for adminReleaseEscrow:", token);
+        console.log("Token for adminReleaseEscrow:", token);
         // Call backend API which handles admin release
-        const apiUrl = (`${SLICE_API_URL}tasks/${taskId}/release`);
+        const apiUrl = getApiUrl(`/tasks/${taskId}/release`);
         console.log("🔗 Calling API:", apiUrl);
         console.log("📦 Payload:", { reason });
 
@@ -385,7 +384,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
           throw new Error("Please login again!");
         }
         // Call backend API which handles admin release
-        const apiUrl = (`${SLICE_API_URL}/complete/${taskId}`);
+        const apiUrl = getApiUrl(`/complete/${taskId}`);
         console.log("🔗 Calling API:", apiUrl);
         console.log("📦 Payload:", { reason })
         const response = await fetch(apiUrl, {
