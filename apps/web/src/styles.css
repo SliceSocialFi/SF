@@ -387,7 +387,7 @@
     border-radius: 16px;
     opacity: 0;
     pointer-events: none;
-    z-index: 1;
+    z-index: 9999;
     transition: opacity 0.2s ease;
     box-shadow: 
       inset 0 0 0 4px var(--primary),
@@ -426,6 +426,25 @@
 
   .dark .search-wrap input {
     background: transparent;
+  }
+
+  /* Browser autocomplete styling for dark theme */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #070707 !important;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    
+  }
+
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus,
+  .dark input:-webkit-autofill:active {
+    -webkit-text-fill-color: #e5e7eb !important;
+    -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;
   }
 
   /* ========= INPUT WRAP (cho các input khác) ========= */
