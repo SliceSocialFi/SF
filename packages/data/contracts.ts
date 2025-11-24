@@ -1,5 +1,3 @@
-import { bsc } from "viem/chains";
-
 export const MAINNET_CONTRACTS = {
   app: "0x1eFA8F82d9E919F6b6A5f1701131c9Cb1a943BAA",
   defaultToken: "0x93198F5e56443286b50Cf749dFb6A27f251aA630", // RYF on lens mainnet
@@ -9,7 +7,7 @@ export const MAINNET_CONTRACTS = {
 } as const;
 
 export const TESTNET_CONTRACTS = {
-  app: "0x688419B0299f3Ed8E80eBCa71ad05Ac23d20822b",
+  app: "0xb3855583511c5f02168a8784B8125D72BD97caB7",
   defaultToken: "0x7326D8584c6b891B2f4B194CDF5ba746dD0D4080", // tRYF on lens testnet
   taskEscrowPool: "0x95207816564EB34b13De560a4F572b45e3001bc2",
   bscPool: "0xeD96615ceC4fB02CE9D74B9161Ef0F935800D8e3",
