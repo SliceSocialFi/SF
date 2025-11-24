@@ -1,10 +1,6 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
 import {
-  BSC_POOL_CONTRACT_MAINNET,
-  BSC_POOL_CONTRACT_TESTNET,
-  LENS_BRIDGE_MINTER_CONTRACT_MAINNET,
-  LENS_BRIDGE_MINTER_CONTRACT_TESTNET,
   MAINNET_CONTRACTS,
   TESTNET_CONTRACTS
 } from "./contracts";
@@ -83,18 +79,20 @@ export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:87
 
 export const BSC_POOL_CONTRACT =
   IS_MAINNET
-    ? BSC_POOL_CONTRACT_MAINNET
-    : BSC_POOL_CONTRACT_TESTNET;
+    ? MAINNET_CONTRACTS.bscPool
+    : TESTNET_CONTRACTS.bscPool;
 
 export const LENS_BRIDGE_MINTER_CONTRACT =
   IS_MAINNET
-    ? LENS_BRIDGE_MINTER_CONTRACT_MAINNET
-    : LENS_BRIDGE_MINTER_CONTRACT_TESTNET;
+    ? MAINNET_CONTRACTS.lensMinter
+    : TESTNET_CONTRACTS.lensMinter;
 
-export const TASK_ESCROW_POOL_ADDRESS = IS_MAINNET
-  ? MAINNET_CONTRACTS.taskEscrowPool
-  : TESTNET_CONTRACTS.taskEscrowPool;
+export const TASK_ESCROW_POOL_ADDRESS =
+  IS_MAINNET
+    ? MAINNET_CONTRACTS.taskEscrowPool
+    : TESTNET_CONTRACTS.taskEscrowPool;
 
-export const ERC20_TOKEN_ADDRESS = IS_MAINNET
-  ? MAINNET_CONTRACTS.defaultToken
-  : TESTNET_CONTRACTS.defaultToken;
+export const ERC20_TOKEN_ADDRESS =
+  IS_MAINNET
+    ? MAINNET_CONTRACTS.defaultToken
+    : TESTNET_CONTRACTS.defaultToken;
