@@ -1,5 +1,6 @@
-import { TrashIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, MapPinIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { Card, H5 } from "@/components/Shared/UI";
+import { formatRelativeTime, formatFullDateTime } from "@/utils/dateFormatter";
 
 interface TaskOwner {
   id: string;
@@ -80,8 +81,20 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-gray-500 text-xs dark:text-gray-400">
-              {task.postedDays} {task.postedDays > 1 ? "days" : "day"} ago
+            <div className="flex items-center gap-2 text-gray-500 text-xs dark:text-gray-400">
+              <ClockIcon className="h-4 w-4" />
+              <span
+                title={
+                  task.createdAt
+                    ? formatFullDateTime(task.createdAt)
+                    : undefined
+                }
+              >
+                {task.createdAt
+                  ? formatRelativeTime(task.createdAt)
+                  : task.postedDays +
+                    (task.postedDays > 1 ? " days ago" : " day ago")}
+              </span>
             </div>
             {showDelete && task.status === "open" && onDelete && (
               <button

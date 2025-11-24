@@ -20,6 +20,7 @@ interface ApplicationListProps {
   // Escrow props (required for new flow)
   taskExternalId?: string; // UUID of task for escrow
   taskRewardAmount?: string; // Reward amount in token units (e.g., "100")
+  taskDeadline?: string; // Task deadline ISO string
 }
 
 const ApplicationList = ({
@@ -31,6 +32,7 @@ const ApplicationList = ({
   rewardPoints,
   taskExternalId,
   taskRewardAmount = "100",
+  taskDeadline,
 }: ApplicationListProps) => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -314,15 +316,15 @@ const ApplicationList = ({
           setShowDepositModal(false);
           setPendingApplication(null);
         }}
-        title="Deposit Escrow to Accept Application"
+        title="Confirm Deposit to Accept Application"
         size="md"
       >
         <div className="p-6">
           <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
             <p className="text-blue-800 text-sm dark:text-blue-200">
-              <strong>New Flow:</strong> You must deposit escrow funds before
-              accepting this application. The funds will be locked on-chain
-              until the task is completed.
+              <strong>Review Information:</strong> Please confirm the details
+              below before depositing escrow funds. The funds will be locked
+              on-chain until the task is completed.
             </p>
           </div>
 
@@ -339,8 +341,9 @@ const ApplicationList = ({
             taskId={taskExternalId}
             freelancerAddress={pendingApplication?.applicantProfileId}
             defaultAmount={taskRewardAmount}
-            defaultDeadlineDays={7}
+            taskDeadline={taskDeadline}
             onSuccess={handleDepositSuccess}
+            readOnly={true}
           />
         </div>
       </Modal>

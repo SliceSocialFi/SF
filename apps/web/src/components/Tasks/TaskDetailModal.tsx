@@ -256,6 +256,7 @@ const TaskDetailModal = ({
               onOpenRate={(id: string) => setRatingAppId(id)}
               taskExternalId={task.id}
               taskRewardAmount={task.rewardPoints?.toString() || "100"}
+              taskDeadline={task.deadline}
             />
           </div>
           {/* Submit Work Tab */}
