@@ -121,8 +121,69 @@ export default class ApiClient {
     }
   }
 
-  async listTasks(): Promise<any[]> {
-    return this.request('/tasks', { method: 'GET' })
+  /**
+   * List tasks (backward compatible)
+   * Returns only the data array for compatibility with existing code
+   * @param options - Query parameters for filtering and pagination
+   * @returns Promise<any[]> - Array of tasks
+   */
+  async listTasks(options?: { page?: number; limit?: number; status?: string }): Promise<any[]> {
+    const params = new URLSearchParams()
+    if (options?.page !== undefined) params.append('page', String(options.page))
+    if (options?.limit !== undefined) params.append('limit', String(options.limit))
+    if (options?.status) params.append('status', options.status)
+    
+    const path = params.toString() ? `/tasks?${params.toString()}` : '/tasks'
+    const response = await this.request(path, { method: 'GET' })
+    
+    // Handle new format with pagination wrapper
+    if (response && typeof response === 'object' && 'data' in response && Array.isArray(response.data)) {
+      return response.data
+    }
+    
+    // Fallback for old format (direct array)
+    return Array.isArray(response) ? response : []
+  }
+
+  /**
+   * List tasks with full pagination metadata (recommended for new code)
+   * @param options - Query parameters for filtering and pagination
+   * @returns Promise with data array and pagination metadata
+   */
+  async listTasksWithPagination(options?: { 
+    page?: number
+    limit?: number
+    status?: string
+  }): Promise<{ 
+    data: any[]
+    pagination: { 
+      page: number
+      limit: number
+      total: number
+      totalPages: number
+    } 
+  }> {
+    const params = new URLSearchParams()
+    if (options?.page !== undefined) params.append('page', String(options.page))
+    if (options?.limit !== undefined) params.append('limit', String(options.limit))
+    if (options?.status) params.append('status', options.status)
+    
+    const path = params.toString() ? `/tasks?${params.toString()}` : '/tasks'
+    const response = await this.request(path, { method: 'GET' })
+    
+    // Ensure response has expected structure
+    if (response && typeof response === 'object' && 'data' in response) {
+      return {
+        data: Array.isArray(response.data) ? response.data : [],
+        pagination: response.pagination || { page: 1, limit: 10, total: 0, totalPages: 0 }
+      }
+    }
+    
+    // Fallback for old format
+    return {
+      data: Array.isArray(response) ? response : [],
+      pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
+    }
   }
 
   async getTask(taskId: string) {
