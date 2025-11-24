@@ -111,8 +111,7 @@ const ViewAccount = () => {
       <div className={cn("overflow-hidden rounded-2xl backdrop-blur-sm",)}>
         <Cover
         cover={
-          account?.metadata?.coverPicture ||
-          `${STATIC_IMAGES_URL}/patterns/2.svg`
+          account?.metadata?.coverPicture || "/cover.png"
         }
       />
       {renderAccountDetails()}
