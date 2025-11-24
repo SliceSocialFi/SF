@@ -114,11 +114,11 @@ const ViewPost = () => {
       } • Slice`}
       zeroTopMargin
     >
-      <div className="space-y-5 px-3">
-        {showQuotes ? (
-          <Quotes post={targetPost} />
-        ) : (
-          <>
+      {showQuotes ? (
+        <Quotes post={targetPost} />
+      ) : (
+        <>
+          <div className="px-3 pt-3">
             <Card>
               <CardHeader icon={<BackButton />} title="Post" />
               <FullPost
@@ -127,24 +127,26 @@ const ViewPost = () => {
                 post={post}
               />
             </Card>
-            {currentAccount && !canComment && (
+          </div>
+          {currentAccount && !canComment && (
+            <div className="px-3">
               <WarningMessage
                 message="You don't have permission to comment on this post."
                 title="You cannot comment on this post"
               />
-            )}
-            {currentAccount && !post.isDeleted && canComment ? (
-              <NewPublication post={targetPost} />
-            ) : null}
-            {post.isDeleted ? null : (
-              <>
-                <CommentFeed postId={targetPost.id} />
-                <NoneRelevantFeed postId={targetPost.id} />
-              </>
-            )}
-          </>
-        )}
-      </div>
+            </div>
+          )}
+          {currentAccount && !post.isDeleted && canComment ? (
+            <NewPublication post={targetPost} />
+          ) : null}
+          {post.isDeleted ? null : (
+            <>
+              <CommentFeed postId={targetPost.id} />
+              <NoneRelevantFeed postId={targetPost.id} />
+            </>
+          )}
+        </>
+      )}
     </PageLayout>
   );
 };

@@ -255,7 +255,7 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
   });
 
   return (
-    <div>
+    <div className="px-3">
       <ComposerPanel 
       isOpen={panelProps?.isOpen ?? true}
       onDismiss={panelProps?.onDismiss}
