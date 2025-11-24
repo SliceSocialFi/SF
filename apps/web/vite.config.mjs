@@ -73,7 +73,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     // Expose env vars to client-side code (process.env.*)
-    // Provide a safe default for HEY_API_URL to avoid build-time errors.
+    // Provide a safe default for SLICE_API_URL to avoid build-time errors.
     EnvironmentPlugin({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
       LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet",

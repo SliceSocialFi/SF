@@ -9,6 +9,6 @@ services:
     restart: always
     environment:
       - LENS_NETWORK=staging
-      - HEY_API_URL=https://slice-api-indol.vercel.app/
+      - SLICE_API_URL=https://slice-api-indol.vercel.app/
     ports:
       - "3000:80"

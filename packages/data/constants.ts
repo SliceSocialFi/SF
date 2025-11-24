@@ -1,5 +1,6 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
+import { LENS_TREASURY } from "./lens-treasury";
 import {
   MAINNET_CONTRACTS,
   TESTNET_CONTRACTS
@@ -11,10 +12,11 @@ export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;
-export const HEY_APP = getEnvConfig().appAddress;
+export const SLICE_APP = getEnvConfig().appAddress;
 export const CHAINS = getEnvConfig().chains;
 
-export const HEY_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
+// export const SLICE_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
+export const SLICE_TREASURY = LENS_TREASURY[LENS_NETWORK as keyof typeof LENS_TREASURY];
 export const SLICE_API_URL = process.env.SLICE_API_URL || "https://localhost:3000/";
 
 export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;

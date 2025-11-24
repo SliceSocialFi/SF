@@ -1,4 +1,4 @@
-import { HEY_TREASURY } from "@slice/data/constants";
+import { SLICE_TREASURY } from "@slice/data/constants";
 
 interface DomainParamConfig {
   name: string;
@@ -6,8 +6,8 @@ interface DomainParamConfig {
 }
 
 const DOMAIN_PARAM_MAP: Record<string, DomainParamConfig> = {
-  "highlight.xyz": { name: "referrer", value: HEY_TREASURY },
-  "zora.co": { name: "referrer", value: HEY_TREASURY }
+  "highlight.xyz": { name: "referrer", value: SLICE_TREASURY },
+  "zora.co": { name: "referrer", value: SLICE_TREASURY }
 };
 
 const injectReferrerToUrl = (url: string): string => {
