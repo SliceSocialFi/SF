@@ -185,21 +185,38 @@ struct Escrow {
 - Backend có toàn quyền kiểm soát việc release sau khi verify điều kiện business logic
 - Tăng UX cho employer (chỉ cần click "Approve" thay vì sign transaction)
 
-### 2.3. Luồng Cancel Escrow (Cancellation Flow) ==> bỏ luồng này không dùng
+### 2.3. Luồng releaseAfterDeadline Escrow (releaseAfterDeadline Flow) luồng này chưa hoàn thiện  
+Đây là thông tin function release trong contract:
+function releaseAfterDeadline(
+        uint256 taskId,
+        address to,
+        string calldata reason
+    ) external nonReentrant {
+        Escrow storage e = escrows[taskId];
+        require(taskId > 0 && taskId <= taskCount, "invalid task");
+        require(!e.settled, "settled");
+        require(block.timestamp > e.deadline, "deadline not reached");
+        require(to == e.employer || to == e.freelancer, "invalid recipient");
+
+        e.settled = true;
+        token.safeTransfer(to, e.amount);
+
+        emit Released(taskId, to, e.amount, reason);
+    }
 
 ```
-[Employer/Admin] → Decide to cancel before deadline
+[Employer/Admin] → Decide to release after deadline
                  ↓
-          POST /escrow/cancel
+          POST /escrow/releaseAfterDeadline
                  ↓
           Backend admin wallet calls:
-          contract.cancel(onChainTaskId, reason)
+          contract.releaseAfterDeadline(onChainTaskId, reason) → Smart contract release token to freelancer → Emit releaseAfterDeadline event.
                  ↓
           Smart contract refunds tokens to employer
                  ↓
-          Emit Cancelled event
+          Emit releaseAfterDeadline event
                  ↓
-          Update task status: "cancelled"
+          Update task status: "completed"
 ```
 
 ### 2.4. State Diagram của Application
@@ -595,7 +612,6 @@ const MAINNET_CONTRACTS = {
 export const ESCROW_ABI = parseAbi([
   // Write functions
   "function deposit(uint256 amount, address freelancer, uint256 deadline, string externalTaskId)",
-  "function cancel(uint256 taskId, string reason)",
   "function release(uint256 taskId, address to, string reason)", // Admin only
   "function releaseAfterDeadline(uint256 taskId, address to, string reason)", // Permissionless
   
@@ -606,7 +622,7 @@ export const ESCROW_ABI = parseAbi([
   // Events
   "event Deposited(uint256 indexed taskId, string indexed externalId, address employer, uint256 amount)",
   "event Released(uint256 indexed taskId, address to, uint256 amount, string reason)",
-  "event Cancelled(uint256 indexed taskId, address employer, uint256 amount, string reason)"
+
 ]);
 ```
 
@@ -1056,7 +1072,7 @@ const fetchUserProfile = async (walletAddress: string) => {
     
     // Custom app fields (stored in backend DB)
     reputationScore: res.reputationScore ?? 100,  // Default: 100
-    rewardPoints: res.rewardPoints ?? 0,          // Task rewards
+    // rewardPoints: res.rewardPoints ?? 0,          // Task rewards thay reward Point hoàn toàn thành reward Token
     expertise: res.expertise || [],               // Skill levels
     completedTasks: res.completedTasks || []      // Task history
   };
@@ -1159,8 +1175,35 @@ const WelcomeModal = () => (
   </Modal>
 );
 ```
+// 2a. Trường hợp bị phạt (Đánh giá xấu)
+    if (rating === 1) {
+      repChange = -30; // (Quy tắc "1 sao VÀ trễ" đã bao gồm trong quy tắc "1 sao")
+    } else if (rating === 2) {
+      repChange = -25;
+    } else if (rating === 3) {
+      repChange = -15;
+    }
+    // 2b. Trường hợp được thưởng (Đánh giá tốt)
+    else if (rating === 4) {
+      repChange = 1;
+    } else if (rating === 5) {
+      repChange = 2;
+      // Quy tắc: "hoàn thành tốt trước deadline: +1 (cộng dồn)"
+      if (!isLate) {
+        repChange += 1; // Tổng cộng là +3
+      }
+    }
 
-#### 4.3.4. Reward Points System ==> Bỏ cái này, vì đã có token thay thế
+    // 3. Cập nhật Điểm Uy tín (Đảm bảo trong khoảng 0-100)
+    const newRep = currentRep + repChange;
+    const finalRep = Math.max(0, Math.min(100, newRep));
+
+    // 4. Logic Cảnh cáo/Cấm (Thresholds)
+    const isBanned = finalRep < 30;
+    // (Nếu điểm < 70 VÀ không bị cấm, thì bị cảnh cáo)
+    const isWarned = finalRep < 70 && !isBanned;
+
+<!-- #### 4.3.4. Reward Points System ==> Bỏ cái này, vì đã có token thay thế
 ```typescript
 interface RewardPointsSystem { ==> 
   // Accumulation
@@ -1179,7 +1222,7 @@ interface RewardPointsSystem { ==>
   
   // Display
   display: "Total earned rewards (lifetime)" ==> Token thay cho RewardPoint
-}
+} -->
 
 // Backend updates points after task completion
 await apiClient.completeTask(taskId, {
@@ -1445,7 +1488,7 @@ const generateMetadata = async (content: string, attachments: Media[]) => {
     tags: extractHashtags(content),
     
     // App identifier
-    appId: HEY_APP
+    appId: HEY_APP // mượn Hey vì đang không có quyền build app riêng
   });
   
   // Upload metadata to Lens Storage
@@ -1703,11 +1746,6 @@ Hệ thống triển khai thành công kiến trúc hybrid kết hợp:
 │     - Quality-based metric              │
 │     - Affects task access & priority    │
 │     - Decreases with poor performance   │
-│                                          │
-│  2. Reward Points (Accumulative)        │ ==> bỏ rewardpoint 
-│     - Quantity-based metric             │
-│     - Total earnings (never decreases)  │
-│     - Used for platform benefits        │
 └─────────────────────────────────────────┘
 ```
 
@@ -1715,61 +1753,38 @@ Hệ thống triển khai thành công kiến trúc hybrid kết hợp:
 ```typescript
 // Pseudo-code for reputation calculation
 const calculateReputationScore = (user: User, taskCompletion: Task) => {
-  let score = user.reputationScore;
-  
-  // Positive factors (+5 to +10)
-  if (taskCompletion.rating >= 4) {
-    score += (taskCompletion.rating - 3) * 5; // 5-10 points
-  }
-  
-  if (taskCompletion.completedBeforeDeadline) {
-    score += 3;
-  }
-  
-  if (taskCompletion.revisionCount === 0) {
-    score += 5; // No revisions needed
-  }
-  
-  // Negative factors (-5 to -20)
-  if (taskCompletion.rating <= 2) {
-    score -= (3 - taskCompletion.rating) * 10; // -10 to -20
-  }
-  
-  if (taskCompletion.revisionCount >= 3) {
-    score -= 5; // Too many revisions
-  }
-  
-  if (taskCompletion.completedAfterDeadline) {
-    score -= 10;
-  }
-  
-  // Clamp to [0, 100]
-  return Math.max(0, Math.min(100, score));
-};
+// 2a. Trường hợp bị phạt (Đánh giá xấu)
+    if (rating === 1) {
+      repChange = -30; // (Quy tắc "1 sao VÀ trễ" đã bao gồm trong quy tắc "1 sao")
+    } else if (rating === 2) {
+      repChange = -25;
+    } else if (rating === 3) {
+      repChange = -15;
+    }
+    // 2b. Trường hợp được thưởng (Đánh giá tốt)
+    else if (rating === 4) {
+      repChange = 1;
+    } else if (rating === 5) {
+      repChange = 2;
+      // Quy tắc: "hoàn thành tốt trước deadline: +1 (cộng dồn)"
+      if (!isLate) {
+        repChange += 1; // Tổng cộng là +3
+      }
+    }
+
+
 ```
 
 **5.4.3. Reputation Benefits Matrix**
 ```
-Score Range  | Benefits
-─────────────┼────────────────────────────────────────
-90-100       | • Priority application selection
-             | • Access to high-value tasks (>$1000)
-             | • Featured in "Top Freelancers" section
-             | • 5% bonus on rewards
-─────────────┼────────────────────────────────────────
-70-89        | • Normal task access
-             | • Standard application priority
-             | • No restrictions
-─────────────┼────────────────────────────────────────
-50-69        | • Limited high-value task access
-             | • Lower application priority
-             | • Warning notification
-─────────────┼────────────────────────────────────────
-0-49         | • Probation period (30 days)
-             | • Only low-value tasks (<$100)
-             | • Required improvement plan
-             | • Account review after 30 days
-```
+    // 3. Cập nhật Điểm Uy tín (Đảm bảo trong khoảng 0-100)
+    const newRep = currentRep + repChange;
+    const finalRep = Math.max(0, Math.min(100, newRep));
+
+    // 4. Logic Cảnh cáo/Cấm (Thresholds)
+    const isBanned = finalRep < 30;
+    // (Nếu điểm < 70 VÀ không bị cấm, thì bị cảnh cáo)
+    const isWarned = finalRep < 70 && !isBanned;
 
 **5.4.4. Transparency & Appeals**
 - **Public Score Display**: Reputation score visible trên profile (builds trust)
