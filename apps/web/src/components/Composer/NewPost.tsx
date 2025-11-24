@@ -53,25 +53,19 @@ const NewPost = ({ feed }: NewPostProps) => {
           onExited={handleExited}
           disableDismiss={hasContent}
         >
-          <NewPublication feed={feed} />
+          <NewPublication 
+            feed={feed}
+            panelProps={{
+              isOpen: open,
+              onDismiss: handleDismiss,
+              onExited: handleExited,
+              disableDismiss: hasContent,
+            }}
+          />
         </ComposerPanel>
       </div>
     );
   }
-
-  if (mounted) {
-  return (
-    <NewPublication
-      feed={feed}
-      panelProps={{
-        isOpen: open,
-        onDismiss: handleDismiss,
-        onExited: handleExited,
-        disableDismiss: hasContent,
-      }}
-    />
-  );
-}
 
   return (
     <div className="px-3">

@@ -254,15 +254,8 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
     enableOnContentEditable: true
   });
 
-  return (
-    <div className="px-3">
-      <ComposerPanel 
-      isOpen={panelProps?.isOpen ?? true}
-      onDismiss={panelProps?.onDismiss}
-      onExited={panelProps?.onExited}
-      disableDismiss={panelProps?.disableDismiss}
-      allowOverflow={showEmojiPicker}>
-        <Card className={className} onClick={() => setShowEmojiPicker(false)}>
+  const cardContent = (
+    <Card className={`${className} !border-0 !rounded-none`} onClick={() => setShowEmojiPicker(false)}>
           <Editor isComment={isComment} />
           {postContentError ? (
             <H6 className="mt-1 px-5 pb-3 text-red-500">{postContentError}</H6>
@@ -316,7 +309,22 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
             </div>
           </div>
         </Card>
-    </ComposerPanel>
+  );
+
+  // Nếu được gọi từ NewPost (có panelProps), không wrap ComposerPanel
+  if (panelProps) {
+    return <div className="px-3">{cardContent}</div>;
+  }
+
+  // Nếu được gọi trực tiếp (GlobalModals, Post comment), wrap ComposerPanel
+  return (
+    <div className="px-3">
+      <ComposerPanel
+        isOpen={true}
+        allowOverflow={showEmojiPicker}
+      >
+        {cardContent}
+      </ComposerPanel>
     </div>
   );
 };

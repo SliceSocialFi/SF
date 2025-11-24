@@ -519,8 +519,13 @@
   .composer-ring {
     position: relative;
     isolation: isolate;
-    border-radius: 3px;
+    border-radius: 0.75rem;
     overflow: hidden;
+    background: white;
+  }
+
+  .dark .composer-ring {
+    background: #000000;
   }
 
   .composer-ring::before {
@@ -577,29 +582,6 @@
 
  .composer-panel__inner {
     overflow: visible;
-  }
-
-  .composer-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    border: 2px solid var(--primary, #FF6B81);
-    opacity: 0;
-    transform: scale(0.985);
-    transition:
-      opacity 0.5s ease,
-      transform 0.4s ease;
-    pointer-events: none;
-  }
-
-  .composer-ring[data-active="true"]::before {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .dark .composer-ring::before {
-    border-color: var(--primary-hover, #FFA4B1);
   }
 
   .post-action {
