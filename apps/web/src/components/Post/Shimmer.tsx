@@ -30,13 +30,15 @@ const PostPageShimmer = ({ isQuotes = false }: PostPageShimmerProps) => {
       }
       zeroTopMargin
     >
-      <Card>
-        <CardHeader
-          icon={<BackButton />}
-          title={isQuotes ? "Quotes" : "Post"}
-        />
-        {isQuotes ? <PostsShimmer hideCard /> : <PostShimmer />}
-      </Card>
+      <div className="px-3">
+        <Card>
+          <CardHeader
+            icon={<BackButton />}
+            title={isQuotes ? "Quotes" : "Post"}
+          />
+          {isQuotes ? <PostsShimmer hideCard /> : <PostShimmer />}
+        </Card>
+      </div>
       {!isQuotes && <PostsShimmer />}
     </PageLayout>
   );
