@@ -102,25 +102,33 @@ const List = ({ feedType }: ListProps) => {
 
   if (loading) {
     return (
-      <Card className="divide-y divide-gray-200 dark:divide-gray-700">
-        <NotificationShimmer />
-        <NotificationShimmer />
-        <NotificationShimmer />
-        <NotificationShimmer />
-      </Card>
+      <div className="px-3">
+        <Card className="divide-y divide-gray-200 dark:divide-gray-700">
+          <NotificationShimmer />
+          <NotificationShimmer />
+          <NotificationShimmer />
+          <NotificationShimmer />
+        </Card>
+      </div>
     );
   }
 
   if (error) {
-    return <ErrorMessage error={error} title="Failed to load notifications" />;
+    return (
+      <div className="px-3">
+        <ErrorMessage error={error} title="Failed to load notifications" />
+      </div>
+    );
   }
 
   if (!notifications?.length) {
     return (
-      <EmptyState
-        icon={<BellIcon className="size-8" />}
-        message="Inbox zero!"
-      />
+      <div className="px-3">
+        <EmptyState
+          icon={<BellIcon className="size-8" />}
+          message="Inbox zero!"
+        />
+      </div>
     );
   }
 
