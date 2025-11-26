@@ -112,7 +112,7 @@ const Details = ({
         </div>
         <div className="flex items-center gap-x-2 pt-2">
           {currentAccount?.address === account.address ? (
-            <Button onClick={() => navigate("/settings")} outline>
+            <Button onClick={() => navigate("/settings")} outline className="button-animated">
               Edit Account
             </Button>
           ) : isBlockedByMe || hasBlockedMe ? null : (

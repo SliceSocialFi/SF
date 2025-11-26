@@ -135,6 +135,7 @@ const List = () => {
             />
           </div>
           <Button
+            className="button-animated"
             disabled={removingManager?.manager === accountManager.manager}
             loading={removingManager?.manager === accountManager.manager}
             onClick={() => handleRemoveManager(accountManager)}

@@ -161,6 +161,37 @@
     box-shadow: inset 0 0 0 2px var(--primary-hover);
   }
 
+  .menu-action-wrapper {
+    position: relative;
+  }
+
+  .menu-action-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--primary);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .menu-action-wrapper:hover::before {
+    opacity: 1;
+    animation: dropdown-ring-draw 0.15s ease-out forwards;
+  }
+
+  .menu-action-wrapper:hover button {
+    color: var(--primary);
+  }
+
+  .dark .menu-action-wrapper::before {
+    box-shadow: inset 0 0 0 2px var(--primary-hover);
+  }
+
+  .dark .menu-action-wrapper:hover button {
+    color: var(--primary-hover);
+  }
+
   @keyframes dropdown-ring-draw {
     0% {
       clip-path: inset(0 100% 0 0 round 8px);
