@@ -313,12 +313,12 @@ const NewPublication = ({ className, post, feed, panelProps }: NewPublicationPro
 
   // Nếu được gọi từ NewPost (có panelProps), không wrap ComposerPanel
   if (panelProps) {
-    return <div className="px-3">{cardContent}</div>;
+    return <div className="-px-3">{cardContent}</div>;
   }
 
   // Nếu được gọi trực tiếp (GlobalModals, Post comment), wrap ComposerPanel
   return (
-    <div className="px-3">
+    <div className="-px-3">
       <ComposerPanel
         isOpen={true}
         allowOverflow={showEmojiPicker}

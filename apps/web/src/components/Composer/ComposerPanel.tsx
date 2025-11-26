@@ -7,7 +7,7 @@ interface ComposerPanelProps {
   onDismiss?: () => void;
   onExited?: () => void;
   disableDismiss?: boolean;
-  allowOverflow?: boolean; // <<< thêm
+  allowOverflow?: boolean;
 }
 
 const ComposerPanel = ({
@@ -68,7 +68,7 @@ const ComposerPanel = ({
       className="composer-panel composer-ring rounded-xl"
       data-open={isOpen ? "true" : undefined}
       data-active={active ? "true" : undefined}
-      data-overflow={allowOverflow ? "visible" : undefined} // <<< dùng trong CSS
+      data-overflow={allowOverflow ? "visible" : undefined}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
       onTouchStart={(e) => e.stopPropagation()}
