@@ -1,4 +1,5 @@
 import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
 import { isRepost } from "@slice/helpers/postHelpers";
 import {
   PageSize,
@@ -7,11 +8,13 @@ import {
   useHiddenCommentsQuery,
   usePostQuery
 } from "@slice/indexer";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router";
 import { createTrackedSelector } from "react-tracked";
 import { create } from "zustand";
 import CommentFeed from "@/components/Comment/CommentFeed";
 import NoneRelevantFeed from "@/components/Comment/NoneRelevantFeed";
+import ComposerPanel from "@/components/Composer/ComposerPanel";
 import NewPublication from "@/components/Composer/NewPublication";
 import Custom404 from "@/components/Shared/404";
 import Custom500 from "@/components/Shared/500";
@@ -19,8 +22,9 @@ import SingleAccount from "@/components/Shared/Account/SingleAccount";
 import BackButton from "@/components/Shared/BackButton";
 import Footer from "@/components/Shared/Footer";
 import PageLayout from "@/components/Shared/PageLayout";
-import { Card, CardHeader, WarningMessage } from "@/components/Shared/UI";
+import { Card, CardHeader, Image, WarningMessage } from "@/components/Shared/UI";
 import { usePostLinkStore } from "@/store/non-persisted/navigation/usePostLinkStore";
+import { usePostStore } from "@/store/non-persisted/post/usePostStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import FullPost from "./FullPost";
 import Quotes from "./Quotes";
@@ -44,8 +48,29 @@ const ViewPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { currentAccount } = useAccountStore();
   const { cachedPost, setCachedPost } = usePostLinkStore();
+  const { postContent } = usePostStore();
+
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const showQuotes = pathname === `/posts/${slug}/quotes`;
+
+  const handleOpen = () => {
+    if (!mounted) {
+      setMounted(true);
+      setTimeout(() => setOpen(true), 0);
+    } else {
+      setOpen(true);
+    }
+  };
+
+  const handleExited = () => {
+    setMounted(false);
+  };
+
+  const handleDismiss = () => {
+    setOpen(false);
+  };
 
   const { data, error, loading } = usePostQuery({
     onCompleted: (data) => {
@@ -137,7 +162,49 @@ const ViewPost = () => {
             </div>
           )}
           {currentAccount && !post.isDeleted && canComment ? (
-            <NewPublication post={targetPost} />
+            <div className="px-3">
+              {mounted ? (
+                <ComposerPanel
+                  isOpen={open}
+                  onDismiss={handleDismiss}
+                  onExited={handleExited}
+                  disableDismiss={Boolean(postContent && postContent.trim().length > 0)}
+                >
+                  <NewPublication 
+                    post={targetPost}
+                    panelProps={{
+                      isOpen: open,
+                      onDismiss: handleDismiss,
+                      onExited: handleExited,
+                      disableDismiss: Boolean(postContent && postContent.trim().length > 0),
+                    }}
+                  />
+                </ComposerPanel>
+              ) : (
+                <Card
+                  className="cursor-pointer border-gray-200 !border-b px-3 pb-3 pt-2 dark:border-gray-700"
+                  onClick={handleOpen}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      alt={currentAccount?.address}
+                      className="size-9 cursor-pointer rounded-full border bg-gray-200 dark:border-gray-700"
+                      height={36}
+                      onError={({ currentTarget }) => {
+                        currentTarget.src = getAvatar(currentAccount);
+                      }}
+                      src={getAvatar(currentAccount)}
+                      width={36}
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {postContent || "What's new?!"}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </div>
           ) : null}
           {post.isDeleted ? null : (
             <>
