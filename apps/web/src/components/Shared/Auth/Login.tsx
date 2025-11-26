@@ -189,6 +189,7 @@ const Login = ({ setHasAccounts }: LoginProps) => {
                         showUserPreview={false}
                       />
                       <Button
+                        className="button-animated"
                         disabled={
                           isSubmitting && loggingInAccountId === account.address
                         }
