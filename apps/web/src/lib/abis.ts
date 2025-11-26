@@ -9,7 +9,8 @@ import { parseAbi } from "viem";
     "function cancel(uint256 taskId, string reason)",
     "function releaseAfterDeadline(uint256 taskId, address to, string reason)",
     "function externalToInternal(string externalId) view returns (uint256)",
-    "function escrows(uint256) view returns (address employer, address freelancer, uint256 amount, uint256 deadline, bool settled, string externalTaskId)",
+    // Updated: Use anonymous tuple format (parseAbi doesn't support named tuples)
+    "function escrows(uint256) view returns (address, address, uint256, uint256, uint8, string)",
     "event Deposited(uint256 indexed taskId, string indexed externalId, address employer, uint256 amount)",
     "event Released(uint256 indexed taskId, address to, uint256 amount, string reason)",
     "event Cancelled(uint256 indexed taskId, address employer, uint256 amount, string reason)"

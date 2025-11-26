@@ -5,7 +5,7 @@ import {
   HomeIcon as HomeOutline,
   ClipboardDocumentListIcon as TasksOutline,
   UserCircleIcon,
-  UserGroupIcon as UserGroupOutline
+  UserGroupIcon as UserGroupOutline,
 } from "@heroicons/react/24/outline";
 import {
   BellIcon as BellSolid,
@@ -13,12 +13,13 @@ import {
   GlobeAltIcon as GlobeSolid,
   HomeIcon as HomeSolid,
   ClipboardDocumentListIcon as TasksSolid,
-  UserGroupIcon as UserGroupSolid
+  UserGroupIcon as UserGroupSolid,
 } from "@heroicons/react/24/solid";
 import { type MouseEvent, memo, type ReactNode, useCallback } from "react";
 import { Link, useLocation } from "react-router";
 import { Image, Tooltip } from "@/components/Shared/UI";
-import useHasNewNotifications from "@/hooks/useHasNewNotifications";
+import { useNotificationPolling } from "@/hooks/useNotificationPolling";
+import { useNotificationStore } from "@/store/non-persisted/useNotificationStore";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import SignedAccount from "./SignedAccount";
@@ -28,33 +29,33 @@ const navigationItems = {
   "/": {
     outline: <HomeOutline className="size-6" />,
     solid: <HomeSolid className="size-6" />,
-    title: "Home"
+    title: "Home",
   },
   "/bookmarks": {
     outline: <BookmarkOutline className="size-6" />,
     solid: <BookmarkSolid className="size-6" />,
-    title: "Bookmarks"
+    title: "Bookmarks",
   },
   "/explore": {
     outline: <GlobeOutline className="size-6" />,
     solid: <GlobeSolid className="size-6" />,
-    title: "Explore"
+    title: "Explore",
   },
   "/groups": {
     outline: <UserGroupOutline className="size-6" />,
     solid: <UserGroupSolid className="size-6" />,
-    title: "Groups"
+    title: "Groups",
   },
   "/notifications": {
     outline: <BellOutline className="size-6" />,
     solid: <BellSolid className="size-6" />,
-    title: "Notifications"
+    title: "Notifications",
   },
   "/tasks": {
     outline: <TasksOutline className="size-6" />,
     solid: <TasksSolid className="size-6" />,
-    title: "Tasks"
-  }
+    title: "Tasks",
+  },
 };
 
 const NavItem = memo(({ url, icon }: { url: string; icon: ReactNode }) => (
@@ -65,12 +66,12 @@ const NavItem = memo(({ url, icon }: { url: string; icon: ReactNode }) => (
 
 const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
   const { pathname } = useLocation();
-  const hasNewNotifications = useHasNewNotifications();
+  const { unreadCount } = useNotificationStore();
   const routes = [
     "/",
     "/explore",
     "/tasks",
-    ...(isLoggedIn ? ["/notifications", "/groups", "/bookmarks"] : [])
+    ...(isLoggedIn ? ["/notifications", "/groups", "/bookmarks"] : []),
   ];
 
   return (
@@ -85,7 +86,7 @@ const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
           route === "/notifications" ? (
             <span className="relative">
               {icon}
-              {hasNewNotifications && (
+              {unreadCount > 0 && (
                 <span className="-right-1 -top-1 absolute size-2 rounded-full bg-red-500" />
               )}
             </span>
@@ -104,6 +105,9 @@ const Navbar = () => {
   const { currentAccount } = useAccountStore();
   const { setShowAuthModal } = useAuthModalStore();
 
+  // Activate notification polling when user is logged in
+  useNotificationPolling();
+
   const handleLogoClick = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
       if (pathname === "/") {
@@ -120,27 +124,32 @@ const Navbar = () => {
 
   return (
     <aside className="sticky top-5 mt-5 hidden w-10 shrink-0 flex-col items-center gap-y-5 md:flex">
-    <Link onClick={handleLogoClick} to="/">
-      <Image alt="Logo" className="size-8" height={32} src="/favicon.png" width={32} />
-    </Link>
+      <Link onClick={handleLogoClick} to="/">
+        <Image
+          alt="Logo"
+          className="size-8"
+          height={32}
+          src="/favicon.png"
+          width={32}
+        />
+      </Link>
 
-    
+      <NavItems isLoggedIn={!!currentAccount} />
 
-    <NavItems isLoggedIn={!!currentAccount} />
-    <ThemeSwitcher />
-    {currentAccount ? (
-      <>
-        {/* <Pro /> */}
-        <SignedAccount />
-      </>
-    ) : (
-      <button onClick={handleAuthClick} type="button">
-        <Tooltip content="Login">
-          <UserCircleIcon className="size-6" />
-        </Tooltip>
-      </button>
-    )}
-  </aside>
+      <ThemeSwitcher />
+      {currentAccount ? (
+        <>
+          {/* <Pro /> */}
+          <SignedAccount />
+        </>
+      ) : (
+        <button onClick={handleAuthClick} type="button">
+          <Tooltip content="Login">
+            <UserCircleIcon className="size-6" />
+          </Tooltip>
+        </button>
+      )}
+    </aside>
   );
 };
 

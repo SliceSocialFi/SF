@@ -5,7 +5,7 @@ import type { Application } from "@/types/task-api";
 import ApplicationCard from "./ApplicationCard";
 import { Spinner } from "@/components/Shared/UI";
 import { useAccountQuery } from "@slice/indexer";
-import { EscrowDeposit } from "@/components/Escrow";
+import { EscrowDeposit, EscrowRelease } from "@/components/Escrow";
 import Modal from "@/components/Shared/UI/Modal";
 import { useEscrow } from "@/hooks/useEscrow";
 import { useWallet } from "@/hooks/useWallet";
@@ -21,6 +21,8 @@ interface ApplicationListProps {
   taskExternalId?: string; // UUID of task for escrow
   taskRewardAmount?: string; // Reward amount in token units (e.g., "100")
   taskDeadline?: string; // Task deadline ISO string
+  employerAddress?: string; // Employer wallet address
+  freelancerAddress?: string; // Freelancer wallet address
 }
 
 const ApplicationList = ({
@@ -33,6 +35,8 @@ const ApplicationList = ({
   taskExternalId,
   taskRewardAmount = "100",
   taskDeadline,
+  employerAddress,
+  freelancerAddress,
 }: ApplicationListProps) => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +44,17 @@ const ApplicationList = ({
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [pendingApplication, setPendingApplication] =
     useState<Application | null>(null);
+
+  // Revision modal state
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [revisionFeedback, setRevisionFeedback] = useState("");
+  const [pendingRevisionId, setPendingRevisionId] = useState<string | null>(
+    null
+  );
+
+  // Approve confirmation modal state
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [pendingApproveId, setPendingApproveId] = useState<string | null>(null);
 
   // Wallet and escrow hooks for release
   const { isConnected } = useWallet();
@@ -189,16 +204,27 @@ const ApplicationList = ({
     }
   };
 
-  const handleRequestRevision = async (id: string) => {
-    const feedback = prompt("Please provide feedback for revision:");
-    if (!feedback) return;
+  const handleRequestRevision = (id: string) => {
+    setPendingRevisionId(id);
+    setRevisionFeedback("");
+    setShowRevisionModal(true);
+  };
+
+  const confirmRevision = async () => {
+    if (!pendingRevisionId || !revisionFeedback.trim()) {
+      toast.error("Please provide feedback");
+      return;
+    }
 
     try {
-      await apiClient.updateApplication(id, {
+      await apiClient.updateApplication(pendingRevisionId, {
         status: "needs_revision",
-        feedback,
+        feedback: revisionFeedback,
       });
       toast.success("Revision requested");
+      setShowRevisionModal(false);
+      setPendingRevisionId(null);
+      setRevisionFeedback("");
       loadApplications();
       onApplicationUpdate?.();
     } catch (error: any) {
@@ -212,10 +238,7 @@ const ApplicationList = ({
     onOpenRate?.(id);
   };
 
-  const handleApprove = async (id: string) => {
-    if (!confirm("Approve this submission and release payment from escrow?"))
-      return;
-
+  const handleApprove = (id: string) => {
     if (!isConnected) {
       toast.error("Please connect wallet to release payment");
       return;
@@ -226,8 +249,17 @@ const ApplicationList = ({
       return;
     }
 
+    setPendingApproveId(id);
+    setShowApproveModal(true);
+  };
+
+  const confirmApprove = async () => {
+    if (!pendingApproveId) return;
+
+    setShowApproveModal(false);
+
     try {
-      const app = applications.find((a) => a.id === id);
+      const app = applications.find((a) => a.id === pendingApproveId);
       if (!app) {
         toast.error("Application not found");
         return;
@@ -239,21 +271,24 @@ const ApplicationList = ({
       // Backend will handle: get on-chain ID, call contract release(), update DB
       toast.info("Releasing payment from escrow...");
       await adminReleaseEscrow(
-        taskExternalId, // Pass DB UUID, not on-chain ID
-        `Work approved for application ${id} by employer`
+        taskExternalId!, // Pass DB UUID, not on-chain ID
+        `Work approved for application ${pendingApproveId} by employer`
       );
 
       // Update application status to completed
-      await apiClient.updateApplication(id, { status: "completed" });
+      await apiClient.updateApplication(pendingApproveId, {
+        status: "completed",
+      });
 
       // Mark task as completed
       await apiClient.updateTask(taskId, { status: "completed" });
 
       toast.success("Work approved and payment released successfully!");
+      setPendingApproveId(null);
       await loadApplications();
 
       // Ask parent to open rating modal
-      onOpenRate?.(id);
+      onOpenRate?.(pendingApproveId);
       onApplicationUpdate?.();
     } catch (error: any) {
       toast.error(
@@ -345,6 +380,117 @@ const ApplicationList = ({
             onSuccess={handleDepositSuccess}
             readOnly={true}
           />
+        </div>
+      </Modal>
+
+      {/* Escrow Release After Deadline (NEW FEATURE) */}
+      {taskExternalId && taskDeadline && (
+        <div className="mt-6">
+          <EscrowRelease
+            taskId={taskId}
+            taskExternalId={taskExternalId}
+            employerAddress={employerAddress}
+            freelancerAddress={
+              applications.find((app) => app.status === "accepted")
+                ?.applicantProfileId || ""
+            }
+            taskDeadline={taskDeadline}
+          />
+        </div>
+      )}
+
+      {/* Revision Request Modal */}
+      <Modal
+        show={showRevisionModal}
+        onClose={() => {
+          setShowRevisionModal(false);
+          setPendingRevisionId(null);
+          setRevisionFeedback("");
+        }}
+        title="Request Revision"
+        size="md"
+      >
+        <div className="p-6">
+          <div className="mb-4">
+            <p className="text-gray-600 text-sm dark:text-gray-400 mb-4">
+              Please provide clear feedback explaining what needs to be revised:
+            </p>
+            <textarea
+              value={revisionFeedback}
+              onChange={(e) => setRevisionFeedback(e.target.value)}
+              placeholder="Describe what needs to be changed or improved..."
+              className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500"
+              rows={6}
+              autoFocus
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowRevisionModal(false);
+                setPendingRevisionId(null);
+                setRevisionFeedback("");
+              }}
+              className="rounded-lg px-4 py-2 text-gray-700 text-sm font-medium transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmRevision}
+              disabled={!revisionFeedback.trim()}
+              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-brand-600"
+              type="button"
+            >
+              Send Revision Request
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Approve Confirmation Modal */}
+      <Modal
+        show={showApproveModal}
+        onClose={() => {
+          setShowApproveModal(false);
+          setPendingApproveId(null);
+        }}
+        title="Approve Submission"
+        size="md"
+      >
+        <div className="p-6">
+          <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+            <p className="text-yellow-800 text-sm dark:text-yellow-200">
+              <strong>⚠️ Important:</strong> This action will release the escrow
+              payment to the freelancer and mark the task as completed. This
+              cannot be undone.
+            </p>
+          </div>
+
+          <p className="mb-6 text-gray-700 dark:text-gray-300">
+            Are you sure you want to approve this submission and release payment
+            from escrow?
+          </p>
+
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowApproveModal(false);
+                setPendingApproveId(null);
+              }}
+              className="rounded-lg px-4 py-2 text-gray-700 text-sm font-medium transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmApprove}
+              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+              type="button"
+            >
+              Yes, Approve & Release Payment
+            </button>
+          </div>
         </div>
       </Modal>
     </>

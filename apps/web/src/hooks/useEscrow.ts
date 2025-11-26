@@ -356,11 +356,26 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         });
         // 2. Kiểm tra response status TRƯỚC KHI parse JSON
         if (!response.ok) {
-          // Nếu 404, thường text sẽ là "Not Found" hoặc rỗng
-          const errorText = await response.text(); 
-          console.error("❌ API Error Status:", response.status);
-          console.error("❌ API Error Body:", errorText);
-          throw new Error(`Server error (${response.status}): ${errorText || 'Unknown error'}`);
+          // Try parse as JSON first (backend may return error details)
+          let errorMessage = `Server error (${response.status})`;
+          try {
+            const errorData = await response.json();
+            console.error("❌ API Error Status:", response.status);
+            console.error("❌ API Error Details:", errorData);
+            
+            // Handle specific error cases
+            if (errorData.details === "Admin wallet not configured") {
+              errorMessage = "Backend configuration error: Admin wallet not set up. Please contact support.";
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            }
+          } catch (parseError) {
+            // If JSON parse fails, try text
+            const errorText = await response.text();
+            console.error("❌ API Error Body:", errorText);
+            errorMessage = errorText || errorMessage;
+          }
+          throw new Error(errorMessage);
         }
 
         // 3. Chỉ parse JSON khi status là 200-299
@@ -404,10 +419,26 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
           body: JSON.stringify({ reason }) // Only send reason, taskId is in URL
         });
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("❌ API Error Status:", response.status);
-          console.error("❌ API Error Body:", errorText);
-          throw new Error(`Server error (${response.status}): ${errorText || 'Unknown error'}`);
+          // Try parse as JSON first (backend may return error details)
+          let errorMessage = `Server error (${response.status})`;
+          try {
+            const errorData = await response.json();
+            console.error("❌ API Error Status:", response.status);
+            console.error("❌ API Error Details:", errorData);
+            
+            // Handle specific error cases
+            if (errorData.details === "Admin wallet not configured") {
+              errorMessage = "Backend configuration error: Admin wallet not set up. Please contact support.";
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            }
+          } catch (parseError) {
+            // If JSON parse fails, try text
+            const errorText = await response.text();
+            console.error("❌ API Error Body:", errorText);
+            errorMessage = errorText || errorMessage;
+          }
+          throw new Error(errorMessage);
         }
         const data = await response.json();
 
@@ -427,27 +458,130 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
   );
 
   /**
+   * Permissionless release after deadline
+   * Can be called by anyone after deadline passes
+   * - If work submitted but no feedback: release to freelancer
+   * - If no work submitted: release to employer
+   * 
+   * Calls backend API instead of direct contract interaction
+   */
+  const releaseAfterDeadline = useCallback(
+    async (
+      taskId: string,
+      recipientAddress: Address,
+      reason: string
+    ): Promise<EscrowTransaction> => {
+      setIsReleasing(true);
+
+      try {
+        const token = getToken();
+        if (!token) {
+          throw new Error("Not authenticated");
+        }
+
+        toast.info("Releasing funds after deadline...");
+
+        // Call backend API to handle release after deadline
+        const apiUrl = `${SLICE_API_URL}tasks/${taskId}/release-after-deadline`;
+        console.log("🔗 Calling API:", apiUrl);
+        console.log("📦 Payload:", { recipientAddress, reason });
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            recipientAddress,
+            reason
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          
+          // Handle DEADLINE_NOT_REACHED error with detailed message
+          if (errorData.code === "DEADLINE_NOT_REACHED") {
+            const detailedError = new Error(errorData.error || "Deadline has not passed yet");
+            (detailedError as any).code = "DEADLINE_NOT_REACHED";
+            throw detailedError;
+          }
+          
+          throw new Error(errorData.message || errorData.error || `API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        toast.success("Funds released successfully!");
+        
+        const result = { txHash: data.txHash, taskId };
+        onSuccess?.(result);
+        return result;
+      } catch (error: any) {
+        console.error("Release after deadline failed:", error);
+        
+        let message = "Failed to release funds";
+        
+        // Check error code first
+        if (error?.code === "DEADLINE_NOT_REACHED") {
+          message = error.message || "Deadline has not been reached yet";
+        } else if (error?.message) {
+          if (error.message.includes("deadline not reached") || error.message.includes("Chưa đến hạn")) {
+            message = error.message;
+          } else if (error.message.includes("settled")) {
+            message = "Escrow already settled";
+          } else if (error.message.includes("invalid recipient")) {
+            message = "Invalid recipient address";
+          } else if (error.message.includes("Not authenticated")) {
+            message = "Please login to continue";
+          } else {
+            message = error.message;
+          }
+        }
+        
+        toast.error(message);
+        onError?.(error);
+        throw error;
+      } finally {
+        setIsReleasing(false);
+      }
+    },
+    [onSuccess, onError]
+  );
+
+  /**
    * Read escrow info from chain
+   * Fixed: Handle struct tuple format from contract
    */
   const readEscrow = useCallback(
     async (taskId: string) => {
       if (!publicClient) throw new Error("Public client not available");
 
-      const info = await publicClient.readContract({
-        address: TASK_ESCROW_POOL_ADDRESS as Address,
-        abi: ESCROW_ABI,
-        functionName: "escrows",
-        args: [BigInt(taskId)]
-      }) as [Address, Address, bigint, bigint, boolean, string];
+      try {
+        const result = await publicClient.readContract({
+          address: TASK_ESCROW_POOL_ADDRESS as Address,
+          abi: ESCROW_ABI,
+          functionName: "escrows",
+          args: [BigInt(taskId)]
+        });
 
-      return {
-        employer: info[0],
-        freelancer: info[1],
-        amount: info[2].toString(),
-        deadline: Number(info[3]),
-        settled: Boolean(info[4]),
-        externalTaskId: info[5]
-      };
+        // Handle tuple array result from contract (anonymous tuple)
+        // Returns: [address, address, uint256, uint256, uint8, string]
+        const info = result as [Address, Address, bigint, bigint, number, string];
+
+        return {
+          employer: info[0],
+          freelancer: info[1],
+          amount: info[2].toString(),
+          deadline: Number(info[3]),
+          settled: info[4] !== 0, // status: 0 = active, 1 = completed, 2 = cancelled
+          externalTaskId: info[5]
+        };
+      } catch (error: any) {
+        console.error("Failed to read escrow:", error);
+        throw new Error(`Failed to read escrow data: ${error.message}`);
+      }
     },
     [publicClient]
   );
@@ -476,8 +610,8 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
     cancel,
     adminReleaseEscrow,
     releaseAfterFeedback,
-    releaseAfterDeadline: adminReleaseEscrow, // Alias for backward compatibility
-    readEscrow,
+    releaseAfterDeadline,
+    readEscrow, // Fixed: Now properly handles struct tuple
     getTaskIdFromExternal,
     checkAllowance,
     approveToken,

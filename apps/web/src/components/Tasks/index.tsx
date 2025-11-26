@@ -90,7 +90,7 @@ const Tasks = () => {
       console.error("Error fetching account data:", error);
       return null;
     }
-    console.log("data", data);
+    // console.log("data", data);
     return {
       name: data?.data?.account?.metadata?.name,
       avatar: data?.data?.account?.metadata?.picture,
@@ -196,10 +196,6 @@ const Tasks = () => {
     setCurrentPage(0);
   }, [activeTab]);
 
-  const reputation = user?.reputationScore ?? 0;
-  const rewardPoints = user?.rewardPoints ?? 0;
-  const progressWidth = Math.min(100, Math.max(0, reputation));
-
   useEffect(() => {
     const load = async () => {
       fetchTasks();
@@ -264,7 +260,7 @@ const Tasks = () => {
           <div className="pt-4">
             <NewTask onSubmit={setTasks} />
           </div>
-          
+
           {/* Footer */}
           <div className="pt-4 text-center text-xs text-gray-500 dark:text-gray-400">
             © 2025 Slice GitHub
@@ -285,35 +281,33 @@ const Tasks = () => {
             tabs={[
               { name: "Tasks List", type: TaskFeedType.All },
               { name: "My Tasks", type: TaskFeedType.MyTasks },
-              { name: "Posted Tasks", type: TaskFeedType.PostedTasks }
+              { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
             ]}
           />
         </div>
       </StickyFeedBar>
 
       <div className="space-y-6">
-          <div className="space-y-4 px-3">
-            {loading ? (
-              <TasksShimmer count={5} />
-            ) : (
-              filteredTasks.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                  <p className="mb-2 font-medium">No tasks found.</p>
-                  <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
-                </div>
-              ) : (
-                paginatedTasks.map((task) => (
-                  <div key={task.id} onClick={() => handleTaskClick(task)}>
-                    <TaskCard 
-                      task={task}
-                      showDelete={activeTab === TaskFeedType.PostedTasks}
-                      onDelete={handleDeleteTask}
-                    />
-                  </div>
-                ))
-              )
-            )}
-          </div>
+        <div className="space-y-4 px-3">
+          {loading ? (
+            <TasksShimmer count={5} />
+          ) : filteredTasks.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-gray-200 p-8 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <p className="mb-2 font-medium">No tasks found.</p>
+              <p className="text-sm">{getEmptyStateMessage(activeTab)}</p>
+            </div>
+          ) : (
+            paginatedTasks.map((task) => (
+              <div key={task.id} onClick={() => handleTaskClick(task)}>
+                <TaskCard
+                  task={task}
+                  showDelete={activeTab === TaskFeedType.PostedTasks}
+                  onDelete={handleDeleteTask}
+                />
+              </div>
+            ))
+          )}
+        </div>
 
         {filteredTasks.length > 0 && (
           <div className="flex items-center justify-center gap-4 pt-4">
@@ -366,7 +360,7 @@ const Tasks = () => {
 
       {/* Modal for creating new task (controlled by FAB on mobile) */}
       {isNewTaskModalOpen && (
-        <NewTask 
+        <NewTask
           onSubmit={setTasks}
           isOpen={isNewTaskModalOpen}
           onClose={() => setIsNewTaskModalOpen(false)}
