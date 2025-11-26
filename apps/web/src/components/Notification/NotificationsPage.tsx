@@ -21,6 +21,9 @@ import { formatRelativeTime } from "@/helpers/formatRelativeTime";
 import getAvatar from "@slice/helpers/getAvatar";
 import { DEFAULT_AVATAR } from "@slice/data/constants";
 import type { Notification } from "@/types/task-api";
+import { NotificationFeedType } from "@slice/data/enums";
+import FeedType from "./FeedType";
+import List from "./List";
 
 const NOTIFICATIONS_PER_PAGE = 10;
 
@@ -149,8 +152,11 @@ const NotificationsPage = () => {
     markAsRead,
     markAllAsRead,
   } = useNotificationStore();
-  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [filter, setFilter] = useState<"all" | "unread" | "social">("all");
   const [currentPage, setCurrentPage] = useState(0);
+  const [socialFeedType, setSocialFeedType] = useState<NotificationFeedType>(
+    NotificationFeedType.All
+  );
 
   // Load hidden notification IDs from localStorage
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => {
@@ -317,7 +323,7 @@ const NotificationsPage = () => {
   const unreadCountFromList = allNotifications.filter((n) => !n.isRead).length;
 
   return (
-    <PageLayout title="Notifications">
+    <PageLayout title="Task Notifications">
       {/* Tabs Navigation */}
       <StickyFeedBar>
         {/* Mobile Header */}
@@ -328,10 +334,10 @@ const NotificationsPage = () => {
             active={filter}
             className="mb-0"
             layoutId="notification_tabs"
-            setActive={(type) => setFilter(type as "all" | "unread")}
+            setActive={(type) => setFilter(type as "all" | "unread" | "social")}
             tabs={[
               {
-                name: "All",
+                name: "Tasks",
                 type: "all",
                 suffix: (
                   <Badge
@@ -342,18 +348,22 @@ const NotificationsPage = () => {
                   </Badge>
                 ),
               },
+              // {
+              //   name: "Unread",
+              //   type: "unread",
+              //   suffix:
+              //     unreadCount > 0 ? (
+              //       <Badge
+              //         variant="primary"
+              //         className="ml-1 border-brand-300 bg-brand-100 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
+              //       >
+              //         {unreadCount}
+              //       </Badge>
+              //     ) : null,
+              // },
               {
-                name: "Unread",
-                type: "unread",
-                suffix:
-                  unreadCount > 0 ? (
-                    <Badge
-                      variant="primary"
-                      className="ml-1 border-brand-300 bg-brand-100 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
-                    >
-                      {unreadCount}
-                    </Badge>
-                  ) : null,
+                name: "Social",
+                type: "social",
               },
             ]}
           />
@@ -407,7 +417,15 @@ const NotificationsPage = () => {
 
       {/* Notifications List */}
       <div className="space-y-3 px-3">
-        {isLoading ? (
+        {filter === "social" ? (
+          <div>
+            <FeedType
+              feedType={socialFeedType}
+              setFeedType={setSocialFeedType}
+            />
+            <List feedType={socialFeedType} />
+          </div>
+        ) : isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Spinner />
           </div>
