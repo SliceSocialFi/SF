@@ -741,14 +741,14 @@
     z-index: 100;
   }
 
-  .follow-animated {
+  .button-animated {
     position: relative;
     isolation: isolate;
     border-radius: 9999px;
     overflow: hidden;
   }
 
-  .follow-animated::before {
+  .button-animated::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -763,12 +763,12 @@
       transform 0.4s ease-out;
   }
 
-  .follow-animated:hover::before {
+  .button-animated:hover::before {
     opacity: 1;
     transform: scale(1);
   }
 
-  .dark .follow-animated::before {
+  .dark .button-animated::before {
     border-color: var(--primary-hover);
   }
 

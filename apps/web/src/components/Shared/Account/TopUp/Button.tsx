@@ -26,7 +26,7 @@ const TopUpButton = ({
   return (
     <Button
       aria-label={label}
-      className={className}
+      className={`button-animated ${className}`.trim()}
       onClick={() =>
         setShowFundModal({ amountToTopUp, showFundModal: true, token })
       }

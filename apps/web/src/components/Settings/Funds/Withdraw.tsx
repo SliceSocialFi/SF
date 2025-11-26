@@ -190,6 +190,7 @@ const Withdraw = ({ currency, value, refetch }: WithdrawProps) => {
   return (
     <>
       <Button
+        className="button-animated"
         disabled={isSubmitting || inputValue === "0" || isBridging}
         loading={isSubmitting || isBridging}
         onClick={() => setShowModal(true)}

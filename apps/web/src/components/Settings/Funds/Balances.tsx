@@ -43,7 +43,7 @@ const Balances = () => {
           <b>{Number.parseFloat(value).toFixed(2)} </b>
           {symbol}
         </div>
-        <div className="flex flex-wrap items-center gap-2 dark:bg-[#121212]">
+        <div className="flex flex-wrap items-center gap-2">
           <Withdraw currency={currency} refetch={refetch} value={"1"} />
           {/* {!currency && <Wrap refetch={refetch} value={value} />}
           {currency === DEFAULT_COLLECT_TOKEN && (
