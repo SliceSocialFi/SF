@@ -23,6 +23,9 @@ const Groups = lazy(() => import("@/components/Groups"));
 const NotificationsPage = lazy(
   () => import("@/components/Notification/NotificationsPage")
 );
+const SocialNotification = lazy(
+  () => import("@/components/Notification/Social")
+);
 const Tasks = lazy(() => import("@/components/Tasks"));
 const TaskDetailPage = lazy(() => import("@/components/Tasks/TaskDetailPage"));
 const Copyright = lazy(() => import("@/components/Pages/Copyright"));
@@ -100,6 +103,14 @@ const Routes = () => {
               </Suspense>
             }
             path="notifications"
+          />
+          <Route
+            element={
+              <Suspense fallback={<PostsShimmer />}>
+                <SocialNotification />
+              </Suspense>
+            }
+            path="notifications/social"
           />
           <Route
             element={

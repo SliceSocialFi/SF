@@ -28,8 +28,19 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   isDropdownOpen: false,
   loading: false,
   
-  // Set notifications list
-  setNotifications: (notifications) => set({ notifications }),
+  // Set notifications list (with deduplication)
+  setNotifications: (notifications) => {
+    // Deduplicate notifications by id
+    const seen = new Set<string>();
+    const uniqueNotifications = notifications.filter((n) => {
+      if (seen.has(n.id)) {
+        return false;
+      }
+      seen.add(n.id);
+      return true;
+    });
+    set({ notifications: uniqueNotifications });
+  },
   
   // Set unread count (from API)
   setUnreadCount: (count) => set({ unreadCount: count }),
@@ -52,12 +63,19 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   // Set loading state
   setLoading: (loading) => set({ loading }),
   
-  // Add new notification
+  // Add new notification (with deduplication)
   addNotification: (notification) => 
-    set((state) => ({
-      notifications: [notification, ...state.notifications],
-      unreadCount: state.unreadCount + 1
-    })),
+    set((state) => {
+      // Check if notification already exists
+      const exists = state.notifications.some((n) => n.id === notification.id);
+      if (exists) {
+        return state; // No change if already exists
+      }
+      return {
+        notifications: [notification, ...state.notifications],
+        unreadCount: state.unreadCount + 1
+      };
+    }),
   
   // Mark single notification as read
   markAsRead: (id) =>
