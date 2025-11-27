@@ -7,7 +7,7 @@ import ErrorBoundary from "@/components/Common/ErrorBoundary";
 import authLink from "@/helpers/authLink";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ThemePaletteProvider } from "@/components/Shared/Theme/useThemePalette";
-import { SuperAppProvider } from "./DNPAYSuperAppProvider";
+import { DNPAYSuperAppProvider } from "./DNPAYSuperAppProvider";
 import Web3Provider from "./Web3Provider";
 
 export const queryClient = new QueryClient({
@@ -23,7 +23,7 @@ interface ProvidersProps {
 const Providers = ({ children }: ProvidersProps) => {
   return (
     <ErrorBoundary>
-      <SuperAppProvider>
+      <DNPAYSuperAppProvider>
         <QueryClientProvider client={queryClient}>
           <Web3Provider>
             <ApolloProvider client={lensApolloClient}>
@@ -37,7 +37,7 @@ const Providers = ({ children }: ProvidersProps) => {
             </ApolloProvider>
           </Web3Provider>
         </QueryClientProvider>
-      </SuperAppProvider>
+      </DNPAYSuperAppProvider>
     </ErrorBoundary>
   );
 };

@@ -1,17 +1,17 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SUPER_APP_ORIGIN, APP_URL } from '@slice/data/constants';
 
-interface SuperAppContextType {
+interface DNPAYSuperAppContextType {
   apiKey: string | null;
   isReady: boolean; // Để biết khi nào đã nhận được key
 }
 
-const SuperAppContext = createContext<SuperAppContextType>({
+const DNPAYSuperAppContext = createContext<DNPAYSuperAppContextType>({
   apiKey: null,
   isReady: false,
 });
 
-export const SuperAppProvider = ({ children }: { children: ReactNode }) => {
+export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -60,11 +60,11 @@ export const SuperAppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <SuperAppContext.Provider value={{ apiKey, isReady }}>
+    <DNPAYSuperAppContext.Provider value={{ apiKey, isReady }}>
       {children}
-    </SuperAppContext.Provider>
+    </DNPAYSuperAppContext.Provider>
   );
 };
 
 // Custom hook để dùng trong các component con
-export const useSuperApp = () => useContext(SuperAppContext);
+export const useDNPAYSuperApp = () => useContext(DNPAYSuperAppContext);
