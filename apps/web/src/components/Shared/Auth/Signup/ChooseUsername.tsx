@@ -5,7 +5,7 @@ import {
   FaceSmileIcon
 } from "@heroicons/react/24/outline";
 import { account as accountMetadata } from "@lens-protocol/metadata";
-import { HEY_APP, IS_MAINNET } from "@slice/data/constants";
+import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
 import { Regex } from "@slice/data/regex";
 import {
@@ -118,7 +118,7 @@ const ChooseUsername = () => {
         variables: {
           request: {
             onboardingUser: {
-              app: IS_MAINNET ? HEY_APP : undefined,
+              app: IS_MAINNET ? SLICE_APP : undefined,
               wallet: address
             }
           }

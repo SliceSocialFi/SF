@@ -1,5 +1,5 @@
 import { KeyIcon } from "@heroicons/react/24/outline";
-import { HEY_APP, IS_MAINNET } from "@slice/data/constants";
+import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
 import {
   type ChallengeRequest,
@@ -83,7 +83,7 @@ const Login = ({ setHasAccounts }: LoginProps) => {
         __typename === "AccountManaged" && a.address === account
     );
 
-    const meta = { account, app: IS_MAINNET ? HEY_APP : undefined };
+    const meta = { account, app: IS_MAINNET ? SLICE_APP : undefined };
     const request: ChallengeRequest = isManager
       ? { accountManager: { manager: address, ...meta } }
       : { accountOwner: { owner: address, ...meta } };
