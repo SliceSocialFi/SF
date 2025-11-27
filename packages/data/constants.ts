@@ -99,5 +99,4 @@ export const ERC20_TOKEN_ADDRESS =
     ? MAINNET_CONTRACTS.defaultToken
     : TESTNET_CONTRACTS.defaultToken;
 
-export const APP_URL = "https://sf-web-ten.vercel.app";
 export const SUPER_APP_ORIGIN = 'https://mvp.dnpay.ai';

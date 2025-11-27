@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { SUPER_APP_ORIGIN, APP_URL } from '@slice/data/constants';
+import { SUPER_APP_ORIGIN } from '@slice/data/constants';
 
 interface DNPAYSuperAppContextType {
   apiKey: string | null;
@@ -17,7 +17,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== APP_URL) {
+      if (event.origin !== SUPER_APP_ORIGIN) {
         console.warn('Nhận message từ nguồn không xác định:', event.origin);
         return;
       }
