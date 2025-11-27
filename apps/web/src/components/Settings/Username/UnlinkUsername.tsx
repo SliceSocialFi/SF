@@ -69,6 +69,7 @@ const UnlinkUsername = () => {
         loading={unlinking}
         onClick={handleUnlink}
         outline
+        className="button-animated"
       >
         Un-link {getAccount(currentAccount).usernameWithPrefix}
       </Button>

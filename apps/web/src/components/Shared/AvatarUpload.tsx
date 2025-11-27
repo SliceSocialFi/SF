@@ -73,7 +73,7 @@ const AvatarUpload = ({ src, setSrc, isSmall = false }: AvatarUploadProps) => {
             />
           </div>
           <Button
-            className="w-full"
+            className="w-full bg-[#121212]"
             disabled={uploading || !pictureSrc}
             loading={uploading}
             onClick={handleUploadAndSave}

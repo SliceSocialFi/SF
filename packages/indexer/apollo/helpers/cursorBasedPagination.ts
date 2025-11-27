@@ -14,7 +14,7 @@ export const cursorBasedPagination = <T extends CursorBasedPagination>(
   return {
     keyArgs,
 
-    merge(existing: Readonly<T> | undefined, incoming: SafeReadonly<T>) {
+    merge(existing: Readonly<T> | undefined, incoming: SafeReadonly<T>, { args }) {
       if (!existing) {
         return incoming;
       }

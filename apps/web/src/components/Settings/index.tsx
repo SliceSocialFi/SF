@@ -86,10 +86,10 @@ const AccountSettings = () => {
           />
         </div>
         <div className="divider" />
-        <div className="py-3">
+        <div className="py-3 px-3">
           {settingsPages.map((page) => (
             <Link
-              className="flex items-center justify-between px-5 py-3 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="settings-item flex items-center justify-between px-5 py-3"
               key={page.url}
               to={page.url}
             >
@@ -100,7 +100,7 @@ const AccountSettings = () => {
               <ArrowRightIcon className="size-4" />
             </Link>
           ))}
-        </div>
+        </div>  
       </Card>
     </PageLayout>
   );

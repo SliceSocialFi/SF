@@ -9,16 +9,18 @@ interface PostsShimmerProps {
 
 const PostsShimmer = ({ hideCard = false }: PostsShimmerProps) => {
   return (
-    <Card
-      className={cn(
-        { "!border-0": hideCard },
-        "divide-y divide-gray-200 dark:divide-gray-700"
-      )}
-    >
-      {Array.from({ length: 3 }).map((_, index) => (
-        <PostShimmer key={index} />
-      ))}
-    </Card>
+    <div className="px-3">
+      <Card
+        className={cn(
+          { "!border-0": hideCard },
+          "divide-y divide-gray-200 dark:divide-gray-700"
+        )}
+      >
+        {Array.from({ length: 3 }).map((_, index) => (
+          <PostShimmer key={index} />
+        ))}
+      </Card>
+    </div>
   );
 };
 

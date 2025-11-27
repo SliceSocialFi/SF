@@ -28,7 +28,7 @@ const FollowUnfollowButton = ({
   }
 
   // Thêm class hiệu ứng viền cho tất cả nút (Follow / Following)
-  const animatedButtonClass = `follow-animated ${buttonClassName}`.trim();
+  const animatedButtonClass = `button-animated ${buttonClassName}`.trim();
 
   return (
     <div className="contents" onClick={stopEventPropagation}>

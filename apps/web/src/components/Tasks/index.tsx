@@ -90,7 +90,6 @@ const Tasks = () => {
       console.error("Error fetching account data:", error);
       return null;
     }
-    // console.log("data", data);
     return {
       name: data?.data?.account?.metadata?.name,
       avatar: data?.data?.account?.metadata?.picture,

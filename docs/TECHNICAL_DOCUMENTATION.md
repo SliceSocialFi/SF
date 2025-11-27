@@ -904,7 +904,7 @@ const handleSign = async (accountAddress: string) => {
         accountOwner: {
           owner: walletAddress,  // User's wallet address
           account: accountAddress, // Lens profile address
-          app: HEY_APP            // App identifier
+          app: SLICE_APP            // App identifier
         }
       }
     }
@@ -1488,7 +1488,7 @@ const generateMetadata = async (content: string, attachments: Media[]) => {
     tags: extractHashtags(content),
     
     // App identifier
-    appId: HEY_APP // mượn Hey vì đang không có quyền build app riêng
+    appId: SLICE_APP // mượn Hey vì đang không có quyền build app riêng
   });
   
   // Upload metadata to Lens Storage
@@ -1640,7 +1640,7 @@ const authLink = setContext((_, { headers }) => {
 // docker-compose.yml
 environment:
   - LENS_NETWORK=staging    # "mainnet" | "staging"
-  - HEY_API_URL=https://api.hey.xyz/
+  - SLICE_API_URL=https://api.hey.xyz/
 
 // packages/data/lens-endpoints.ts
 export const LENS_API = IS_MAINNET
