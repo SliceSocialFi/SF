@@ -26,7 +26,7 @@ Full-page component that:
 
 **Key Features:**
 - ✅ Uses React Query for data fetching with 30s stale time
-- ✅ Loading state with Spinner
+- ✅ Loading state with Spinner.
 - ✅ Error handling with 404 page
 - ✅ Back button to return to tasks list
 - ✅ Deadline warning when task expired
