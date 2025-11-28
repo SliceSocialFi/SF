@@ -123,7 +123,7 @@ const SuperFollow = () => {
   };
 
   return (
-    <Card>
+    <Card className="mx-2 sm:mx-0">
       <CardHeader icon={<BackButton path="/settings" />} title="Super follow" />
       <div className="m-5 flex flex-col gap-y-4">
         <Input

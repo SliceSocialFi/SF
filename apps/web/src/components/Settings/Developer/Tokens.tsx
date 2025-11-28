@@ -75,7 +75,7 @@ const Tokens = () => {
   };
 
   return (
-    <Card>
+    <Card className="mx-2 sm:mx-0">
       <CardHeader
         icon={<BackButton path="/settings" />}
         title="Your temporary access token"
