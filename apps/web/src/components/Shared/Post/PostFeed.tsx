@@ -51,7 +51,7 @@ const PostFeed = <T extends { id: string }>({
   }
 
   return (
-    <div className="space-y-3 px-3 rounded">
+    <div className="space-y-3 px-3">
       <WindowVirtualizer>
         {items.map((item) => (
           <Card key={item.id} className="mb-3">

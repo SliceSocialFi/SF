@@ -63,23 +63,13 @@ const SignedAccount = () => {
             <Settings />
           </MenuItem>
           <div className="divider" />
-          <MenuItem
-            as="div"
-            className={({ focus }) =>
-              cn({ "dropdown-active": focus }, "m-2 rounded-lg")
-            }
-          >
+          <div className="menu-action-wrapper m-2 rounded-lg">
             <SwitchAccount />
-          </MenuItem>
+          </div>
           <div className="divider" />
-          <MenuItem
-            as="div"
-            className={({ focus }) =>
-              cn({ "dropdown-active": focus }, "m-2 rounded-lg")
-            }
-          >
+          <div className="menu-action-wrapper m-2 rounded-lg">
             <Logout />
-          </MenuItem>
+          </div>
         </MenuItems>
       </MenuTransition>
     </Menu>

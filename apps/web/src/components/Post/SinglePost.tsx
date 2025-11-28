@@ -33,7 +33,7 @@ const SinglePost = ({
       )}
       <div className="flex items-start gap-x-3">
         <PostAvatar post={rootPost} timelineItem={timelineItem} />
-        <div className="w-[calc(100%-55px)]">
+        <div className="flex-1 min-w-0">
           <PostHeader post={rootPost} timelineItem={timelineItem} />
           {post.isDeleted ? (
             <HiddenPost type={post.__typename} />
@@ -45,7 +45,7 @@ const SinglePost = ({
       {!post.isDeleted && (
         <div className="sm:flex sm:items-start sm:gap-x-3">
           <div className="hidden sm:block sm:w-[40px]" />
-          <div className="w-full sm:w-[calc(100%-55px)]">
+          <div className="flex-1 min-w-0">
             <PostActions post={rootPost} />
           </div>
         </div>

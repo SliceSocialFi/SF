@@ -64,7 +64,7 @@ C. TaskApplications (mounted dưới `/applications` hoặc tương đương)
 - Tạo application (applicantProfileId lấy từ token hoặc phải được validate)
 - Update status (pending/accepted/rejected)
 
-D. Proxy / shim tới Hey API: `/oembed/get`, `/metadata/sts`, `/pageview`, `/posts` — một số route cần auth và được forward tới `REAL_HEY_API_URL`.
+D. Proxy / shim tới Hey API: `/oembed/get`, `/metadata/sts`, `/pageview`, `/posts` — một số route cần auth và được forward tới `REAL_SLICE_API_URL`.
 
 ---
 

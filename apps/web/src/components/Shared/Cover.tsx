@@ -11,17 +11,21 @@ interface CoverProps {
 }
 
 const Cover = ({ cover }: CoverProps) => {
-  const isDefaultCover = cover.includes(STATIC_IMAGES_URL);
+  // Check if it's a pattern/default cover (starts with / or contains STATIC_IMAGES_URL)
+  const isPattern = cover.startsWith("/") && cover.includes("/patterns/");
+  const isDefaultCover = cover === "/cover.png" || isPattern;
+  
+  // Use the cover as-is if it's default/pattern, otherwise process through imageKit
   const backgroundImage = isDefaultCover
-    ? "/cover.png"
+    ? cover
     : imageKit(sanitizeDStorageUrl(cover), TRANSFORMS.COVER);
 
   const backgroundStyles = {
     backgroundColor: BRAND_COLOR,
     backgroundImage: `url(${backgroundImage})`,
     backgroundPosition: "center center",
-    backgroundRepeat: isDefaultCover ? "repeat" : "no-repeat",
-    backgroundSize: isDefaultCover ? "30%" : "cover",
+    backgroundRepeat: isPattern ? "repeat" : "no-repeat",
+    backgroundSize: isPattern ? "30%" : "cover",
   };
 
   return (

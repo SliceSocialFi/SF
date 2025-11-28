@@ -32,7 +32,7 @@ const cache = new InMemoryCache({
           "request",
           ["filter", "pageSize"]
         ]),
-        groups: createCursorFieldPolicy(["request", ["filter", "pageSize"]]),
+        groups: createCursorFieldPolicy(["request", ["filter", "pageSize", "orderBy"]]),
         accounts: createCursorFieldPolicy(["request", ["filter", "orderBy"]]),
         accountsBlocked: createCursorFieldPolicy([
           "request",

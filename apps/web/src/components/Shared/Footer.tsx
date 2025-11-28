@@ -8,7 +8,7 @@ const links = [
   // { href: "/guidelines", label: "Guidelines" },
   // { href: "https://hey.xyz/discord", label: "Discord" },
   // { href: "/u/hey", label: "Hey" },
-  { href: "https://github.com/goby35/SF.git", label: "GitHub" }
+  { href: "https://github.com/goby35/SF.git"}
   // { href: "/support", label: "Support" },
   // { href: "https://hey.xyz/status", label: "Status" }
 ];
@@ -19,7 +19,7 @@ const Footer = () => {
       <span className="font-bold text-gray-500 dark:text-gray-200">
         &copy; {currentYear} Slice
       </span>
-      {links.map(({ href, label }) => (
+      {links.map(({ href }) => (
         <Link
           className="outline-offset-4"
           key={href}
@@ -27,7 +27,6 @@ const Footer = () => {
           target={href.startsWith("http") ? "_blank" : undefined}
           to={href}
         >
-          {label}
         </Link>
       ))}
     </footer>
