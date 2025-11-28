@@ -15,6 +15,7 @@ import SubmitOutcomeModal from "./Applications/SubmitOutcomeModal";
 import PostRateModal from "./Applications/PostRateModal";
 import { EscrowManager } from "@/components/Escrow";
 import DeadlineInput from "./DeadlineInput";
+import { ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
 
 const TaskDetailModal = ({
   task,
@@ -338,7 +339,7 @@ const TaskDetailModal = ({
                       Completion Reward
                     </p>
                     <p className="font-bold text-2xl text-brand-600 dark:text-brand-400">
-                      {task.rewardPoints} points
+                      {task.rewardPoints} {ERC20_TOKEN_SYMBOL}
                     </p>
                   </div>
                 </div>

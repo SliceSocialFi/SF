@@ -21,7 +21,7 @@ export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;
 export const CHAIN = IS_MAINNET ? chains.mainnet : chains.testnet;
 export const ADDRESS_PLACEHOLDER = "0x03Ba3...7EF";
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-export const SLICE_STREASURY = IS_MAINNET ? LENS_TREASURY.Mainnet : LENS_TREASURY.Testnet;
+export const SLICE_TREASURY = IS_MAINNET ? LENS_TREASURY.Mainnet : LENS_TREASURY.Testnet;
 
 // Subscription
 export const SUBSCRIPTION_AMOUNT = 100;
