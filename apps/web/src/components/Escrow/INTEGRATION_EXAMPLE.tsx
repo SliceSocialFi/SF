@@ -158,10 +158,7 @@ export function TaskDetailInlineEscrow({ task }: TaskDetailWithEscrowProps) {
           )}
 
           {/* Anyone can release after deadline */}
-          <EscrowRelease
-            taskExternalId={task.id.toString()}
-            freelancerAddress={task.freelancerProfileId}
-          />
+          <EscrowRelease taskExternalId={task.id.toString()} />
         </div>
       </div>
     </div>

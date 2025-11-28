@@ -3,11 +3,11 @@ import {
   ListboxButton,
   ListboxOption,
   ListboxOptions,
-  Transition
+  Transition,
 } from "@headlessui/react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { CheckCircleIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
-import { Fragment, memo, type ReactNode, useState } from "react";
+import { Fragment, memo, type ReactNode, useMemo, useState } from "react";
 import { Input } from "@/components/Shared/UI";
 import cn from "@/helpers/cn";
 
@@ -34,10 +34,16 @@ const Select = ({
   iconClassName,
   onChange,
   options,
-  showSearch = false
+  showSearch = false,
 }: SelectProps) => {
   const [searchValue, setSearchValue] = useState("");
-  const selected = options?.find((option) => option.selected) || options?.[0];
+  const selected = useMemo(() => {
+    return (
+      options?.find((option) => option.value === defaultValue) ||
+      options?.find((option) => option.selected) ||
+      options?.[0]
+    );
+  }, [options, defaultValue]);
 
   return (
     <Listbox onChange={onChange} value={defaultValue || selected?.value}>
