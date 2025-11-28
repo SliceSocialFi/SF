@@ -132,7 +132,6 @@ export function EscrowManager({
                     </h3>
                     <EscrowRelease
                       taskExternalId={taskId}
-                      freelancerAddress={freelancerAddress}
                       onSuccess={handleActionSuccess}
                     />
                   </div>

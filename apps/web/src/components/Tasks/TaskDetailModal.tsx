@@ -14,6 +14,7 @@ import ApplyModal from "./Applications/ApplyModal";
 import SubmitOutcomeModal from "./Applications/SubmitOutcomeModal";
 import PostRateModal from "./Applications/PostRateModal";
 import { EscrowManager } from "@/components/Escrow";
+import DeadlineInput from "./DeadlineInput";
 
 const TaskDetailModal = ({
   task,
@@ -33,6 +34,9 @@ const TaskDetailModal = ({
   const [isCancelling, setIsCancelling] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [ratingAppId, setRatingAppId] = useState<string | null>(null);
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [newDeadline, setNewDeadline] = useState("");
+  const [isExtending, setIsExtending] = useState(false);
 
   if (!task) return null;
 
@@ -69,6 +73,7 @@ const TaskDetailModal = ({
         message: null,
         actionType: null,
         recipientAddress: null,
+        shouldAutoCancel: false,
       };
 
     const isEmployer =
@@ -78,6 +83,29 @@ const TaskDetailModal = ({
       task.freelancerProfileId &&
       currentAccount?.address?.toLowerCase() ===
         task.freelancerProfileId.toLowerCase();
+
+    // Check if anyone was assigned (accepted)
+    const hasAcceptedFreelancer = task.applicants.some(
+      (app) =>
+        (app as any).status === "accepted" ||
+        (app as any).status === "in_progress" ||
+        (app as any).status === "in_review" ||
+        (app as any).status === "completed" ||
+        (app as any).status === "needs_revision"
+    );
+
+    // CASE 0: No one was assigned before deadline
+    // -> Task should be auto-cancelled (no escrow deposit made)
+    if (!hasAcceptedFreelancer && !task.freelancerProfileId) {
+      return {
+        canClaim: false,
+        actionType: "AUTO_CANCEL",
+        recipientAddress: null,
+        message:
+          "Task deadline has passed with no freelancer assigned. This task will be automatically cancelled.",
+        shouldAutoCancel: true,
+      };
+    }
 
     // Check if Freelancer has pending submission (in_review or submitted)
     const hasPendingSubmission = task.applicants.some(
@@ -95,6 +123,7 @@ const TaskDetailModal = ({
         recipientAddress: task.employerProfileId,
         message:
           "Freelancer did not submit work before deadline. You can claim refund.",
+        shouldAutoCancel: false,
       };
     }
 
@@ -107,6 +136,7 @@ const TaskDetailModal = ({
         recipientAddress: task.freelancerProfileId,
         message:
           "You submitted work but employer did not respond before deadline. You can claim payment.",
+        shouldAutoCancel: false,
       };
     }
 
@@ -117,10 +147,52 @@ const TaskDetailModal = ({
       recipientAddress: null,
       message:
         "Task has passed deadline. Waiting for the other party to process fund release/refund.",
+      shouldAutoCancel: false,
     };
   };
 
   const deadlineAction = getDeadlineActionState();
+
+  // Auto-cancel task if deadline passed with no assigned freelancer
+  const handleAutoCancel = async () => {
+    if (!deadlineAction.shouldAutoCancel) return;
+
+    try {
+      await apiClient.updateTask(task.id, { status: "cancelled" });
+      toast.info(
+        "Task has been automatically cancelled (deadline passed, no freelancer assigned)"
+      );
+      onClose();
+    } catch (err: any) {
+      console.error("Failed to auto-cancel task", err);
+      toast.error(err?.body?.message || "Failed to cancel task");
+    }
+  };
+
+  // Extend deadline for task with no assigned freelancer
+  const handleExtendDeadline = async () => {
+    if (!newDeadline) {
+      toast.error("Please select a new deadline");
+      return;
+    }
+
+    setIsExtending(true);
+    try {
+      await apiClient.updateTask(task.id, {
+        deadline: newDeadline,
+      });
+
+      toast.success("Task deadline extended successfully!");
+      setShowExtendModal(false);
+      setNewDeadline("");
+      handleApplicationUpdate(); // Refresh task data
+    } catch (err: any) {
+      console.error("Failed to extend deadline", err);
+      toast.error(err?.body?.message || "Failed to extend deadline");
+    } finally {
+      setIsExtending(false);
+    }
+  };
 
   // Check if user is freelancer (assigned to task)
   const isFreelancer =
@@ -314,7 +386,38 @@ const TaskDetailModal = ({
                   <h6 className="mb-2 font-semibold text-orange-800 dark:text-orange-300">
                     ⚠️ Task Deadline Has Passed
                   </h6>
-                  {deadlineAction.canClaim ? (
+                  {deadlineAction.shouldAutoCancel ? (
+                    <div className="space-y-3">
+                      <p className="text-orange-700 text-sm dark:text-orange-200">
+                        {deadlineAction.message}
+                      </p>
+                      {isOwner && task.status !== "cancelled" && (
+                        <div className="rounded-lg border border-orange-300 bg-white p-3 dark:border-orange-700 dark:bg-gray-800">
+                          <p className="mb-3 text-gray-600 text-sm dark:text-gray-400">
+                            No escrow deposit was made since no freelancer was
+                            assigned. You can extend the deadline to give more
+                            time for applications.
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              className="flex-1"
+                              onClick={() => setShowExtendModal(true)}
+                            >
+                              Extend Deadline
+                            </Button>
+                            <Button
+                              className="flex-1"
+                              onClick={handleAutoCancel}
+                              loading={isCancelling}
+                              outline
+                            >
+                              Cancel Task
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : deadlineAction.canClaim ? (
                     <div className="space-y-3">
                       <p className="text-orange-700 text-sm dark:text-orange-200">
                         {deadlineAction.message}
@@ -504,6 +607,64 @@ const TaskDetailModal = ({
           handleApplicationUpdate(); // reload danh sách
         }}
       />
+
+      {/* Extend Deadline Modal */}
+      <Modal
+        show={showExtendModal}
+        onClose={() => {
+          setShowExtendModal(false);
+          setNewDeadline("");
+        }}
+        title="Extend Task Deadline"
+        size="md"
+      >
+        <div className="p-6">
+          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+            <p className="text-blue-800 text-sm dark:text-blue-200">
+              <strong>Current Deadline:</strong>{" "}
+              {task.deadline
+                ? new Date(task.deadline).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "N/A"}
+            </p>
+          </div>
+
+          <div className="mb-6">
+            <DeadlineInput
+              value={newDeadline}
+              onChange={setNewDeadline}
+              label="New Deadline"
+              helper="Select a new deadline for this task"
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <Button
+              onClick={() => {
+                setShowExtendModal(false);
+                setNewDeadline("");
+              }}
+              outline
+              type="button"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleExtendDeadline}
+              loading={isExtending}
+              disabled={isExtending || !newDeadline}
+              type="button"
+            >
+              {isExtending ? "Extending..." : "Extend Deadline"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };
