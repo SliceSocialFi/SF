@@ -1,6 +1,6 @@
 import { useApolloClient } from "@apollo/client";
 import {
-  HEY_TREASURY,
+  SLICE_TREASURY,
   DEFAULT_COLLECT_TOKEN,
   ERC20_TOKEN_SYMBOL
 } from "@slice/data/constants";
@@ -155,7 +155,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
         currency: DEFAULT_COLLECT_TOKEN,
         value: cryptoRate.toString()
       },
-      referrals: [{ address: HEY_TREASURY, percent: 11 }]
+      referrals: [{ address: SLICE_TREASURY, percent: 11 }]
     };
 
     if (post) {

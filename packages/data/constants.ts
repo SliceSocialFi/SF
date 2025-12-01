@@ -1,10 +1,7 @@
 import { chains } from "@lens-chain/sdk/viem";
 import { LENS_ENDPOINT } from "./lens-endpoints";
+import { LENS_TREASURY } from "./lens-treasury";
 import {
-  BSC_POOL_CONTRACT_MAINNET,
-  BSC_POOL_CONTRACT_TESTNET,
-  LENS_BRIDGE_MINTER_CONTRACT_MAINNET,
-  LENS_BRIDGE_MINTER_CONTRACT_TESTNET,
   MAINNET_CONTRACTS,
   TESTNET_CONTRACTS
 } from "./contracts";
@@ -15,10 +12,11 @@ export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;
-export const HEY_APP = getEnvConfig().appAddress;
+export const SLICE_APP = getEnvConfig().appAddress;
 export const CHAINS = getEnvConfig().chains;
 
-export const HEY_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
+// export const SLICE_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
+export const SLICE_TREASURY = LENS_TREASURY[LENS_NETWORK as keyof typeof LENS_TREASURY];
 export const SLICE_API_URL = process.env.SLICE_API_URL || "https://localhost:3000/";
 
 export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;
@@ -83,18 +81,20 @@ export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:87
 
 export const BSC_POOL_CONTRACT =
   IS_MAINNET
-    ? BSC_POOL_CONTRACT_MAINNET
-    : BSC_POOL_CONTRACT_TESTNET;
+    ? MAINNET_CONTRACTS.bscPool
+    : TESTNET_CONTRACTS.bscPool;
 
 export const LENS_BRIDGE_MINTER_CONTRACT =
   IS_MAINNET
-    ? LENS_BRIDGE_MINTER_CONTRACT_MAINNET
-    : LENS_BRIDGE_MINTER_CONTRACT_TESTNET;
+    ? MAINNET_CONTRACTS.lensMinter
+    : TESTNET_CONTRACTS.lensMinter;
 
-export const TASK_ESCROW_POOL_ADDRESS = IS_MAINNET
-  ? MAINNET_CONTRACTS.taskEscrowPool
-  : TESTNET_CONTRACTS.taskEscrowPool;
+export const TASK_ESCROW_POOL_ADDRESS =
+  IS_MAINNET
+    ? MAINNET_CONTRACTS.taskEscrowPool
+    : TESTNET_CONTRACTS.taskEscrowPool;
 
-export const ERC20_TOKEN_ADDRESS = IS_MAINNET
-  ? MAINNET_CONTRACTS.defaultToken
-  : TESTNET_CONTRACTS.defaultToken;
+export const ERC20_TOKEN_ADDRESS =
+  IS_MAINNET
+    ? MAINNET_CONTRACTS.defaultToken
+    : TESTNET_CONTRACTS.defaultToken;

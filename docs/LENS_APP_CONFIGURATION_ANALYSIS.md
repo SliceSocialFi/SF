@@ -1,4 +1,4 @@
-# PHÂN TÍCH CẤU HÌNH LENS APP - HEY PLATFORM
+# PHÂN TÍCH CẤU HÌNH LENS APP - SLICE PLATFORM
 
 ## MỤC LỤC
 1. [Tổng quan](#1-tổng-quan)
@@ -50,7 +50,7 @@ Dự án này **KHÔNG tự tạo app mới** mà **sử dụng lại app Hey đ
 
 ---
 
-## 2. CẤU HÌNH APP HEY
+## 2. CẤU HÌNH APP SLICE
 
 ### 2.1. App Addresses (Contract Addresses)
 
@@ -116,12 +116,12 @@ const getEnvConfig = (): Config => {
 ```typescript
 export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
-export const HEY_APP = getEnvConfig().appAddress;
+export const SLICE_APP = getEnvConfig().appAddress;
 export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;
 ```
 
 **Key Variables:**
-- `HEY_APP`: Địa chỉ app Hey (mainnet hoặc testnet)
+- `SLICE_APP`: Địa chỉ app Hey (mainnet hoặc testnet)
 - `LENS_API_URL`: GraphQL endpoint của Lens
 - `IS_MAINNET`: Boolean để check environment
 - `LENS_NETWORK`: Giá trị từ env variable
@@ -134,7 +134,7 @@ services:
   web:
     environment:
       - LENS_NETWORK=staging
-      - HEY_API_URL=https://slice-api-indol.vercel.app/
+      - SLICE_API_URL=https://slice-api-indol.vercel.app/
 ```
 
 **Current Setup:**
@@ -194,7 +194,7 @@ import { post as postMetadata } from "@lens-protocol/metadata";
 const metadata = postMetadata({
   content: "...",
   attachments: [...],
-  appId: HEY_APP  // Hey app identifier
+  appId: SLICE_APP  // Hey app identifier
 });
 ```
 
@@ -305,7 +305,7 @@ const handleSign = async (account: string) => {
         accountOwner: {
           owner: address,      // Wallet address
           account: account,    // Lens profile address
-          app: IS_MAINNET ? HEY_APP : undefined  // Hey app (only on mainnet)
+          app: IS_MAINNET ? SLICE_APP : undefined  // Hey app (only on mainnet)
         }
       }
     }
@@ -566,10 +566,10 @@ const uploadToIPFS = async (data: FileList | File[]): Promise<UploadResult[]> =>
 |-------------|---------|------------------------|--------------|
 | `packages/data/contracts.ts` | **Khai báo địa chỉ app** | Lưu trữ contract address của Hey app (mainnet + testnet) | `app: "0x688419B0299f3Ed8E80eBCa71ad05Ac23d20822b"` |
 | `packages/data/utils/getEnvConfig.ts` | **Environment configuration** | Map `LENS_NETWORK` → app address tương ứng | `appAddress: TESTNET_CONTRACTS.app` |
-| `packages/data/constants.ts` | **Export global constants** | Export `HEY_APP` để dùng trong toàn bộ app | `export const HEY_APP = getEnvConfig().appAddress` |
-| `apps/web/src/components/Shared/Auth/Login.tsx` | **Authentication** | Pass `HEY_APP` vào challenge request (chỉ trên mainnet) | `app: IS_MAINNET ? HEY_APP : undefined` |
-| `apps/web/src/components/Shared/Auth/Signup/ChooseUsername.tsx` | **Signup flow** | Pass `HEY_APP` vào challenge khi tạo username | `app: IS_MAINNET ? HEY_APP : undefined` |
-| `apps/web/src/hooks/usePostMetadata.tsx` | **Post metadata generation** | Add `appId: HEY_APP` vào post metadata | `postMetadata({ content, appId: HEY_APP })` |
+| `packages/data/constants.ts` | **Export global constants** | Export `SLICE_APP` để dùng trong toàn bộ app | `export const SLICE_APP = getEnvConfig().appAddress` |
+| `apps/web/src/components/Shared/Auth/Login.tsx` | **Authentication** | Pass `SLICE_APP` vào challenge request (chỉ trên mainnet) | `app: IS_MAINNET ? SLICE_APP : undefined` |
+| `apps/web/src/components/Shared/Auth/Signup/ChooseUsername.tsx` | **Signup flow** | Pass `SLICE_APP` vào challenge khi tạo username | `app: IS_MAINNET ? SLICE_APP : undefined` |
+| `apps/web/src/hooks/usePostMetadata.tsx` | **Post metadata generation** | Add `appId: SLICE_APP` vào post metadata | `postMetadata({ content, appId: SLICE_APP })` |
 | `packages/indexer/apollo/httpLink.ts` | **GraphQL HTTP Link** | Thêm header `origin: "https://hey.xyz"` để API accept requests | `headers: { origin: "https://hey.xyz" }` |
 | `apps/web/src/helpers/authLink.ts` | **Authentication middleware** | Thêm JWT token vào mọi GraphQL request | `headers: { "X-Access-Token": accessToken }` |
 | `apps/web/src/helpers/storageClient.ts` | **Decentralized storage** | Khởi tạo Lens storage client để upload files/metadata | `StorageClient.create()` |
@@ -582,9 +582,9 @@ const uploadToIPFS = async (data: FileList | File[]): Promise<UploadResult[]> =>
 
 | Feature | Cách sử dụng App Hey | File liên quan |
 |---------|---------------------|----------------|
-| **Login** | Pass `HEY_APP` vào challenge request để xác thực với Hey app context | `Auth/Login.tsx` |
-| **Signup** | Pass `HEY_APP` vào challenge khi tạo account mới | `Auth/Signup/ChooseUsername.tsx` |
-| **Create Post** | Add `appId: HEY_APP` vào post metadata để đánh dấu post thuộc Hey app | `hooks/usePostMetadata.tsx` |
+| **Login** | Pass `SLICE_APP` vào challenge request để xác thực với Hey app context | `Auth/Login.tsx` |
+| **Signup** | Pass `SLICE_APP` vào challenge khi tạo account mới | `Auth/Signup/ChooseUsername.tsx` |
+| **Create Post** | Add `appId: SLICE_APP` vào post metadata để đánh dấu post thuộc Hey app | `hooks/usePostMetadata.tsx` |
 | **Follow/Unfollow** | GraphQL mutations tự động dùng authenticated session (có context của Hey app) | `Account/Follow.tsx`, `Account/Unfollow.tsx` |
 | **Feed** | Query posts từ Lens API, filter theo app nếu cần | `Home/Feed.tsx` (implicit) |
 | **Profile** | Load user profile từ Lens, không cần explicit app reference | `Account/UserProfilePage.tsx` |
@@ -596,7 +596,7 @@ const uploadToIPFS = async (data: FileList | File[]): Promise<UploadResult[]> =>
 | Variable | Values | Current Default | Set In |
 |----------|--------|-----------------|--------|
 | `LENS_NETWORK` | `mainnet` \| `staging` \| `testnet` | `mainnet` (code) <br> `staging` (docker) | `process.env.LENS_NETWORK` |
-| `HEY_APP` | Auto from `LENS_NETWORK` | Testnet: `0x6884...22b` <br> Mainnet: `0x1eFA...BAA` | `getEnvConfig().appAddress` |
+| `SLICE_APP` | Auto from `LENS_NETWORK` | Testnet: `0x6884...22b` <br> Mainnet: `0x1eFA...BAA` | `getEnvConfig().appAddress` |
 | `LENS_API_URL` | Auto from `LENS_NETWORK` | Staging: `https://api.staging.lens.xyz/graphql` | `getEnvConfig().lensApiEndpoint` |
 | `IS_MAINNET` | Boolean | `false` (using staging) | `LENS_API_URL === LENS_ENDPOINT.Mainnet` |
 
@@ -640,14 +640,14 @@ challenge(request: {
   accountOwner: {
     owner: walletAddress,
     account: profileAddress,
-    app: HEY_APP  // Only on mainnet
+    app: SLICE_APP  // Only on mainnet
   }
 })
 
 // 2. Post Creation
 postMetadata({
   content: "...",
-  appId: HEY_APP  // Mark post as created via Hey
+  appId: SLICE_APP  // Mark post as created via Hey
 })
 
 // 3. GraphQL Requests
@@ -666,7 +666,7 @@ storageClient.uploadAsJson(metadata, {
 
 1. **App ID chỉ dùng trên Mainnet:**
    ```typescript
-   app: IS_MAINNET ? HEY_APP : undefined
+   app: IS_MAINNET ? SLICE_APP : undefined
    ```
    - Testnet/Staging: `app` field = `undefined`
    - Mainnet: `app` field = `0x1eFA...BAA`
