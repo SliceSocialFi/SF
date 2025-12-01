@@ -17,6 +17,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      console.log('Đã nhận message:', event);
       if (event.origin !== SUPER_APP_ORIGIN) {
         console.warn('Nhận message từ nguồn không xác định:', event.origin);
         return;
