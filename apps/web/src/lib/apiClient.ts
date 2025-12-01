@@ -260,24 +260,55 @@ export default class ApiClient {
 
   // ==================== NOTIFICATIONS ====================
   
-  async getNotifications(): Promise<any[]> {
-    return this.request('/notifications', { method: 'GET' })
-  }
-
+  /**
+   * Get unread notification count
+   * @returns Promise<{ count: number }>
+   */
   async getUnreadCount(): Promise<{ count: number }> {
-    return this.request('/notifications/unread', { method: 'GET' })
+    return this.request('/notifications/unread-count', { method: 'GET' })
   }
 
-  async markNotificationAsRead(notificationId: string) {
-    return this.request(`/notifications/${encodeURIComponent(notificationId)}/read`, { method: 'PUT' })
+  /**
+   * Get notifications with pagination
+   * @param params - { limit?: number, offset?: number }
+   * @returns Promise<any[]>
+   */
+  async getNotifications(params?: { limit?: number; offset?: number }): Promise<any[]> {
+    const queryParams = new URLSearchParams()
+    if (params?.limit !== undefined) queryParams.append('limit', String(params.limit))
+    if (params?.offset !== undefined) queryParams.append('offset', String(params.offset))
+    
+    const path = queryParams.toString() ? `/notifications?${queryParams.toString()}` : '/notifications'
+    const notifications = await this.request(path, { method: 'GET' })
+    
+    // Map to include metadata for navigation
+    return Array.isArray(notifications) ? notifications.map((n: any) => ({
+      ...n,
+      metadata: {
+        taskId: n.relatedTaskId,
+        applicationId: n.relatedApplicationId
+      }
+    })) : []
+  }
+
+  /**
+   * Mark a notification as read
+   * @param id - Notification ID
+   */
+  async markNotificationAsRead(id: string) {
+    return this.request(`/notifications/${encodeURIComponent(id)}/read`, { method: 'PATCH' })
   }
 
   async markAllNotificationsAsRead() {
-    return this.request('/notifications/read-all', { method: 'PUT' })
+    return this.request('/notifications/mark-all-read', { method: 'PATCH' })
   }
 
   async deleteNotification(notificationId: string) {
     return this.request(`/notifications/${encodeURIComponent(notificationId)}`, { method: 'DELETE' })
+  }
+
+  async unreadCount(): Promise<{ count: number }> {
+    return this.request('/notifications/unread-count', { method: 'GET' })
   }
 
   // ==================== ESCROW ====================

@@ -22,12 +22,21 @@ export const cursorBasedPagination = <T extends CursorBasedPagination>(
       const existingItems = existing.items || [];
       const incomingItems = incoming.items || [];
 
-      // Check if this is a fetchMore call (has cursor in args) or a new query
-      const isFetchMore = args?.request?.cursor;
-      
+      // Deduplicate items based on __ref or id
+      const existingIds = new Set(
+        existingItems.map((item: any) => 
+          item?.__ref || item?.id || JSON.stringify(item)
+        )
+      );
+
+      const newItems = incomingItems.filter((item: any) => {
+        const itemId = item?.__ref || item?.id || JSON.stringify(item);
+        return !existingIds.has(itemId);
+      });
+
       return {
         ...incoming,
-        items: isFetchMore ? existingItems?.concat(incomingItems) : incomingItems,
+        items: existingItems?.concat(newItems),
         pageInfo: incoming.pageInfo
       } as SafeReadonly<T>;
     },

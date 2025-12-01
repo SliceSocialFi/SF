@@ -24,6 +24,9 @@ importers:
       '@biomejs/biome':
         specifier: ^2.2.4
         version: 2.2.4
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -2915,6 +2918,9 @@ packages:
   '@types/node@22.7.5':
     resolution: {integrity: sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==}
 
+  '@types/node@24.10.1':
+    resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
   '@types/node@24.5.2':
     resolution: {integrity: sha512-FYxk1I7wPv3K2XBaoyH2cTnocQEu8AOZ60hPbsyukMPLv5/5qr7V1i8PLHdl6Zf87I+xZXFvPCXYjiTFq+YSDQ==}
 
@@ -5626,6 +5632,9 @@ packages:
 
   undici-types@7.12.0:
     resolution: {integrity: sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==}
+
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   unicode-word-regex@1.1.0:
     resolution: {integrity: sha512-2HlIXyag8yi0+AsB1Rx88gSuzw4hS/PgrcTbzkqIW/RBdi2VSp1rRr55RS+HszErwlSRAoA9jhM6L/x+xtu41w==}
@@ -10010,6 +10019,10 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
+  '@types/node@24.10.1':
+    dependencies:
+      undici-types: 7.16.0
+
   '@types/node@24.5.2':
     dependencies:
       undici-types: 7.12.0
@@ -10032,7 +10045,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.5.2
+      '@types/node': 24.10.1
 
   '@uidotdev/usehooks@2.4.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
@@ -13480,6 +13493,8 @@ snapshots:
   undici-types@6.19.8: {}
 
   undici-types@7.12.0: {}
+
+  undici-types@7.16.0: {}
 
   unicode-word-regex@1.1.0: {}
 

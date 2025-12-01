@@ -36,6 +36,11 @@ const TaskDetailModal = ({
 
   if (!task) return null;
 
+  // Check if deadline has passed
+  const isDeadlinePassed = task.deadline
+    ? new Date() > new Date(task.deadline)
+    : false;
+
   const isOwner =
     task.employerProfileId?.toLowerCase() ===
     currentAccount?.address?.toLowerCase();
@@ -55,6 +60,67 @@ const TaskDetailModal = ({
     myApplication &&
     ((myApplication as any).status === "accepted" ||
       (myApplication as any).status === "needs_revision");
+
+  // Logic to determine who can release funds after deadline
+  const getDeadlineActionState = () => {
+    if (!isDeadlinePassed)
+      return {
+        canClaim: false,
+        message: null,
+        actionType: null,
+        recipientAddress: null,
+      };
+
+    const isEmployer =
+      currentAccount?.address?.toLowerCase() ===
+      task.employerProfileId?.toLowerCase();
+    const isFreelancer =
+      task.freelancerProfileId &&
+      currentAccount?.address?.toLowerCase() ===
+        task.freelancerProfileId.toLowerCase();
+
+    // Check if Freelancer has pending submission (in_review or submitted)
+    const hasPendingSubmission = task.applicants.some(
+      (app) =>
+        (app as any).status === "in_review" ||
+        ((app as any).status === "accepted" && (app as any).outcome)
+    );
+
+    // CASE A: Freelancer didn't submit (Deadline passed & No submission)
+    // -> Employer can claim refund
+    if (isEmployer && !hasPendingSubmission) {
+      return {
+        canClaim: true,
+        actionType: "REFUND",
+        recipientAddress: task.employerProfileId,
+        message:
+          "Freelancer did not submit work before deadline. You can claim refund.",
+      };
+    }
+
+    // CASE B: Employer didn't respond (Deadline passed & Work submitted & Not approved)
+    // -> Freelancer can claim payment
+    if (isFreelancer && hasPendingSubmission) {
+      return {
+        canClaim: true,
+        actionType: "CLAIM",
+        recipientAddress: task.freelancerProfileId,
+        message:
+          "You submitted work but employer did not respond before deadline. You can claim payment.",
+      };
+    }
+
+    // CASE C: User has no authority (Read-only view)
+    return {
+      canClaim: false,
+      actionType: null,
+      recipientAddress: null,
+      message:
+        "Task has passed deadline. Waiting for the other party to process fund release/refund.",
+    };
+  };
+
+  const deadlineAction = getDeadlineActionState();
 
   // Check if user is freelancer (assigned to task)
   const isFreelancer =
@@ -117,7 +183,8 @@ const TaskDetailModal = ({
       type: "applications",
     },
   ];
-  if (canSubmitOutcome) {
+  // Hide Submit Work tab when deadline has passed
+  if (canSubmitOutcome && !isDeadlinePassed) {
     tabList.push({ name: "Submit Work", type: "submit work" });
   }
   // Add Escrow tab for employer or assigned freelancer
@@ -240,6 +307,45 @@ const TaskDetailModal = ({
                   </p>
                 </div>
               )}
+
+              {/* Deadline Passed Warning & Release Fund Action */}
+              {isDeadlinePassed && (
+                <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+                  <h6 className="mb-2 font-semibold text-orange-800 dark:text-orange-300">
+                    ⚠️ Task Deadline Has Passed
+                  </h6>
+                  {deadlineAction.canClaim ? (
+                    <div className="space-y-3">
+                      <p className="text-orange-700 text-sm dark:text-orange-200">
+                        {deadlineAction.message}
+                      </p>
+                      <div className="rounded-lg border border-orange-300 bg-white p-3 dark:border-orange-700 dark:bg-gray-800">
+                        <p className="mb-2 font-medium text-gray-700 text-sm dark:text-gray-300">
+                          Action Type:{" "}
+                          <span className="text-orange-600 dark:text-orange-400">
+                            {deadlineAction.actionType}
+                          </span>
+                        </p>
+                        <p className="mb-3 text-gray-600 text-xs dark:text-gray-400">
+                          Funds will be released to:{" "}
+                          {deadlineAction.recipientAddress?.slice(0, 10)}...
+                          {deadlineAction.recipientAddress?.slice(-8)}
+                        </p>
+                        <Button
+                          className="w-full"
+                          onClick={() => setActiveTab("applications")}
+                        >
+                          Go to Release Funds
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-orange-700 text-sm dark:text-orange-200">
+                      {deadlineAction.message}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {/* Always mount ApplicationList to keep hook order stable; hide when not active */}
@@ -256,6 +362,9 @@ const TaskDetailModal = ({
               onOpenRate={(id: string) => setRatingAppId(id)}
               taskExternalId={task.id}
               taskRewardAmount={task.rewardPoints?.toString() || "100"}
+              taskDeadline={task.deadline}
+              employerAddress={task.employerProfileId}
+              freelancerAddress={task.freelancerProfileId || undefined}
             />
           </div>
           {/* Submit Work Tab */}
