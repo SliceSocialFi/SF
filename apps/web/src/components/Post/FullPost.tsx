@@ -42,14 +42,19 @@ const FullPost = ({ hasHiddenComments, post }: FullPostProps) => {
   }
 
   return (
-    <article className="p-5">
+    <article className="px-5 pt-4 pb-3">
       <PostType post={post} showType />
       <div className="flex items-start gap-x-3">
         <PostAvatar post={post} />
         <div className="flex-1 min-w-0">
           <PostHeader post={targetPost} />
           {targetPost.isDeleted ? (
-            <HiddenPost type={targetPost.__typename} />
+            <>
+              <div className="mt-2 mb-3">This post has been deleted.</div>
+              <div className="my-3 flex items-center text-gray-500 text-sm dark:text-gray-200">
+                {dayjs(timestamp).format("h:mm A · MMM D, YYYY")}
+              </div>
+            </>
           ) : (
             <>
               <PostBody
@@ -63,44 +68,42 @@ const FullPost = ({ hasHiddenComments, post }: FullPostProps) => {
                   ? ` · ${targetPost.app?.metadata?.name}`
                   : null}
               </div>
-              <PostStats post={targetPost} />
-              <div className="divider mb-5" />
             </>
           )}
+          <PostStats post={targetPost} />
+          <div className="divider mb-5" />
         </div>
       </div>
-      {!targetPost.isDeleted && (
-        <div className="flex items-center justify-between">
-          <PostActions post={targetPost} showCount />
-          {hasHiddenComments ? (
-            <div className="mt-2">
-              <button
-                aria-label="Like"
-                className={cn(
+      <div className="flex items-center justify-between">
+        <PostActions post={targetPost} showCount />
+        {hasHiddenComments ? (
+          <div className="mt-2">
+            <button
+              aria-label="Like"
+              className={cn(
+                showHiddenComments
+                  ? "text-black hover:bg-gray-500/20"
+                  : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
+                "rounded-full p-1.5 outline-offset-2"
+              )}
+              onClick={() => setShowHiddenComments(!showHiddenComments)}
+              type="button"
+            >
+              <Tooltip
+                content={
                   showHiddenComments
-                    ? "text-black hover:bg-gray-500/20"
-                    : "text-gray-500 hover:bg-gray-300/20 dark:text-gray-200",
-                  "rounded-full p-1.5 outline-offset-2"
-                )}
-                onClick={() => setShowHiddenComments(!showHiddenComments)}
-                type="button"
+                    ? "Hide hidden comments"
+                    : "Show hidden comments"
+                }
+                placement="top"
+                withDelay
               >
-                <Tooltip
-                  content={
-                    showHiddenComments
-                      ? "Hide hidden comments"
-                      : "Show hidden comments"
-                  }
-                  placement="top"
-                  withDelay
-                >
-                  <QueueListIcon className="size-5" />
-                </Tooltip>
-              </button>
-            </div>
-          ) : null}
-        </div>
-      )}
+                <QueueListIcon className="size-5" />
+              </Tooltip>
+            </button>
+          </div>
+        ) : null}
+      </div>
     </article>
   );
 };
