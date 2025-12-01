@@ -14,7 +14,7 @@ const RewardsSettings = () => {
 
   return (
     <PageLayout title="Rewards">
-      <Card>
+      <Card className="mx-2 sm:mx-0">
         <CardHeader icon={<BackButton path="/settings" />} title="Rewards" />
         <List />
       </Card>

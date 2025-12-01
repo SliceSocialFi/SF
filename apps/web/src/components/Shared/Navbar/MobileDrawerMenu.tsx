@@ -32,7 +32,7 @@ const MobileDrawerMenu = () => {
       <button className="px-5" onClick={handleCloseDrawer} type="button">
         <XMarkIcon className="size-6" />
       </button>
-      <div className="w-full space-y-2">
+      <div className="w-full space-y-2 px-3">
         <AccountLink
           account={currentAccount as AccountFragment}
           className="mt-2 flex items-center space-x-2 px-5 py-3 hover:bg-gray-200 dark:hover:bg-gray-800"
@@ -44,13 +44,10 @@ const MobileDrawerMenu = () => {
             showUserPreview={false}
           />
         </AccountLink>
-        <div className="bg-white dark:bg-gray-900">
-          <div className="divider" />
+        <div className="bg-white dark:bg-[#121212] border-gray-200 rounded-lg overflow-hidden">
           <SwitchAccount className={cn(itemClass, "px-4")} />
-          <div className="divider" />
         </div>
-        <div className="bg-white dark:bg-gray-900">
-          <div className="divider" />
+        <div className="bg-white dark:bg-[#121212] rounded-lg overflow-hidden">
           <div>
             <AccountLink
               account={currentAccount as AccountFragment}
@@ -74,24 +71,19 @@ const MobileDrawerMenu = () => {
               <Bookmarks className={cn(itemClass, "px-4")} />
             </Link>
           </div>
-          <div className="divider" />
         </div>
-        <div className="bg-white dark:bg-gray-900">
-          <div className="divider" />
+        <div className="bg-white dark:bg-[#121212] rounded-lg overflow-hidden">
           <Link onClick={handleCloseDrawer} to="/support">
             <Support className={cn(itemClass, "px-4")} />
           </Link>
-          <div className="divider" />
         </div>
-        <div className="bg-white dark:bg-gray-900">
-          <div className="divider" />
+        <div className="bg-white dark:bg-[#121212] rounded-lg overflow-hidden">
           <div className="hover:bg-gray-100 dark:hover:bg-gray-800">
             <Logout
               className={cn(itemClass, "px-4 py-3")}
               onClick={handleCloseDrawer}
             />
           </div>
-          <div className="divider" />
         </div>
       </div>
     </div>

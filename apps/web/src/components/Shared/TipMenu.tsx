@@ -198,6 +198,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       </div>
       <div className="space-x-4">
         <Button
+          className="button-animated"
           disabled={amountDisabled}
           onClick={() => handleSetAmount(1)}
           outline={amount !== 1}
@@ -206,6 +207,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           1
         </Button>
         <Button
+          className="button-animated"
           disabled={amountDisabled}
           onClick={() => handleSetAmount(2)}
           outline={amount !== 2}
@@ -214,6 +216,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           2
         </Button>
         <Button
+          className="button-animated"
           disabled={amountDisabled}
           onClick={() => handleSetAmount(5)}
           outline={amount !== 5}
@@ -222,6 +225,7 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
           5
         </Button>
         <Button
+          className="button-animated"
           disabled={amountDisabled}
           onClick={() => {
             handleSetAmount(other ? 1 : 10);

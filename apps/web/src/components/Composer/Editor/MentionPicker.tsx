@@ -63,7 +63,7 @@ const MentionPicker = () => {
   return (
     <AutocompletePopover
       className={cn(
-        "z-10 block w-52 rounded-xl border border-gray-200 bg-white p-0 shadow-xs dark:border-gray-700 dark:bg-gray-900",
+        "z-10 block w-52 rounded-xl border border-gray-200 bg-white p-0 shadow-xs dark:border-gray-700 dark:bg-[#121212]",
         !results.length && "hidden"
       )}
       offset={10}
