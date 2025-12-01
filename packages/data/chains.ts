@@ -17,7 +17,7 @@ export const TESTNET_CHAINS = {
         }
     },
     bsc: {
-        name: "BNB Testnet",
+        name: "BSC Testnet",
         chainId: 97,
         icon: "/bsc-logo.png",
         token: {

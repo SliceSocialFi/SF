@@ -21,10 +21,12 @@ const TaskDetailModal = ({
   task,
   isOpen,
   onClose,
+  onTaskUpdated,
 }: {
   task: TaskItem | null;
   isOpen: boolean;
   onClose: () => void;
+  onTaskUpdated?: (updatedTask: TaskItem) => void;
 }) => {
   const [activeTab, setActiveTab] = useState<
     "details" | "applications" | "submit work" | "escrow"
@@ -179,14 +181,52 @@ const TaskDetailModal = ({
 
     setIsExtending(true);
     try {
+      // 1. Update deadline on backend
       await apiClient.updateTask(task.id, {
         deadline: newDeadline,
       });
 
+      // 2. Fetch fresh task data to ensure all state is current
+      const freshTask = await apiClient.getTask(task.id);
+
+      // 3. Parse fresh task data (same logic as TaskDetailPage)
+      const updatedTaskData: TaskItem = {
+        id: freshTask.id,
+        title: freshTask.title,
+        description: freshTask.description,
+        objective: freshTask.objective,
+        deliverables: freshTask.deliverables,
+        acceptanceCriteria: freshTask.acceptanceCriteria,
+        skills: freshTask.skills || [],
+        location: freshTask.location || "",
+        salary: freshTask.salary || "",
+        status: freshTask.status,
+        rewardPoints: freshTask.rewardPoints,
+        rewardTokens: freshTask.rewardPoints || 0,
+        employerProfileId: freshTask.employerProfileId,
+        freelancerProfileId: freshTask.freelancerProfileId,
+        createdAt: freshTask.createdAt,
+        deadline: freshTask.deadline,
+        applicants: freshTask.applications || [],
+        companyLogo: "",
+        companyName: "",
+        jobTitle: freshTask.title,
+        postedDays: 0,
+        employerName: freshTask.employerName || "",
+        employerAvatar: freshTask.employerAvatar || "",
+        owner: {
+          id: freshTask.employerProfileId,
+          name: freshTask.employerName || "",
+        },
+      };
+
+      // 4. Notify parent component to update selectedTask
+      onTaskUpdated?.(updatedTaskData);
+
       toast.success("Task deadline extended successfully!");
       setShowExtendModal(false);
       setNewDeadline("");
-      handleApplicationUpdate(); // Refresh task data
+      handleApplicationUpdate(); // Close modal after successful action
     } catch (err: any) {
       console.error("Failed to extend deadline", err);
       toast.error(err?.body?.message || "Failed to extend deadline");

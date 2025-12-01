@@ -22,10 +22,47 @@ import getAvatar from "@slice/helpers/getAvatar";
 import { DEFAULT_AVATAR } from "@slice/data/constants";
 import type { Notification } from "@/types/task-api";
 import { NotificationFeedType } from "@slice/data/enums";
+import { useAccountQuery } from "@slice/indexer";
 import FeedType from "./FeedType";
 import List from "./List";
 
+// Extended notification type with resolved sender info
+interface NotificationWithSender extends Notification {
+  resolvedSenderName?: string;
+  resolvedSenderAvatar?: string;
+}
+
 const NOTIFICATIONS_PER_PAGE = 10;
+
+// Regex to match Ethereum addresses (0x followed by 40 hex characters)
+const ETH_ADDRESS_REGEX = /0x[a-fA-F0-9]{40}/g;
+
+/**
+ * Format notification message by removing wallet addresses
+ * and cleaning up the text
+ */
+const formatNotificationMessage = (
+  message: string,
+  senderName?: string
+): string => {
+  if (!message) return "";
+
+  // Replace wallet addresses with sender name or remove them
+  let formatted = message.replace(ETH_ADDRESS_REGEX, senderName || "").trim();
+
+  // Clean up extra spaces and fix grammar
+  formatted = formatted
+    .replace(/\s+/g, " ") // Multiple spaces to single space
+    .replace(/^\s*has\s+/i, "") // Remove leading "has" if message starts with it
+    .trim();
+
+  // Capitalize first letter
+  if (formatted.length > 0) {
+    formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  }
+
+  return formatted;
+};
 
 /**
  * NotificationItem Component - Refactored with professional UI
@@ -36,12 +73,25 @@ const NotificationItem = ({
   onMarkAsRead,
   onClick,
 }: {
-  notification: Notification;
+  notification: NotificationWithSender;
   onMarkAsRead: (id: string) => void;
-  onClick: (notification: Notification) => void;
+  onClick: (notification: NotificationWithSender) => void;
 }) => {
-  const avatarUrl = notification.sender?.avatar || DEFAULT_AVATAR;
-  const senderName = notification.sender?.username || "System";
+  // Use resolved sender name/avatar (from Lens profile), fallback to API data, then "System"
+  const avatarUrl =
+    notification.resolvedSenderAvatar ||
+    notification.sender?.avatar ||
+    DEFAULT_AVATAR;
+  const senderName =
+    notification.resolvedSenderName ||
+    notification.sender?.username ||
+    "System";
+
+  // Format message to remove wallet addresses
+  const formattedMessage = formatNotificationMessage(
+    notification.message,
+    senderName
+  );
 
   return (
     <Card
@@ -93,10 +143,12 @@ const NotificationItem = ({
             </span>
           </div>
 
-          {/* Message */}
-          <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
-            {notification.message}
-          </p>
+          {/* Message - only show if there's content after formatting */}
+          {formattedMessage && (
+            <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
+              {formattedMessage}
+            </p>
+          )}
 
           {/* Type Badge */}
           {notification.type && (
@@ -158,17 +210,21 @@ const NotificationsPage = () => {
     NotificationFeedType.All
   );
 
+  // State for notifications with resolved sender info
+  const [notificationsWithSender, setNotificationsWithSender] = useState<
+    NotificationWithSender[]
+  >([]);
+
   // Load hidden notification IDs from localStorage
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => {
     const stored = localStorage.getItem("hiddenNotifications");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 
-  // Fetch all notifications (paginate client-side like Tasks)
+  // Fetch all notifications first (paginate client-side like Tasks)
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["notifications", "list"],
     queryFn: async () => {
-      // Fetch all notifications without limit
       const notifications = await apiClient.getNotifications({ limit: 999 });
       return notifications;
     },
@@ -177,8 +233,82 @@ const NotificationsPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  // Filter out hidden notifications
-  const allNotifications = (data ?? []).filter((n) => !hiddenIds.has(n.id));
+  // useAccountQuery for fetching user metadata from Lens
+  // Similar pattern to ApplicationList.tsx
+  const { fetchMore } = useAccountQuery({
+    skip: !data || data.length === 0,
+    variables: {
+      request: {
+        address: data?.[0]?.senderProfileId || "",
+      },
+    },
+  });
+
+  // Function to get username by profileId from Lens
+  const getUsernameByProfileId = async (profileId: string) => {
+    if (!profileId) return null;
+    try {
+      const result = await fetchMore({
+        variables: {
+          request: {
+            address: profileId,
+          },
+        },
+      });
+      return {
+        name: result?.data?.account?.metadata?.name,
+        avatar: result?.data?.account?.metadata?.picture,
+      };
+    } catch (error) {
+      console.error("Error fetching account data for:", profileId, error);
+      return null;
+    }
+  };
+
+  // Resolve sender names when notifications data changes
+  useEffect(() => {
+    const resolveSenderNames = async () => {
+      if (!data || data.length === 0) {
+        setNotificationsWithSender([]);
+        return;
+      }
+
+      const notificationsData = data.filter(
+        (n: Notification) => !hiddenIds.has(n.id)
+      );
+
+      // Resolve sender info for each notification with senderProfileId
+      const resolved = await Promise.all(
+        notificationsData.map(async (notification: Notification) => {
+          if (notification.senderProfileId) {
+            const metadata = await getUsernameByProfileId(
+              notification.senderProfileId
+            );
+            return {
+              ...notification,
+              resolvedSenderName:
+                metadata?.name || notification.sender?.username || "System",
+              resolvedSenderAvatar:
+                metadata?.avatar || notification.sender?.avatar,
+            };
+          }
+          return {
+            ...notification,
+            resolvedSenderName: notification.sender?.username || "System",
+            resolvedSenderAvatar: notification.sender?.avatar,
+          };
+        })
+      );
+
+      setNotificationsWithSender(resolved);
+    };
+
+    resolveSenderNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, hiddenIds]);
+
+  // Filter out hidden notifications (using resolved notifications)
+  const allNotifications = notificationsWithSender;
 
   // Reset to page 0 when filter changes
   useEffect(() => {
@@ -250,7 +380,9 @@ const NotificationsPage = () => {
     toast.success(`${idsToHide.length} notifications hidden`);
   };
 
-  const handleNotificationClick = async (notification: Notification) => {
+  const handleNotificationClick = async (
+    notification: NotificationWithSender
+  ) => {
     // 1. Mark as read if not already
     if (!notification.isRead) {
       handleMarkAsRead(notification.id);
