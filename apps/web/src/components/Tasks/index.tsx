@@ -214,6 +214,15 @@ const Tasks = () => {
     setSelectedTask(null);
   }, []);
 
+  const handleTaskUpdated = useCallback((updatedTask: TaskItem) => {
+    // Update the selectedTask with fresh data from backend
+    setSelectedTask(updatedTask);
+    // Also update it in the tasks list
+    setTasks((prevTasks) =>
+      prevTasks.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+    );
+  }, []);
+
   const handleDeleteTask = async (taskId: string, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening modal when clicking delete
 
@@ -344,6 +353,7 @@ const Tasks = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         task={selectedTask}
+        onTaskUpdated={handleTaskUpdated}
       />
 
       {/* Floating Action Button for Mobile */}
