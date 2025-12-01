@@ -277,23 +277,26 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-      <StickyFeedBar>
-        {/* Mobile Header with Search */}
-        <MobileHeader searchPlaceholder="Search tasks..." />
-        <div className="px-5 md:px-0">
-          <Tabs
-            active={activeTab}
-            className="mb-0"
-            layoutId="task_tabs"
-            setActive={(type) => setActiveTab(type as TaskFeedType)}
-            tabs={[
-              { name: "Tasks List", type: TaskFeedType.All },
-              { name: "My Tasks", type: TaskFeedType.MyTasks },
-              { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
-            ]}
-          />
-        </div>
-      </StickyFeedBar>
+      {!showMobileDrawer && (
+        <StickyFeedBar
+          header={<MobileHeader searchPlaceholder="Search tasks..." />}
+          tabs={
+            <div className="px-5 md:px-0">
+              <Tabs
+                active={activeTab}
+                className="mb-0"
+                layoutId="task_tabs"
+                setActive={(type) => setActiveTab(type as TaskFeedType)}
+                tabs={[
+                  { name: "Tasks List", type: TaskFeedType.All },
+                  { name: "My Tasks", type: TaskFeedType.MyTasks },
+                  { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
+                ]}
+              />
+            </div>
+          }
+        />
+      )}
 
       <div className="space-y-6">
         <div className="space-y-4 px-3">

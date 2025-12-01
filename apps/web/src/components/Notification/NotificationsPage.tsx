@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/apiClient";
 import { useNotificationStore } from "@/store/non-persisted/useNotificationStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import NotLoggedIn from "@/components/Shared/NotLoggedIn";
 import PageLayout from "@/components/Shared/PageLayout";
 import MobileHeader from "@/components/Shared/MobileHeader";
@@ -195,6 +196,7 @@ const NotificationItem = ({
  */
 const NotificationsPage = () => {
   const { currentAccount } = useAccountStore();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
@@ -457,11 +459,11 @@ const NotificationsPage = () => {
   return (
     <PageLayout title="Task Notifications">
       {/* Tabs Navigation */}
-      <StickyFeedBar>
-        {/* Mobile Header */}
-        <MobileHeader searchPlaceholder="Search notifications..." />
-
-        <div className="px-5 md:px-0">
+      {!showMobileDrawer && (
+        <StickyFeedBar
+          header={<MobileHeader searchPlaceholder="Search notifications..." />}
+          tabs={
+            <div className="px-5 md:px-0">
           <Tabs
             active={filter}
             className="mb-0"
@@ -545,7 +547,10 @@ const NotificationsPage = () => {
             </button>
           </div>
         )}
-      </StickyFeedBar>
+            </div>
+          }
+        />
+      )}
 
       {/* Notifications List */}
       <div className="space-y-3 px-3">

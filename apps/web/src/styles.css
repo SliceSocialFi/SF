@@ -28,6 +28,10 @@
 }
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
   :root {
     @apply text-black dark:text-white;
     font-family: var(--font-system);
@@ -81,6 +85,13 @@
   /* Input & Form elements */
   input, textarea, select {
     font-weight: 400; /* Regular */
+  }
+
+  /* Prevent iOS zoom on input focus */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
 
   /* Labels */
