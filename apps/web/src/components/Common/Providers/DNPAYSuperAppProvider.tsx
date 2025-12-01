@@ -22,7 +22,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
         return;
       }
 
-      if (event.data?.type === 'IFRAME_RESPONSE') {
+      if (event.data?.type === 'START_EVENT') {
         const apiKey = event.data;
         console.log('Đã nhận API Key từ Super App:', apiKey);
         setApiKey(event.data.apiKey);
@@ -50,7 +50,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
     }
 
     iframe.contentWindow.postMessage(
-      { type: 'IFRAME_RESPONSE' },
+      { type: 'START_EVENT' },
       SUPER_APP_ORIGIN
     );
 
