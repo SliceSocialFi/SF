@@ -2,13 +2,11 @@ import { NotificationFeedType } from "@slice/data/enums";
 import { useState } from "react";
 import NotLoggedIn from "@/components/Shared/NotLoggedIn";
 import PageLayout from "@/components/Shared/PageLayout";
-import MobileHeader from "@/components/Shared/MobileHeader";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import FeedType from "./FeedType";
 import List from "./List";
-import StickyFeedBar from "../Home/StickyFeedbar";
 
-const Notification = () => {
+const SocialNotification = () => {
   const { currentAccount } = useAccountStore();
   const [feedType, setFeedType] = useState<NotificationFeedType>(
     NotificationFeedType.All
@@ -19,14 +17,11 @@ const Notification = () => {
   }
 
   return (
-    <PageLayout title="Notifications">
-      <StickyFeedBar>
-        <MobileHeader searchPlaceholder="Search notifications..." />
-        <FeedType feedType={feedType} setFeedType={setFeedType} />
-      </StickyFeedBar>
+    <PageLayout title="Social Notifications">
+      <FeedType feedType={feedType} setFeedType={setFeedType} />
       <List feedType={feedType} />
     </PageLayout>
   );
 };
 
-export default Notification;
+export default SocialNotification;

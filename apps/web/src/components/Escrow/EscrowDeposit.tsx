@@ -21,7 +21,9 @@ interface EscrowDepositProps {
   freelancerAddress?: string;
   defaultAmount?: string;
   defaultDeadlineDays?: number;
+  taskDeadline?: string; // ISO date string for absolute deadline
   onSuccess?: (txHash: string, onChainTaskId?: string) => void;
+  readOnly?: boolean;
 }
 
 export function EscrowDeposit({
@@ -29,16 +31,49 @@ export function EscrowDeposit({
   freelancerAddress: defaultFreelancer,
   defaultAmount = "100",
   defaultDeadlineDays = 7,
+  taskDeadline,
   onSuccess,
+  readOnly = false,
 }: EscrowDepositProps) {
   const { isConnected, signer, connect } = useWallet();
   const [freelancerAddress, setFreelancerAddress] = useState(
     defaultFreelancer || ""
   );
   const [amount, setAmount] = useState(defaultAmount);
-  const [deadlineDays, setDeadlineDays] = useState(
-    defaultDeadlineDays.toString()
-  );
+
+  // Calculate deadline days from task deadline or use default
+  const calculateDeadlineDays = () => {
+    if (taskDeadline) {
+      const taskDeadlineDate = new Date(taskDeadline);
+      const daysRemaining = Math.max(
+        1,
+        Math.ceil(
+          (taskDeadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+        )
+      );
+      console.log("🔍 Task Deadline:", taskDeadline);
+      console.log("📅 Days Remaining:", daysRemaining);
+      console.log("🎯 Deadline Date:", taskDeadlineDate.toLocaleString());
+      return daysRemaining.toString();
+    }
+    console.log(
+      "⚠️ No taskDeadline provided, using default:",
+      defaultDeadlineDays
+    );
+    return defaultDeadlineDays.toString();
+  };
+
+  const [deadlineDays, setDeadlineDays] = useState(calculateDeadlineDays());
+
+  // Calculate actual deadline unix timestamp
+  const getDeadlineUnix = () => {
+    if (taskDeadline) {
+      // Use absolute task deadline
+      return Math.floor(new Date(taskDeadline).getTime() / 1000);
+    }
+    // Fallback: calculate from days
+    return Math.floor(Date.now() / 1000) + Number(deadlineDays) * 86400;
+  };
 
   const { deposit, isDepositing } = useEscrow({
     onSuccess: (tx) => {
@@ -86,9 +121,8 @@ export function EscrowDeposit({
       // Parse amount to wei (assuming 18 decimals)
       const amountWei = parseUnits(amount, 18);
 
-      // Calculate deadline (current time + days)
-      const deadlineUnix =
-        Math.floor(Date.now() / 1000) + Number(deadlineDays) * 86400;
+      // Get deadline unix timestamp
+      const deadlineUnix = getDeadlineUnix();
 
       await deposit({
         freelancerAddress,
@@ -135,7 +169,8 @@ export function EscrowDeposit({
             value={freelancerAddress}
             onChange={(e) => setFreelancerAddress(e.target.value)}
             placeholder="0x..."
-            disabled={isDepositing}
+            disabled={readOnly || isDepositing}
+            className={readOnly ? "bg-gray-100 dark:bg-gray-800" : ""}
           />
         </div>
 
@@ -148,7 +183,8 @@ export function EscrowDeposit({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="100"
-            disabled={isDepositing}
+            disabled={readOnly || isDepositing}
+            className={readOnly ? "bg-gray-100 dark:bg-gray-800" : ""}
           />
         </div>
 
@@ -161,26 +197,33 @@ export function EscrowDeposit({
             value={deadlineDays}
             onChange={(e) => setDeadlineDays(e.target.value)}
             placeholder="7"
-            disabled={isDepositing}
+            disabled={readOnly || isDepositing}
+            className={readOnly ? "bg-gray-100 dark:bg-gray-800" : ""}
           />
         </div>
 
         <div className="flex gap-3 border-gray-200 border-t pt-4 dark:border-gray-700">
-          <Button
-            onClick={handleDiagnose}
-            disabled={!isConnected}
-            outline
-            className="flex-1"
-          >
-            Run Diagnostic
-          </Button>
+          {!readOnly && (
+            <Button
+              onClick={handleDiagnose}
+              disabled={!isConnected}
+              outline
+              className="flex-1"
+            >
+              Run Diagnostic
+            </Button>
+          )}
           <Button
             onClick={handleDeposit}
             loading={isDepositing}
             disabled={isDepositing}
-            className="flex-1"
+            className={readOnly ? "w-full" : "flex-1"}
           >
-            {isDepositing ? "Depositing..." : "Deposit Funds"}
+            {isDepositing
+              ? "Depositing..."
+              : readOnly
+              ? "Confirm & Deposit"
+              : "Deposit Funds"}
           </Button>
         </div>
 

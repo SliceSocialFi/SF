@@ -3,7 +3,7 @@ import { NotificationFeedType } from "@slice/data/enums";
 import {
   type NotificationRequest,
   NotificationType,
-  useNotificationsQuery
+  useNotificationsQuery,
 } from "@slice/indexer";
 import { memo, useCallback, useEffect } from "react";
 import { WindowVirtualizer } from "virtua";
@@ -31,7 +31,7 @@ const notificationComponentMap = {
   QuoteNotification,
   ReactionNotification,
   RepostNotification,
-  TokenDistributedNotification
+  TokenDistributedNotification,
 } as const;
 
 interface ListProps {
@@ -63,12 +63,12 @@ const List = ({ feedType }: ListProps) => {
   const request: NotificationRequest = {
     filter: {
       includeLowScore: false,
-      notificationTypes: getNotificationType()
-    }
+      notificationTypes: getNotificationType(),
+    },
   };
 
   const { data, error, fetchMore, loading } = useNotificationsQuery({
-    variables: { request }
+    variables: { request },
   });
 
   const notifications = data?.notifications?.items;
@@ -93,7 +93,7 @@ const List = ({ feedType }: ListProps) => {
   const handleEndReached = useCallback(async () => {
     if (hasMore) {
       await fetchMore({
-        variables: { request: { ...request, cursor: pageInfo?.next } }
+        variables: { request: { ...request, cursor: pageInfo?.next } },
       });
     }
   }, [fetchMore, hasMore, pageInfo?.next, request]);
@@ -123,15 +123,21 @@ const List = ({ feedType }: ListProps) => {
 
   if (!notifications?.length) {
     return (
-      <div className="px-3">
-        <EmptyState
-          icon={<BellIcon className="size-8" />}
-          message="Inbox zero!"
-        />
-      </div>
+      <EmptyState
+        icon={<BellIcon className="size-8" />}
+        message={
+          <div className="space-y-4 text-center">
+            <p className="font-semibold text-gray-900 text-lg dark:text-white">
+              No social notifications yet
+            </p>
+            <p className="mt-2 text-gray-600 text-sm dark:text-gray-400">
+              You'll receive notifications when others interact with your posts
+            </p>
+          </div>
+        }
+      />
     );
   }
-
   return (
     <div className="px-3">
       <WindowVirtualizer>
@@ -147,12 +153,9 @@ const List = ({ feedType }: ListProps) => {
 
           return (
             <Card
-              className={cn(
-                "mb-3",
-                {
-                  "p-5": notification.__typename !== "FollowNotification"
-                }
-              )}
+              className={cn("mb-3", {
+                "p-5": notification.__typename !== "FollowNotification",
+              })}
               key={notification.id}
             >
               {Component && <Component notification={notification as never} />}

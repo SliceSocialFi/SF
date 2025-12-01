@@ -6,7 +6,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { Card, Badge } from "@/components/Shared/UI";
 import type { Application } from "@/types/task-api";
-import { TaskApplicant } from "../TaskCard";
 
 interface ApplicationCardProps {
   application: Application;
@@ -46,9 +45,6 @@ const ApplicationCard = ({
     }
   };
 
-  // console.log("application", application);
-  // console.log("showActions", showActions);
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -58,6 +54,85 @@ const ApplicationCard = ({
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  const formatRelativeTime = (dateInput?: string | number | Date) => {
+    if (!dateInput) return "N/A";
+
+    let date: Date;
+
+    try {
+      if (dateInput instanceof Date) {
+        date = dateInput;
+      }
+      // Handle Unix Timestamp (number or numeric string)
+      else if (
+        typeof dateInput === "number" ||
+        (typeof dateInput === "string" && /^\d+$/.test(dateInput))
+      ) {
+        const timestamp = Number(dateInput);
+        if (timestamp < 100000000000) {
+          date = new Date(timestamp * 1000);
+        } else {
+          date = new Date(timestamp);
+        }
+      }
+      // Handle date strings (ISO, SQL format...)
+      else {
+        let dateString = String(dateInput).trim();
+
+        // 🔥 FIX 1: SQL Format "YYYY-MM-DD HH:mm:ss" -> "YYYY-MM-DDTHH:mm:ss"
+        if (dateString.includes(" ") && !dateString.includes("T")) {
+          dateString = dateString.replace(" ", "T");
+        }
+
+        // 🔥 FIX 2 (Quan trọng): Cắt bỏ Microseconds (.221199 -> .221)
+        // JS Date chỉ hỗ trợ 3 chữ số ms, nhiều hơn sẽ gây Invalid Date ở một số môi trường
+        if (dateString.includes(".")) {
+          const parts = dateString.split(".");
+          // Nếu phần thập phân dài hơn 3 chữ số, cắt bớt đi
+          if (parts[1] && parts[1].length > 3) {
+            // Giữ lại phần ngày giờ + 3 số đầu của ms + (Z nếu có)
+            const msPart = parts[1].substring(0, 3);
+            const timezonePart = parts[1].endsWith("Z")
+              ? "Z"
+              : parts[1].includes("+")
+              ? parts[1].substring(parts[1].indexOf("+"))
+              : "";
+            dateString = `${parts[0]}.${msPart}${timezonePart}`;
+          }
+        }
+
+        // 🔥 FIX 3: Thêm Z nếu thiếu timezone (giả định UTC từ DB)
+        if (!dateString.endsWith("Z") && !dateString.includes("+")) {
+          dateString += "Z";
+        }
+
+        date = new Date(dateString);
+      }
+
+      // Final validation
+      if (Number.isNaN(date.getTime())) {
+        console.error("Invalid Date parsed from:", dateInput);
+        return "N/A";
+      }
+
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffMins < 1) return "just now";
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+
+      return formatDate(String(dateInput));
+    } catch (error) {
+      console.error("Date error:", error);
+      return "N/A";
+    }
   };
 
   return (
@@ -75,16 +150,22 @@ const ApplicationCard = ({
               <img
                 src={application?.applicantAvatar}
                 alt={application?.applicantName}
-                className="h-10 w-10 rounded-full"
+                className="h-10 w-10 rounded-full object-cover"
+                onError={(e) => {
+                  // Fallback nếu ảnh lỗi
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
               />
             </div>
             <div>
               <div className="font-medium text-gray-900 text-sm dark:text-white">
-                {(application?.applicantName || "Unknown").slice(0)}
+                {application?.applicantName || "Unknown"}
               </div>
               <div className="flex items-center gap-1 text-gray-500 text-xs dark:text-gray-400">
                 <ClockIcon className="h-3 w-3" />
-                Applied {formatDate(application.createdAt)}
+                <span title={String(application.appliedAt)}>
+                  Applied {formatRelativeTime(application.appliedAt)}
+                </span>
               </div>
             </div>
           </div>
@@ -105,7 +186,7 @@ const ApplicationCard = ({
           </div>
         )}
 
-        {/* Outcome */}
+        {/* Outcome Section */}
         {application.outcome && (
           <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
             <div className="mb-1 font-medium text-gray-900 text-xs dark:text-white">
@@ -128,7 +209,7 @@ const ApplicationCard = ({
           </div>
         )}
 
-        {/* Feedback */}
+        {/* Feedback Section */}
         {application.feedback && (
           <div className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-3 dark:bg-yellow-900/10">
             <div className="mb-1 font-medium text-xs text-yellow-900 dark:text-yellow-400">
@@ -140,7 +221,7 @@ const ApplicationCard = ({
           </div>
         )}
 
-        {/* Rating & Comment */}
+        {/* Rating Section */}
         {application.rating && (
           <div className="rounded-lg bg-blue-50 p-3 dark:bg-blue-900/10">
             <div className="mb-1 flex items-center gap-2">
@@ -159,7 +240,7 @@ const ApplicationCard = ({
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions Buttons */}
         {showActions && (
           <div className="flex gap-2 border-gray-200 border-t pt-3 dark:border-gray-700">
             {onViewProfile && (
@@ -172,7 +253,6 @@ const ApplicationCard = ({
               </button>
             )}
 
-            {/* Accept (initial selection) */}
             {onAccept &&
               application.status === "submitted" &&
               !application.outcome && (
@@ -185,7 +265,6 @@ const ApplicationCard = ({
                 </button>
               )}
 
-            {/* When freelancer has submitted work, show Approve / Needs revision */}
             {application.outcome && (
               <>
                 {onApprove && application.status !== "completed" && (

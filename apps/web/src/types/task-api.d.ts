@@ -68,7 +68,7 @@ export interface Application {
   rating?: number;
   comment?: string;
   submissionCount?: number;
-  createdAt: string;
+  appliedAt: string;
   completedAt?: string | null;
 }
 
@@ -128,10 +128,20 @@ export interface AdjustPointsPayload {
 export interface Notification {
   id: string;
   recipientProfileId: string;
+  senderProfileId?: string | null;
+  sender?: {
+    username?: string;
+    avatar?: string;
+  } | null;
   title: string;
   message: string;
   type?: NotificationType;
   isRead: boolean;
+  metadata?: {
+    taskId?: string;
+    applicationId?: string;
+    [key: string]: any;
+  };
   createdAt: string;
 }
 
