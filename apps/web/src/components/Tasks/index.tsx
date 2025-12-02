@@ -277,26 +277,29 @@ const Tasks = () => {
       }
     >
       {/* Tabs navigation */}
-      <StickyFeedBar>
-        {/* Mobile Header with Search */}
-        <MobileHeader searchPlaceholder="Search tasks..." />
-        <div className="px-5 md:px-0">
-          <Tabs
-            active={activeTab}
-            className="mb-0"
-            layoutId="task_tabs"
-            setActive={(type) => setActiveTab(type as TaskFeedType)}
-            tabs={[
-              { name: "Tasks List", type: TaskFeedType.All },
-              { name: "My Tasks", type: TaskFeedType.MyTasks },
-              { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
-            ]}
-          />
-        </div>
-      </StickyFeedBar>
+      {!showMobileDrawer && (
+        <StickyFeedBar
+          header={<MobileHeader searchPlaceholder="Search tasks..." />}
+          tabs={
+            <div className="px-5 md:px-0">
+              <Tabs
+                active={activeTab}
+                className="mb-0"
+                layoutId="task_tabs"
+                setActive={(type) => setActiveTab(type as TaskFeedType)}
+                tabs={[
+                  { name: "Tasks List", type: TaskFeedType.All },
+                  { name: "My Tasks", type: TaskFeedType.MyTasks },
+                  { name: "Posted Tasks", type: TaskFeedType.PostedTasks },
+                ]}
+              />
+            </div>
+          }
+        />
+      )}
 
       <div className="space-y-6">
-        <div className="space-y-4 px-3">
+        <div className="space-y-3 px-3">
           {loading ? (
             <TasksShimmer count={5} />
           ) : filteredTasks.length === 0 ? (
@@ -322,7 +325,7 @@ const Tasks = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
               disabled={currentPage === 0}
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
             >
               <ChevronLeftIcon className="size-5" />
@@ -338,7 +341,7 @@ const Tasks = () => {
                 setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
               }
               disabled={currentPage >= totalPages - 1}
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
             >
               Next

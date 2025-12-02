@@ -50,7 +50,7 @@ const Video = ({ src, poster }: VideoProps) => {
 
   return (
     <Player.Root src={src}>
-      <Player.Container className="size-full overflow-hidden rounded-xl bg-black">
+      <Player.Container className="w-full max-w-full overflow-hidden rounded-xl bg-black">
         <Player.Video className="size-full" poster={poster} />
         <Player.LoadingIndicator>
           <PlayerLoading />
