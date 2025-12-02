@@ -389,11 +389,6 @@ const ApplicationList = ({
           <EscrowRelease
             taskId={taskId}
             taskExternalId={taskExternalId}
-            employerAddress={employerAddress}
-            freelancerAddress={
-              applications.find((app) => app.status === "accepted")
-                ?.applicantProfileId || ""
-            }
             taskDeadline={taskDeadline}
           />
         </div>

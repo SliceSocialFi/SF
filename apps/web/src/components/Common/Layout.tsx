@@ -62,21 +62,28 @@ const Layout = () => {
       <Toaster
         icons={{
           error: <XCircleIcon className="size-5" />,
-          loading: <Spinner size="xs" />,
+          loading: <Spinner size="xs" className="min-w-[16px] w-4 h-4" />,
           success: <CheckCircleIcon className="size-5" />
         }}
         position="bottom-right"
         theme={theme as ToasterProps["theme"]}
         toastOptions={{
           className: "font-sofia-pro",
-          style: { boxShadow: "none", fontSize: "16px" }
+          style: { 
+            boxShadow: "none", 
+            fontSize: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            minWidth: "280px"
+          }
         }}
       />
       <GlobalShortcuts />
       <GlobalModals />
       <GlobalAlerts />
       <ReloadTabsWatcher />
-      <div className="mx-auto flex w-full max-w-5xl px-0 sm:px-2 items-start gap-x-8 md:px-5">
+      <div className="mx-auto flex w-full max-w-full sm:max-w-5xl px-0 sm:px-2 items-start gap-x-8 md:px-5">
         <Navbar />
         <Outlet />
         <BottomNavigation />

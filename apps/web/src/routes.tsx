@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes as RouterRoutes } from "react-router";
 import Layout from "@/components/Common/Layout";
 import Custom404 from "@/components/Shared/404";
-import PostsShimmer from "@/components/Shared/Shimmer/PostsShimmer";
+import PageShimmer from "@/components/Shared/Shimmer/PageShimmer";
 import AccountPageShimmer from "@/components/Account/Shimmer";
 
 // Lazy load heavy components
@@ -58,7 +58,7 @@ const Routes = () => {
         <Route element={<Layout />} path="/">
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Home />
               </Suspense>
             }
@@ -66,7 +66,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Explore />
               </Suspense>
             }
@@ -74,7 +74,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Search />
               </Suspense>
             }
@@ -82,7 +82,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Groups />
               </Suspense>
             }
@@ -90,7 +90,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Bookmarks />
               </Suspense>
             }
@@ -98,7 +98,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <NotificationsPage />
               </Suspense>
             }
@@ -106,7 +106,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <SocialNotification />
               </Suspense>
             }
@@ -114,7 +114,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Tasks />
               </Suspense>
             }
@@ -122,7 +122,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <TaskDetailPage />
               </Suspense>
             }
@@ -147,7 +147,7 @@ const Routes = () => {
           <Route path="g/:address">
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <ViewGroup />
                 </Suspense>
               }
@@ -156,7 +156,7 @@ const Routes = () => {
             <Route path="settings">
               <Route
                 element={
-                  <Suspense fallback={<PostsShimmer />}>
+                  <Suspense fallback={<PageShimmer />}>
                     <GroupSettings />
                   </Suspense>
                 }
@@ -164,7 +164,7 @@ const Routes = () => {
               />
               <Route
                 element={
-                  <Suspense fallback={<PostsShimmer />}>
+                  <Suspense fallback={<PageShimmer />}>
                     <GroupPersonalizeSettings />
                   </Suspense>
                 }
@@ -172,7 +172,7 @@ const Routes = () => {
               />
               <Route
                 element={
-                  <Suspense fallback={<PostsShimmer />}>
+                  <Suspense fallback={<PageShimmer />}>
                     <GroupMonetizeSettings />
                   </Suspense>
                 }
@@ -180,7 +180,7 @@ const Routes = () => {
               />
               <Route
                 element={
-                  <Suspense fallback={<PostsShimmer />}>
+                  <Suspense fallback={<PageShimmer />}>
                     <RulesSettings />
                   </Suspense>
                 }
@@ -191,7 +191,7 @@ const Routes = () => {
           <Route path="posts/:slug">
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <ViewPost />
                 </Suspense>
               }
@@ -199,7 +199,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <ViewPost />
                 </Suspense>
               }
@@ -209,7 +209,7 @@ const Routes = () => {
           <Route path="settings">
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <AccountSettings />
                 </Suspense>
               }
@@ -217,7 +217,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <AccountPersonalizeSettings />
                 </Suspense>
               }
@@ -225,7 +225,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <AccountMonetizeSettings />
                 </Suspense>
               }
@@ -233,7 +233,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <RewardsSettings />
                 </Suspense>
               }
@@ -241,7 +241,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <BlockedSettings />
                 </Suspense>
               }
@@ -249,7 +249,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <DeveloperSettings />
                 </Suspense>
               }
@@ -257,7 +257,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <FundsSettings />
                 </Suspense>
               }
@@ -265,7 +265,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <ManagerSettings />
                 </Suspense>
               }
@@ -273,7 +273,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <SessionsSettings />
                 </Suspense>
               }
@@ -281,7 +281,7 @@ const Routes = () => {
             />
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <UsernameSettings />
                 </Suspense>
               }
@@ -291,7 +291,7 @@ const Routes = () => {
           <Route path="staff">
             <Route
               element={
-                <Suspense fallback={<PostsShimmer />}>
+                <Suspense fallback={<PageShimmer />}>
                   <Staff />
                 </Suspense>
               }
@@ -300,7 +300,7 @@ const Routes = () => {
           </Route>
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Support />
               </Suspense>
             }
@@ -308,7 +308,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Terms />
               </Suspense>
             }
@@ -316,7 +316,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Privacy />
               </Suspense>
             }
@@ -324,7 +324,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Guidelines />
               </Suspense>
             }
@@ -332,7 +332,7 @@ const Routes = () => {
           />
           <Route
             element={
-              <Suspense fallback={<PostsShimmer />}>
+              <Suspense fallback={<PageShimmer />}>
                 <Copyright />
               </Suspense>
             }

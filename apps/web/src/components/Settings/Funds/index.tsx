@@ -26,7 +26,7 @@ const FundsSettings = () => {
 
   return (
     <PageLayout title="Funds settings">
-      <Card>
+      <Card className="mx-2 sm:mx-0">
         <CardHeader
           icon={<BackButton path="/settings" />}
           title="Manage account balances"

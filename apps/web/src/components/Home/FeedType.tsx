@@ -2,6 +2,7 @@ import { HomeFeedType } from "@slice/data/enums";
 import New from "@/components/Shared/Badges/New";
 import { Tabs } from "@/components/Shared/UI";
 import { useHomeTabStore } from "@/store/persisted/useHomeTabStore";
+import { memo } from "react";
 
 const FeedType = () => {
   const { feedType, setFeedType } = useHomeTabStore();
@@ -15,7 +16,7 @@ const FeedType = () => {
   return (
     <Tabs
       active={feedType}
-      className="flex justify-center gap-4 mx-3 md:mx-0"
+      className="flex justify-center gap-4"
       layoutId="home_tab"
       setActive={(type) => setFeedType(type as HomeFeedType)}
       tabs={tabs}
@@ -23,4 +24,4 @@ const FeedType = () => {
   );
 };
 
-export default FeedType;
+export default memo(FeedType);

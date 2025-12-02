@@ -4,7 +4,7 @@ import {
   type TimelineRequest,
   useTimelineQuery
 } from "@slice/indexer";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import SinglePost from "@/components/Post/SinglePost";
 import PostFeed from "@/components/Shared/Post/PostFeed";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -22,9 +22,21 @@ const Timeline = () => {
     }
   };
 
-  const { data, error, fetchMore, loading } = useTimelineQuery({
-    variables: { request }
+  console.log('🟢 Timeline component render');
+
+  const { data, error, fetchMore, loading, refetch, client } = useTimelineQuery({
+    variables: { request },
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
   });
+
+  // Reset cache when component mounts
+  useEffect(() => {
+    console.log('🟢 Timeline mounted - evicting cache');
+    client.cache.evict({ fieldName: 'timeline' });
+    client.cache.gc();
+    refetch();
+  }, []);
 
   const feed = data?.timeline?.items;
   const pageInfo = data?.timeline?.pageInfo;
@@ -49,8 +61,11 @@ const Timeline = () => {
     [feed]
   );
 
+  console.log('🟢 Timeline filteredPosts:', filteredPosts?.length, 'IDs:', filteredPosts?.map(p => p.id).slice(0, 3));
+
   return (
     <PostFeed
+      feedKey="timeline-feed"
       emptyIcon={<UserGroupIcon className="size-8" />}
       emptyMessage="No posts yet!"
       error={error}
