@@ -299,7 +299,7 @@ const Tasks = () => {
       )}
 
       <div className="space-y-6">
-        <div className="space-y-4 px-3">
+        <div className="space-y-3 px-3">
           {loading ? (
             <TasksShimmer count={5} />
           ) : filteredTasks.length === 0 ? (
@@ -325,7 +325,7 @@ const Tasks = () => {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
               disabled={currentPage === 0}
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
             >
               <ChevronLeftIcon className="size-5" />
@@ -341,7 +341,7 @@ const Tasks = () => {
                 setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
               }
               disabled={currentPage >= totalPages - 1}
-              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg border border-gray-200 px-4 py-2 font-medium text-sm hover:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
             >
               Next
