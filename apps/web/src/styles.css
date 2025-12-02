@@ -707,12 +707,18 @@
 
   .post-action-count {
     display: inline-block;
-    min-width: 2.25rem;
+    min-width: 1.75rem;
     text-align: left;
     font-size: 11px;
   }
 
-  @screen sm {
+  @media (min-width: 400px) {
+    .post-action-count {
+      min-width: 2.25rem;
+    }
+  }
+
+  @media (min-width: 640px) {
     .post-action-count {
       font-size: 0.75rem;
     }
