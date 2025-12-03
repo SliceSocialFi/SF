@@ -46,7 +46,7 @@ const TopUp = () => {
     }
   });
 
-  if (loading) {
+  if (loading && currentScreen === TopUpScreen.METAMASK) {
     return <Loader className="my-10" message="Loading balance..." />;
   }
 
