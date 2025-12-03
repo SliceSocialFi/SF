@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { NATIVE_TOKEN_SYMBOL } from "@slice/data/constants";
 import { useBalancesBulkQuery } from "@slice/indexer";
-import Loader from "@/components/Shared/Loader";
 import { Image } from "@/components/Shared/UI";
-import getTokenImage from "@/helpers/getTokenImage";
 import { useFundModalStore } from "@/store/non-persisted/modal/useFundModalStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 import { usePaymentApi } from "@/hooks/usePaymentApi";
+import getTokenImage from "@/helpers/getTokenImage";
+import Loader from "@/components/Shared/Loader";
 import Transfer from "./Transfer";
 import MethodSelection from "./MethodSelection";
 import DNPAYTopUp from "./DNPAYTopUp";
 import PaymentConfirmation from "./PaymentConfirmation";
 
-type TopUpScreen = "method-selection" | "metamask" | "dnpay" | "payment-confirmation";
+enum TopUpScreen {
+  METHOD_SELECTION = "method-selection",
+  METAMASK = "metamask",
+  DNPAY = "dnpay",
+  PAYMENT_CONFIRMATION = "payment-confirmation",
+}
 
 const TopUp = () => {
   const { currentAccount } = useAccountStore();
@@ -22,10 +27,10 @@ const TopUp = () => {
   const data = usePaymentApi();
   const { currentOrder } = data;
   const [currentScreen, setCurrentScreen] = useState<TopUpScreen>(
-    isDNPAYReady ? "method-selection" : "metamask"
+    isDNPAYReady
+      ? TopUpScreen.METHOD_SELECTION
+      : TopUpScreen.METAMASK
   );
-
-  console.log("DNPAY Super App is ready:", isDNPAYReady);
 
   const { data: balance, loading } = useBalancesBulkQuery({
     fetchPolicy: "no-cache",
@@ -41,9 +46,6 @@ const TopUp = () => {
     }
   });
 
-  console.log("Balance data:", balance);
-  console.log("Loading balance:", loading);
-
   if (loading) {
     return <Loader className="my-10" message="Loading balance..." />;
   }
@@ -56,24 +58,24 @@ const TopUp = () => {
         : 0;
 
   // Method Selection Screen
-  if (currentScreen === "method-selection") {
+  if (currentScreen === TopUpScreen.METHOD_SELECTION) {
     return (
       <MethodSelection
         isDNPAYAvailable={isDNPAYReady}
-        onSelectDNPAY={() => setCurrentScreen("dnpay")}
-        onSelectMetaMask={() => setCurrentScreen("metamask")}
+        onSelectDNPAY={() => setCurrentScreen(TopUpScreen.DNPAY)}
+        onSelectMetaMask={() => setCurrentScreen(TopUpScreen.METAMASK)}
       />
     );
   }
 
   // MetaMask Transfer Screen
-  if (currentScreen === "metamask") {
+  if (currentScreen === TopUpScreen.METAMASK) {
     return (
       <div className="m-3">
         {isDNPAYReady && (
           <button
             className="mb-4 flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-            onClick={() => setCurrentScreen("method-selection")}
+            onClick={() => setCurrentScreen(TopUpScreen.METHOD_SELECTION)}
             type="button"
           >
             <svg 
@@ -112,30 +114,25 @@ const TopUp = () => {
   }
 
   // DNPAY Top-up Screen
-  if (currentScreen === "dnpay") {
+  if (currentScreen === TopUpScreen.DNPAY) {
     return (
       <DNPAYTopUp
-        onBack={() => setCurrentScreen("method-selection")}
-        onOrderCreated={() => setCurrentScreen("payment-confirmation")}
+        onBack={() => setCurrentScreen(TopUpScreen.METHOD_SELECTION)}
+        onOrderCreated={() => setCurrentScreen(TopUpScreen.PAYMENT_CONFIRMATION)}
       />
     );
   }
 
-  console.log("DATA:", data);
-  console.log("currentScreen:", currentScreen);
-  console.log("Current Order:", currentOrder);
-
   return (
     <>
       {
-        (currentScreen === "payment-confirmation" && currentOrder)
+        (currentScreen === TopUpScreen.PAYMENT_CONFIRMATION && currentOrder)
           ? (
             <PaymentConfirmation
-              onBack={() => setCurrentScreen("dnpay")}
-              onCancel={() => setCurrentScreen("method-selection")}
+              onBack={() => setCurrentScreen(TopUpScreen.DNPAY)}
+              onCancel={() => setCurrentScreen(TopUpScreen.METHOD_SELECTION)}
               onSuccess={() => {
-                setCurrentScreen("method-selection");
-                // Optionally close the modal here
+                setCurrentScreen(TopUpScreen.METHOD_SELECTION);
               }}
               order={currentOrder.order}
               payment={currentOrder.payment}

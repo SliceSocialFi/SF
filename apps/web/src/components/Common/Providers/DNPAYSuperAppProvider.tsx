@@ -40,19 +40,19 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
 
       if (event.data?.type === 'START_EVENT') {
         const { app_session_id, token: newToken } = event.data.data;
-        console.log('Đã nhận API Key từ Super App:', { app_session_id, token: newToken });
+        console.log('Received API Key from Super App:', { app_session_id, token: newToken });
         setAppSessionId(app_session_id);
         setToken(newToken);
         setIsReady(true);
       }
     };
 
-    // Đăng ký lắng nghe
+    // Register listener
     window.addEventListener('message', handleMessage);
 
     const iframe = document.getElementById('depay-iframe') as HTMLIFrameElement | null;
     if (!iframe || !iframe.contentWindow) {
-      console.warn('Không tìm thấy iframe DePay để gửi yêu cầu lấy Key.');
+      console.warn('DePay iframe not found to request API Key.');
       return;
     }
 
@@ -75,8 +75,8 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
       token,
       isReady,
       currentOrder,
-      setCurrentOrder,
       isLoading,
+      setCurrentOrder,
       setIsLoading
     }}>
       {children}

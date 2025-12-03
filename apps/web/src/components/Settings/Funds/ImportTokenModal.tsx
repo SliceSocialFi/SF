@@ -93,9 +93,6 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
         onClose();
     };
 
-    console.log("Missing chains for token import:", missingChains);
-    console.log("Is checking tokens:", isChecking);
-
     if (isChecking) {
         return (
             <Modal show={show} onClose={onClose} title="Import Token">
