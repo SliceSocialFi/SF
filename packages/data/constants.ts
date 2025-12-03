@@ -79,6 +79,10 @@ export const PERMISSIONS = {
 export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";
 export const PAYMENT_API_URL = process.env.PAYMENT_API_URL || "http://localhost:3000/";
 
+console.log("process.env.BRIDGE_API_URL:", process.env.BRIDGE_API_URL);
+console.log("Using BRIDGE API URL:", BRIDGE_API_URL);
+
+console.log("process.env.PAYMENT_API_URL:", process.env.PAYMENT_API_URL);
 console.log("Using Payment API URL:", PAYMENT_API_URL);
 
 export const BSC_POOL_CONTRACT =

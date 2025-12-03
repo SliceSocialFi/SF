@@ -1,3 +1,4 @@
+import { PAYMENT_API_URL } from "@slice/data/constants";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
@@ -77,7 +78,8 @@ export default defineConfig({
     EnvironmentPlugin({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
       LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet",
-      BRIDGE_API_URL: process.env.BRIDGE_API_URL ?? "http://localhost:8787/"
+      BRIDGE_API_URL: process.env.BRIDGE_API_URL ?? "http://localhost:8787/",
+      PAYMENT_API_URL: process.env.PAYMENT_API_URL ?? "http://localhost:3000/"
     })
   ],
 server: {
