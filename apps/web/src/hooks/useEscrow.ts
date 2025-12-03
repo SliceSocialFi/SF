@@ -229,34 +229,51 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         });
         toast.success("Funds deposited successfully", { id: "deposit" });
         console.log("Deposit successful, tx:", receipt.transactionHash);
+        console.log("📋 Receipt logs count:", receipt.logs.length);
 
         // Step 4: Extract taskId from event
         let taskId: string | undefined;
         try {
-          for (const log of receipt.logs) {
+          for (let i = 0; i < receipt.logs.length; i++) {
+            const log = receipt.logs[i];
             try {
+              console.log(`📝 Log ${i}:`, {
+                address: log.address,
+                topics: log.topics,
+                data: log.data?.slice(0, 66) + "..." // First 66 chars
+              });
+              
               const decoded = decodeEventLog({
                 abi: ESCROW_ABI,
                 data: log.data,
                 topics: log.topics
               });
               
+              console.log(`✅ Decoded log ${i}:`, decoded.eventName, decoded.args);
+              
               if (decoded.eventName === "Deposited") {
                 // @ts-ignore - taskId is in the event args
-                taskId = decoded.args.taskId?.toString();
-                console.log("On-chain taskId:", taskId);
+                const rawTaskId = decoded.args.taskId;
+                taskId = rawTaskId?.toString();
+                console.log("🎯 On-chain taskId extracted:", taskId);
                 break;
               }
-            } catch {
-              // Skip logs that don't match
+            } catch (decodeError) {
+              // Skip logs that don't match our ABI (e.g., ERC20 Transfer events)
+              console.log(`⏭️ Log ${i} skipped (different event):`, (decodeError as Error)?.message?.slice(0, 50));
               continue;
             }
           }
+          
+          if (!taskId) {
+            console.warn("⚠️ Could not extract taskId from any log. Backend will need to extract from txHash.");
+          }
         } catch (err) {
-          console.warn("Failed to parse taskId from event:", err);
+          console.warn("❌ Failed to parse taskId from event:", err);
         }
 
         const result = { txHash: receipt.transactionHash, taskId };
+        console.log("📤 Returning deposit result:", result);
         onSuccess?.(result);
         return result;
       } catch (error: any) {

@@ -4,10 +4,11 @@
   "private": true,
   "license": "AGPL-3.0",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite dev",
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
     "start": "vite preview",
-    "typecheck": "tsc --pretty"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@apollo/client": "^3.14.0",
