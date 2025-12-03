@@ -176,7 +176,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                             {/* Top Input */}
                             <div>
                                 <label className="block text-sm">
-                                    {isSwapped ? `Pay with ${currencySymbol}` : "You want to receive"}
+                                    {isSwapped ? "Pay with" : "You want to receive"}
                                 </label>
                                 <div className="flex items-center gap-3 p-2 dark:border-gray-700">
                                     <Image
