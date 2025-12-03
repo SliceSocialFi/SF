@@ -7,7 +7,11 @@ import { getPaymentAmount, convertPaymentToRYF } from "@/helpers/getDNPAYPayment
 import Loader from "@/components/Shared/Loader";
 import { MAINNET_CHAINS } from "@slice/data/chains";
 import { ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
-import { Currency } from "@/types/payment-api";
+
+enum Currency {
+    USDT = "USDT",
+    VNDC = "VNDC",
+}
 
 interface DNPAYTopUpProps {
     onBack: () => void;

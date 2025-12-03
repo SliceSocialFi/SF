@@ -4,8 +4,12 @@ import { usePaymentApi } from "@/hooks/usePaymentApi";
 import { toast } from "sonner";
 import Loader from "@/components/Shared/Loader";
 import type { PaymentData, OrderData } from "@/types/payment-api";
-import { Currency } from "@/types/payment-api";
 import { MAINNET_CHAINS } from "@slice/data/chains";
+
+enum Currency {
+    USDT = "USDT",
+    VNDC = "VNDC",
+}
 
 interface PaymentConfirmationProps {
   order: OrderData;

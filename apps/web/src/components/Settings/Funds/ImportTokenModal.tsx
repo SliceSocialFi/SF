@@ -93,16 +93,19 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
         onClose();
     };
 
+    console.log("Missing chains for token import:", missingChains);
+    console.log("Is checking tokens:", isChecking);
+
     if (isChecking) {
         return (
-        <Modal show={show} onClose={onClose} title="Import Token">
-            <div className="flex flex-col items-center gap-4 p-10">
-                <Loader />
-                <span className="text-gray-500 text-sm dark:text-gray-400">
-                    Checking wallet tokens...
-                </span>
-            </div>
-        </Modal>
+            <Modal show={show} onClose={onClose} title="Import Token">
+                <div className="flex flex-col items-center gap-4 p-10">
+                    <Loader />
+                    <span className="text-gray-500 text-sm dark:text-gray-400">
+                        Checking wallet tokens...
+                    </span>
+                </div>
+            </Modal>
         );
     }
 
