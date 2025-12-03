@@ -1,4 +1,3 @@
-import { PAYMENT_API_URL } from "@slice/data/constants";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
