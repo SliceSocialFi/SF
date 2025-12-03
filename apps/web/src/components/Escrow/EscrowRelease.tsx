@@ -150,25 +150,25 @@ export function EscrowRelease({
         let isSettled = false;
         try {
           const taskData = await apiClient.getTask(taskId);
-          console.log("📋 Task status check:", {
-            taskId,
-            status: taskData.status,
-            isSettled:
-              taskData.status === "completed" ||
-              taskData.status === "cancelled",
-          });
+          // console.log("📋 Task status check:", {
+          //   taskId,
+          //   status: taskData.status,
+          //   isSettled:
+          //     taskData.status === "completed" ||
+          //     taskData.status === "cancelled",
+          // });
 
-          if (
-            taskData.status === "completed" ||
-            taskData.status === "cancelled"
-          ) {
-            console.log("✅ Escrow already settled, showing settled UI");
-            setEscrowStatus("settled" as EscrowStatus);
-            isSettled = true;
-          } else {
-            console.log("🟢 Escrow active, proceeding with checks");
-            setEscrowStatus("active" as EscrowStatus);
-          }
+          // if (
+          //   taskData.status === "completed" ||
+          //   taskData.status === "cancelled"
+          // ) {
+          //   console.log("✅ Escrow already settled, showing settled UI");
+          //   setEscrowStatus("settled" as EscrowStatus);
+          //   isSettled = true;
+          // } else {
+          //   console.log("🟢 Escrow active, proceeding with checks");
+          //   setEscrowStatus("active" as EscrowStatus);
+          // }
         } catch (err) {
           console.warn("⚠️  Failed to check escrow status:", err);
           setEscrowStatus("unknown" as EscrowStatus);
@@ -187,12 +187,12 @@ export function EscrowRelease({
   }, [taskId, taskExternalId, taskDeadline]);
 
   const handleRelease = async () => {
-    console.log("🎯 Release button clicked:", {
-      taskId,
-      taskExternalId,
-      escrowStatus,
-      deadlinePassed,
-    });
+    // console.log("🎯 Release button clicked:", {
+    //   taskId,
+    //   taskExternalId,
+    //   escrowStatus,
+    //   deadlinePassed,
+    // });
 
     if (!taskId) {
       toast.error("Missing task ID");

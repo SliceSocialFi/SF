@@ -171,11 +171,11 @@ const ApplicationList = ({
           onChainTaskId: onChainTaskId || "", // Send empty string if not parsed from event
           depositedTxHash: txHash,
         });
-        console.log("✅ Deposit confirmed on backend:", {
-          taskExternalId,
-          onChainTaskId,
-          txHash,
-        });
+        // console.log("✅ Deposit confirmed on backend:", {
+        //   taskExternalId,
+        //   onChainTaskId,
+        //   txHash,
+        // });
       } catch (confirmError: any) {
         console.error("❌ Failed to confirm deposit on backend:", confirmError);
         toast.error(
