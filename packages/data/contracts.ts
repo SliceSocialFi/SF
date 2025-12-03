@@ -1,7 +1,7 @@
 export const MAINNET_CONTRACTS = {
   app: "0x1eFA8F82d9E919F6b6A5f1701131c9Cb1a943BAA",
   defaultToken: "0x93198F5e56443286b50Cf749dFb6A27f251aA630", // RYF on lens mainnet
-  taskEscrowPool: "0x000000000000000000000000000000000000000000", // Placeholder, replace with actual address
+  taskEscrowPool: "0xE476d902EA87AfCb5C1CF646751ad5306f16B271", // Placeholder, replace with actual address
   bscPool: "0xa615739b4D9CBcE3AC0c8F453E25B92B037a7162",
   lensMinter: "0x58966497B86FD5094662B42a075240F86AB42d99"
 } as const;
