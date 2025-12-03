@@ -115,13 +115,13 @@ export const convertPaymentToRYF = async (paymentAmount: string, currency: strin
 
         const usdValue = Number(paymentAmount) * paymentTokenPriceUsd;
         const ryfAmount = usdValue / ryfPriceUsd;
-
+        
         const displayDecimals = 6;
-        const formattedAmount = ryfAmount.toFixed(displayDecimals);
+        const rate = ryfAmount / Number(paymentAmount);
 
         return {
-            formattedAmount,
-            rate: ryfAmount / Number(paymentAmount),
+            formattedAmount: ryfAmount.toFixed(displayDecimals),
+            rate: rate.toFixed(displayDecimals),
             ryfPriceUsd
         };
     } catch (error: any) {

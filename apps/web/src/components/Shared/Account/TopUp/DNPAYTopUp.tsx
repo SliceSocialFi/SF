@@ -64,11 +64,11 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             let result;
             if (!isSwapped) {
                 result = await getPaymentAmount(topAmount, currency);
+                setExchangeRate(result.rate + "");
             } else {
                 result = await convertPaymentToRYF(topAmount, currency);
             }
             setBottomAmount(result.formattedAmount);
-            setExchangeRate(result.rate + "");
         } catch (error: any) {
             console.error("Conversion error:", error);
             toast.error(error.message || "Failed to calculate conversion");
