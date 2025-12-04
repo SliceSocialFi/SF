@@ -16,11 +16,16 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
+      
           echo "$EC2_SSH_KEY" > ~/.ssh/ci_key
           chmod 600 ~/.ssh/ci_key
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      
+          echo "Testing host: $EC2_HOST"
+      
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
 
       - name: Upload source to EC2
         run: |
