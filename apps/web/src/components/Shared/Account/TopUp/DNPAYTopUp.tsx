@@ -34,7 +34,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     const [isSwapped, setIsSwapped] = useState(false); // false: RYF top, true: Payment currency top
     const [isCalculating, setIsCalculating] = useState(false);
     const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({ usdt: 0, vndc: 0 });
-    const [showRoundingConfirm, setShowRoundingConfirm] = useState(false);
+    // const [showRoundingConfirm, setShowRoundingConfirm] = useState(false);
 
     const currencySymbol = currency;
     const paymentCurrencyIcon = currency === Currency.USDT 
@@ -149,10 +149,10 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
         const paymentAmount = isSwapped ? topAmount : bottomAmount;
         
         // Check if payment amount is not an integer
-        if (!Number.isInteger(paymentAmount)) {
-            setShowRoundingConfirm(true);
-            return;
-        }
+        // if (!Number.isInteger(paymentAmount)) {
+        //     setShowRoundingConfirm(true);
+        //     return;
+        // }
 
         // If payment amount is already an integer, proceed with order creation
         await createOrderWithAmount(paymentAmount);
@@ -182,22 +182,22 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
         }
     };
 
-    const handleConfirmRounding = async () => {
-        const paymentAmount = isSwapped ? topAmount : bottomAmount;
-        const roundedPaymentAmount = Math.round(paymentAmount);
+    // const handleConfirmRounding = async () => {
+    //     const paymentAmount = isSwapped ? topAmount : bottomAmount;
+    //     const roundedPaymentAmount = Math.round(paymentAmount);
         
-        setShowRoundingConfirm(false);
-        await createOrderWithAmount(roundedPaymentAmount);
-    };
+    //     setShowRoundingConfirm(false);
+    //     await createOrderWithAmount(roundedPaymentAmount);
+    // };
 
-    const handleCancelRounding = () => {
-        setShowRoundingConfirm(false);
-    };
+    // const handleCancelRounding = () => {
+    //     setShowRoundingConfirm(false);
+    // };
 
     // Calculate rounded values for display in confirmation modal
-    const paymentAmount = isSwapped ? topAmount : bottomAmount;
-    const roundedPaymentAmount = Math.round(paymentAmount);
-    const ryfAmountAfterRounding = roundedPaymentAmount / currentRate;
+    // const paymentAmount = isSwapped ? topAmount : bottomAmount;
+    // const roundedPaymentAmount = Math.round(paymentAmount);
+    // const ryfAmountAfterRounding = roundedPaymentAmount / currentRate;
 
     return (
         <>
@@ -381,7 +381,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             </div>
 
             {/* Rounding Confirmation Modal */}
-            <RoundingConfirmation
+            {/* <RoundingConfirmation
                 show={showRoundingConfirm}
                 currency={currency}
                 paymentAmount={paymentAmount}
@@ -390,7 +390,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                 isLoading={isLoading}
                 onConfirm={handleConfirmRounding}
                 onCancel={handleCancelRounding}
-            />
+            /> */}
         </>
     );
 };
