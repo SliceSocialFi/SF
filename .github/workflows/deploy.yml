@@ -13,6 +13,18 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
+      - name: Debug secrets
+        run: |
+          echo "Checking if EC2_HOST is empty"
+          if [ -z "$EC2_HOST" ]; then echo "EC2_HOST is EMPTY"; exit 1; fi
+          
+          echo "Raw length: ${#EC2_HOST}"
+          
+          echo "Testing host (masked by GitHub if secret): $EC2_HOST"
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
