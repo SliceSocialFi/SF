@@ -23,6 +23,7 @@ const SinglePost = ({
   showType = true
 }: SinglePostProps) => {
   const rootPost = timelineItem ? timelineItem?.primary : post;
+  const isDeleted = rootPost.isDeleted;
 
   return (
     <PostWrapper className="cursor-pointer px-5 pt-4 pb-3" post={rootPost}>
@@ -35,21 +36,19 @@ const SinglePost = ({
         <PostAvatar post={rootPost} timelineItem={timelineItem} />
         <div className="flex-1 min-w-0">
           <PostHeader post={rootPost} timelineItem={timelineItem} />
-          {post.isDeleted ? (
-            <HiddenPost type={post.__typename} />
+          {isDeleted ? (
+            <div className="mt-2">This post has been deleted.</div>
           ) : (
             <PostBody post={rootPost} showMore={showMore} />
           )}
         </div>
       </div>
-      {!post.isDeleted && (
-        <div className="sm:flex sm:items-start sm:gap-x-3">
-          <div className="hidden sm:block sm:w-[40px]" />
-          <div className="flex-1 min-w-0">
-            <PostActions post={rootPost} />
-          </div>
+      <div className="sm:flex sm:items-start sm:gap-x-3">
+        <div className="hidden sm:block sm:w-[40px]" />
+        <div className="flex-1 min-w-0">
+          <PostActions post={rootPost} />
         </div>
-      )}
+      </div>
     </PostWrapper>
   );
 };

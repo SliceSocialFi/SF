@@ -15,6 +15,7 @@ interface PostFeedProps<T extends { id: string }> {
   emptyMessage: ReactNode;
   errorTitle: string;
   renderItem: (item: T) => ReactNode;
+  feedKey?: string;
 }
 
 const PostFeed = <T extends { id: string }>({
@@ -26,9 +27,12 @@ const PostFeed = <T extends { id: string }>({
   emptyIcon,
   emptyMessage,
   errorTitle,
-  renderItem
+  renderItem,
+  feedKey = 'default'
 }: PostFeedProps<T>) => {
   const loadMoreRef = useLoadMoreOnIntersect(handleEndReached);
+
+  console.log('🔵 PostFeed render:', feedKey, 'items count:', items?.length);
 
   if (loading) {
     return <PostsShimmer />;
@@ -51,15 +55,13 @@ const PostFeed = <T extends { id: string }>({
   }
 
   return (
-    <div className="space-y-3 px-3">
-      <WindowVirtualizer>
-        {items.map((item) => (
-          <Card key={item.id} className="mb-3">
-            {renderItem(item)}
-          </Card>
-        ))}
-        {hasMore && <span ref={loadMoreRef} />}
-      </WindowVirtualizer>
+    <div className="space-y-3 px-3" key={feedKey}>
+      {items.map((item) => (
+        <Card key={item.id} className="mb-3">
+          {renderItem(item)}
+        </Card>
+      ))}
+      {hasMore && <span ref={loadMoreRef} />}
     </div>
   );
 };

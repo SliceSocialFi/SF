@@ -118,6 +118,16 @@ const ViewPost = () => {
   const canComment =
     targetPost.operations?.canComment.__typename ===
     "PostOperationValidationPassed";
+  
+  // Check if the comment's root post is deleted
+  const isCommentOnDeletedPost = post.commentOn?.isDeleted || post.root?.isDeleted;
+  
+  // Allow comments on reposts even if original post is deleted
+  // But disable comments on original deleted posts
+  // Also disable comments if this is a comment on a deleted post
+  const allowComment = isRepost(post) 
+    ? true 
+    : !post.isDeleted && !isCommentOnDeletedPost;
 
   return (
     <PageLayout
@@ -166,7 +176,7 @@ const ViewPost = () => {
               />
             </div>
           )}
-          {currentAccount && !post.isDeleted && canComment ? (
+          {currentAccount && allowComment && canComment ? (
             <div className="px-3">
               {mounted ? (
                 <ComposerPanel
@@ -215,12 +225,8 @@ const ViewPost = () => {
               )}
             </div>
           ) : null}
-          {post.isDeleted ? null : (
-            <>
-              <CommentFeed postId={targetPost.id} />
-              <NoneRelevantFeed postId={targetPost.id} />
-            </>
-          )}
+          <CommentFeed postId={targetPost.id} />
+          <NoneRelevantFeed postId={targetPost.id} />
         </>
       )}
     </PageLayout>

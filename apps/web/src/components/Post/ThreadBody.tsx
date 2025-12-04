@@ -2,7 +2,6 @@ import type { PostFragment } from "@slice/indexer";
 import { memo } from "react";
 import PostWrapper from "@/components/Shared/Post/PostWrapper";
 import PostActions from "./Actions";
-import HiddenPost from "./HiddenPost";
 import PostAvatar from "./PostAvatar";
 import PostBody from "./PostBody";
 import PostHeader from "./PostHeader";
@@ -20,7 +19,7 @@ const ThreadBody = ({ post }: ThreadBodyProps) => {
         <div className="flex-1 min-w-0">
           <PostHeader post={post} />
           {post.isDeleted ? (
-            <HiddenPost type={post.__typename} />
+            <div className="mt-2">This post has been deleted.</div>
           ) : (
             <>
               <PostBody post={post} />

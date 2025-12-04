@@ -46,7 +46,7 @@ const NewPost = ({ feed }: NewPostProps) => {
 
   if (mounted) {
     return (
-      <div className="px-3">
+      <div className="px-3 py-3">
         <ComposerPanel
           isOpen={open}
           onDismiss={handleDismiss}
@@ -68,7 +68,7 @@ const NewPost = ({ feed }: NewPostProps) => {
   }
 
   return (
-    <div className="px-3">
+    <div className="px-3 py-3">
       <Card
         className="cursor-pointer px-5 pt-4 pb-3 transition-all duration-200 hover:shadow-sm"
         onClick={handleOpen}
