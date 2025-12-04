@@ -75,8 +75,7 @@ const PaymentConfirmation = ({
 
   return (
     <>
-      <div className="m-5 space-y-5">
-        {/* Back button */}
+      <div className="m-4">
         <button
           className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
           onClick={handleBackOrClose}
@@ -95,9 +94,10 @@ const PaymentConfirmation = ({
               strokeWidth={2}
             />
           </svg>
-          <span>Back</span>
+          <span className="text-sm">Back</span>
         </button>
-
+      </div>
+      <div className="m-5 mt-0 space-y-5">
         {/* Order Summary */}
         <Card forceRounded>
           <div className="p-6 space-y-4">
