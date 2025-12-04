@@ -316,8 +316,9 @@ curl http://localhost:3000/notifications \
   ```typescript
   return c.json({ 
     ...task, 
-    applications // ← Must include this!
+    applications // ← Must incluccde this!
   });
+  
   ```
 
 ### Issue: Page Keeps Loading

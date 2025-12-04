@@ -68,8 +68,23 @@ const TaskDetailModal = ({
     ((myApplication as any).status === "accepted" ||
       (myApplication as any).status === "needs_revision");
 
+  // Check if escrow is already settled (task completed or cancelled)
+  const isEscrowSettled =
+    task.status === "completed" || task.status === "cancelled";
+
   // Logic to determine who can release funds after deadline
   const getDeadlineActionState = () => {
+    // If escrow already settled, no action needed
+    if (isEscrowSettled) {
+      return {
+        canClaim: false,
+        message: null,
+        actionType: "SETTLED",
+        recipientAddress: null,
+        shouldAutoCancel: false,
+      };
+    }
+
     if (!isDeadlinePassed)
       return {
         canClaim: false,
@@ -422,7 +437,7 @@ const TaskDetailModal = ({
               )}
 
               {/* Deadline Passed Warning & Release Fund Action */}
-              {isDeadlinePassed && (
+              {isDeadlinePassed && !isEscrowSettled && (
                 <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
                   <h6 className="mb-2 font-semibold text-orange-800 dark:text-orange-300">
                     ⚠️ Task Deadline Has Passed

@@ -11,10 +11,6 @@ import Button from "@/components/Shared/UI/Button";
 import Input from "@/components/Shared/UI/Input";
 import Card from "@/components/Shared/UI/Card";
 import { toast } from "sonner";
-import {
-  TASK_ESCROW_POOL_ADDRESS,
-  ERC20_TOKEN_ADDRESS,
-} from "@slice/data/constants";
 
 interface EscrowDepositProps {
   taskId?: string;
@@ -51,15 +47,8 @@ export function EscrowDeposit({
           (taskDeadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
         )
       );
-      console.log("🔍 Task Deadline:", taskDeadline);
-      console.log("📅 Days Remaining:", daysRemaining);
-      console.log("🎯 Deadline Date:", taskDeadlineDate.toLocaleString());
       return daysRemaining.toString();
     }
-    console.log(
-      "⚠️ No taskDeadline provided, using default:",
-      defaultDeadlineDays
-    );
     return defaultDeadlineDays.toString();
   };
 
@@ -84,17 +73,6 @@ export function EscrowDeposit({
       console.error("Deposit error:", err);
     },
   });
-
-  const handleDiagnose = async () => {
-    if (!isConnected) {
-      toast.error("Please connect your wallet first");
-      return;
-    }
-
-    toast.info(
-      "With viem, errors are automatically decoded. Just try depositing!"
-    );
-  };
 
   const handleDeposit = async () => {
     if (!isConnected) {
@@ -202,22 +180,12 @@ export function EscrowDeposit({
           />
         </div>
 
-        <div className="flex gap-3 border-gray-200 border-t pt-4 dark:border-gray-700">
-          {!readOnly && (
-            <Button
-              onClick={handleDiagnose}
-              disabled={!isConnected}
-              outline
-              className="flex-1"
-            >
-              Run Diagnostic
-            </Button>
-          )}
+        <div className="border-gray-200 border-t pt-4 dark:border-gray-700">
           <Button
             onClick={handleDeposit}
             loading={isDepositing}
             disabled={isDepositing}
-            className={readOnly ? "w-full" : "flex-1"}
+            className="w-full"
           >
             {isDepositing
               ? "Depositing..."
@@ -231,37 +199,6 @@ export function EscrowDeposit({
           You will be asked to approve the token transfer first, then deposit
           the funds. Both transactions require your confirmation in MetaMask.
         </p>
-
-        {/* Debug Info */}
-        <details className="mt-4 rounded border border-gray-200 p-2 dark:border-gray-700">
-          <summary className="cursor-pointer text-xs text-gray-600 dark:text-gray-400">
-            Debug Info (Click to expand)
-          </summary>
-          <div className="mt-2 space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Escrow Contract:</span>
-              <span className="font-mono">
-                {TASK_ESCROW_POOL_ADDRESS.slice(0, 10)}...
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Token Address:</span>
-              <span className="font-mono">
-                {ERC20_TOKEN_ADDRESS.slice(0, 10)}...
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Task ID:</span>
-              <span className="font-mono">{taskId || "N/A"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Amount (Wei):</span>
-              <span className="font-mono">
-                {amount ? parseUnits(amount, 18).toString() : "0"}
-              </span>
-            </div>
-          </div>
-        </details>
       </div>
     </Card>
   );

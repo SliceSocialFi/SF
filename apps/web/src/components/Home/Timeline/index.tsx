@@ -2,7 +2,7 @@ import { UserGroupIcon } from "@heroicons/react/24/outline";
 import {
   TimelineEventItemType,
   type TimelineRequest,
-  useTimelineQuery
+  useTimelineQuery,
 } from "@slice/indexer";
 import { memo, useCallback, useEffect, useMemo } from "react";
 import SinglePost from "@/components/Post/SinglePost";
@@ -17,23 +17,25 @@ const Timeline = () => {
       eventType: [
         TimelineEventItemType.Post,
         TimelineEventItemType.Quote,
-        TimelineEventItemType.Repost
-      ]
-    }
+        TimelineEventItemType.Repost,
+      ],
+    },
   };
 
-  console.log('🟢 Timeline component render');
+  // console.log('🟢 Timeline component render');
 
-  const { data, error, fetchMore, loading, refetch, client } = useTimelineQuery({
-    variables: { request },
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true
-  });
+  const { data, error, fetchMore, loading, refetch, client } = useTimelineQuery(
+    {
+      variables: { request },
+      fetchPolicy: "network-only",
+      notifyOnNetworkStatusChange: true,
+    }
+  );
 
   // Reset cache when component mounts
   useEffect(() => {
-    console.log('🟢 Timeline mounted - evicting cache');
-    client.cache.evict({ fieldName: 'timeline' });
+    // console.log('🟢 Timeline mounted - evicting cache');
+    client.cache.evict({ fieldName: "timeline" });
     client.cache.gc();
     refetch();
   }, []);
@@ -45,7 +47,7 @@ const Timeline = () => {
   const handleEndReached = useCallback(async () => {
     if (hasMore) {
       await fetchMore({
-        variables: { request: { ...request, cursor: pageInfo?.next } }
+        variables: { request: { ...request, cursor: pageInfo?.next } },
       });
     }
   }, [fetchMore, hasMore, pageInfo?.next, request]);
@@ -61,7 +63,7 @@ const Timeline = () => {
     [feed]
   );
 
-  console.log('🟢 Timeline filteredPosts:', filteredPosts?.length, 'IDs:', filteredPosts?.map(p => p.id).slice(0, 3));
+  // console.log('🟢 Timeline filteredPosts:', filteredPosts?.length, 'IDs:', filteredPosts?.map(p => p.id).slice(0, 3));
 
   return (
     <PostFeed

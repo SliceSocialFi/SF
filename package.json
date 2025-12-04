@@ -7,10 +7,14 @@
     "biome:check": "biome check .",
     "biome:fix": "biome check --write .",
     "build": "pnpm --recursive --parallel run build",
+    "build:mainnet": "cross-env LENS_NETWORK=mainnet pnpm build",
+    "build:testnet": "cross-env LENS_NETWORK=testnet pnpm build",
     "codegen": "pnpm --recursive --parallel run codegen",
     "dep:check": "pnpm dlx sherif@latest",
     "dep:fix": "pnpm dlx sherif@latest --fix",
-    "dev": "pnpm --recursive --parallel run dev",
+    "dev": "pnpm --filter @slice/web dev",
+    "dev:mainnet": "cross-env LENS_NETWORK=mainnet pnpm dev",
+    "dev:testnet": "cross-env LENS_NETWORK=testnet pnpm dev",
     "start": "pnpm --recursive --parallel run start",
     "sync": "node ./script/sync-public.mjs",
     "typecheck": "pnpm --recursive --parallel run typecheck"
@@ -18,6 +22,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
     "@types/node": "^24.10.1",
+    "cross-env": "^10.1.0",
     "husky": "^9.1.7",
     "tsconfig-paths": "^4.2.0"
   },

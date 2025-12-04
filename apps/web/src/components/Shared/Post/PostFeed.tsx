@@ -28,11 +28,11 @@ const PostFeed = <T extends { id: string }>({
   emptyMessage,
   errorTitle,
   renderItem,
-  feedKey = 'default'
+  feedKey = "default",
 }: PostFeedProps<T>) => {
   const loadMoreRef = useLoadMoreOnIntersect(handleEndReached);
 
-  console.log('🔵 PostFeed render:', feedKey, 'items count:', items?.length);
+  // console.log('🔵 PostFeed render:', feedKey, 'items count:', items?.length);
 
   if (loading) {
     return <PostsShimmer />;

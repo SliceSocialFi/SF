@@ -2,7 +2,7 @@ import {
   CurrencyDollarIcon,
   EnvelopeIcon,
   MapPinIcon,
-  PhoneIcon
+  PhoneIcon,
 } from "@heroicons/react/24/outline";
 import { useCallback, useState } from "react";
 import { Button, Card, H5, Modal } from "@/components/Shared/UI";
@@ -44,15 +44,15 @@ const mockTasks: TaskItem[] = [
       avatar: "NV",
       contact: {
         email: "nguyenvana@email.com",
-        phone: "+84 123 456 789"
+        phone: "+84 123 456 789",
       },
       id: "user1",
-      name: "Nguyễn Văn A"
+      name: "Nguyễn Văn A",
     },
     postedDays: 1,
     rewardTokens: 50,
     salary: "100.000/h",
-    skills: ["Postman", "DevTools", "Developer / Programmer"]
+    skills: ["Postman", "DevTools", "Developer / Programmer"],
   },
   {
     companyLogo: "TECH",
@@ -66,15 +66,15 @@ const mockTasks: TaskItem[] = [
       avatar: "TB",
       contact: {
         email: "tranthib@email.com",
-        phone: "+84 987 654 321"
+        phone: "+84 987 654 321",
       },
       id: "user2",
-      name: "Trần Thị B"
+      name: "Trần Thị B",
     },
     postedDays: 2,
     rewardTokens: 100,
     salary: "200.000/h",
-    skills: ["React", "TypeScript", "Frontend"]
+    skills: ["React", "TypeScript", "Frontend"],
   },
   {
     companyLogo: "AI",
@@ -88,20 +88,20 @@ const mockTasks: TaskItem[] = [
       avatar: "LC",
       contact: {
         email: "levanc@email.com",
-        phone: "+84 555 123 456"
+        phone: "+84 555 123 456",
       },
       id: "user3",
-      name: "Lê Văn C"
+      name: "Lê Văn C",
     },
     postedDays: 5,
     rewardTokens: 75,
     salary: "100.000/h",
-    skills: ["Python", "TensorFlow", "ML Engineer"]
-  }
+    skills: ["Python", "TensorFlow", "ML Engineer"],
+  },
 ];
 
 const TaskCard = ({ task }: { task: TaskItem }) => {
-  console.log("Rendering TaskCard for task:", task);
+  // console.log("Rendering TaskCard for task:", task);
   return (
     <Card className="cursor-pointer space-y-3 p-4 transition-shadow hover:shadow-md">
       {/* Header */}
@@ -160,7 +160,7 @@ const TaskCard = ({ task }: { task: TaskItem }) => {
 const TaskDetailModal = ({
   task,
   isOpen,
-  onClose
+  onClose,
 }: {
   task: TaskItem | null;
   isOpen: boolean;
@@ -170,7 +170,7 @@ const TaskDetailModal = ({
 
   const handleAcceptTask = () => {
     // Handle accept task logic here
-    console.log("Accepting task:", task.id);
+    // console.log("Accepting task:", task.id);
     onClose();
   };
 

@@ -53,7 +53,7 @@ const PostRateModal = ({
   const handleRating: SubmitHandler<PostRateFormValues> = async (data) => {
     setIsSubmitting(true);
     try {
-      console.log("Submitted data:", data);
+      // console.log("Submitted data:", data);
       const rating = Number(data.rating); // ĐÃ LÀ NUMBER NHỜ setValueAs
       console.log("Rating:", rating, typeof rating); // number
       await apiClient.rateApplication(applicationId, {
