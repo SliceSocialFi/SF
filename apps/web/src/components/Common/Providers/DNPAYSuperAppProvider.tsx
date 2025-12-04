@@ -71,9 +71,9 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
 
   return (
     <DNPAYSuperAppContext.Provider value={{
-      appSessionId:"369144bb-c145-4d47-a6f2-e9b608dd2782",
-      token:"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkZXBheS13YWxsZXQiLCJhdWQiOiJzbGljZS1zb2NpYWxmaSIsInN1YiI6ImhpZXV0bS5zaXRlQGdtYWlsLmNvbSIsImFwcF9pZCI6InNsaWNlLXNvY2lhbGZpIiwic2NvcGVzIjpbInBheW1lbnQiLCJwcm9maWxlIiwiYmFsYW5jZSJdLCJqdGkiOiJqdGlfNjk0YTQ3YWNlZjg3NGIwMTgzZDU4NWU2ODlhODc2MWEiLCJub25jZSI6Im5vbmNlXzY2YTEyZjVlOTVmOTQyMmI5MWRlMmY2NTRjMjNmNjNjIiwiaWF0IjoxNzY0ODM0MTY3LCJleHAiOjE3NjQ4Mzc3Njd9.TbSeduxZGTa4vHSpDJ5IQ57sNJcpoAh2pHQr2R0iVEuHIyJYGaWGCwYC_MVyumrhC0FaSu61TiPlJPmVRrUr2mQw2Ia48jQtx2hL48YX7FXriV14q_0I6qss44tftxk2a7fOJx6M0g_z1k-h4GG_Q2Ez7b4K8PS5sSSEyUfUq9pnctrHXLg5KldVR2EVyZnwgwKSKFD-_FawQlonSRjEID-4MxgioyPBIMy_BdEm1Qn31l0Cj5MLMrie0u2Bk4q4LvbikP2ODl0Bq_6Greg4B0bS4BwQcYxQSMfnwekHfPjbWb7X00VAILfGSusTTw2WunzL5cs5XupxqmgXYCtn_Q",
-      isReady:true,
+      appSessionId,
+      token,
+      isReady,
       currentOrder,
       isLoading,
       setCurrentOrder,
