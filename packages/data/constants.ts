@@ -10,7 +10,7 @@ import getEnvConfig from "./utils/getEnvConfig";
 // Lens and Hey Env Config
 export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 
-console.log("LENS_NETWORK:", LENS_NETWORK);
+// console.log("LENS_NETWORK:", LENS_NETWORK);
 
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;

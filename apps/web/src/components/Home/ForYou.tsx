@@ -3,7 +3,7 @@ import {
   PageSize,
   type PostFragment,
   type PostsForYouRequest,
-  usePostsForYouQuery
+  usePostsForYouQuery,
 } from "@slice/indexer";
 import { useCallback, useEffect, useMemo } from "react";
 import SinglePost from "@/components/Post/SinglePost";
@@ -13,24 +13,25 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 const ForYou = () => {
   const { currentAccount } = useAccountStore();
 
-  console.log('🟡 ForYou component render');
+  // console.log('🟡 ForYou component render');
 
   const request: PostsForYouRequest = {
     account: currentAccount?.address,
     pageSize: PageSize.Fifty,
-    shuffle: true
+    shuffle: true,
   };
 
-  const { data, error, fetchMore, loading, refetch, client } = usePostsForYouQuery({
-    variables: { request },
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true
-  });
+  const { data, error, fetchMore, loading, refetch, client } =
+    usePostsForYouQuery({
+      variables: { request },
+      fetchPolicy: "network-only",
+      notifyOnNetworkStatusChange: true,
+    });
 
   // Reset cache when component mounts
   useEffect(() => {
-    console.log('🟡 ForYou mounted - evicting cache');
-    client.cache.evict({ fieldName: 'mlPostsForYou' });
+    // console.log('🟡 ForYou mounted - evicting cache');
+    client.cache.evict({ fieldName: "mlPostsForYou" });
     client.cache.gc();
     refetch();
   }, []);
@@ -42,7 +43,7 @@ const ForYou = () => {
   const handleEndReached = useCallback(async () => {
     if (hasMore) {
       await fetchMore({
-        variables: { request: { ...request, cursor: pageInfo?.next } }
+        variables: { request: { ...request, cursor: pageInfo?.next } },
       });
     }
   }, [fetchMore, hasMore, pageInfo?.next, request]);
@@ -60,7 +61,7 @@ const ForYou = () => {
     [posts]
   );
 
-  console.log('🟡 ForYou filteredPosts:', filteredPosts?.length, 'IDs:', filteredPosts?.map(p => p.id).slice(0, 3));
+  // console.log('🟡 ForYou filteredPosts:', filteredPosts?.length, 'IDs:', filteredPosts?.map(p => p.id).slice(0, 3));
 
   return (
     <PostFeed
