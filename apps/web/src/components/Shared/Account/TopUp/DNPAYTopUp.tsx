@@ -7,6 +7,7 @@ import { getRYFExchangeRates } from "@/helpers/getRYFExchangeRates";
 import Loader from "@/components/Shared/Loader";
 import { MAINNET_CHAINS } from "@slice/data/chains";
 import { ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
+import RoundingConfirmation from "./RoundingConfirmation";
 
 enum Currency {
     USDT = "USDT",
@@ -33,6 +34,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     const [isSwapped, setIsSwapped] = useState(false); // false: RYF top, true: Payment currency top
     const [isCalculating, setIsCalculating] = useState(false);
     const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({ usdt: 0, vndc: 0 });
+    const [showRoundingConfirm, setShowRoundingConfirm] = useState(false);
 
     const currencySymbol = currency;
     const paymentCurrencyIcon = currency === Currency.USDT 
@@ -143,9 +145,29 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             return;
         }
 
+        // Get payment amount (the amount in payment currency)
+        const paymentAmount = isSwapped ? topAmount : bottomAmount;
+        
+        // Check if payment amount is not an integer
+        if (!Number.isInteger(paymentAmount)) {
+            setShowRoundingConfirm(true);
+            return;
+        }
+
+        // If payment amount is already an integer, proceed with order creation
+        await createOrderWithAmount(paymentAmount);
+    };
+
+    const createOrderWithAmount = async (paymentAmount: number) => {
+        if (!currentAccount?.address) {
+            toast.error("Please connect your wallet");
+            return;
+        }
+
         try {
-            // Calculate how much payment currency needed for the RYF amount
-            const ryfAmount = isSwapped ? bottomAmount : topAmount;
+            // Calculate RYF amount from payment amount
+            const ryfAmount = paymentAmount / currentRate;
+            
             await createOrder({
                 userWalletAddress: currentAccount.address,
                 amount: Number(ryfAmount),
@@ -160,37 +182,58 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
         }
     };
 
+    const handleConfirmRounding = async () => {
+        const paymentAmount = isSwapped ? topAmount : bottomAmount;
+        const roundedPaymentAmount = Math.round(paymentAmount);
+        
+        setShowRoundingConfirm(false);
+        await createOrderWithAmount(roundedPaymentAmount);
+    };
+
+    const handleCancelRounding = () => {
+        setShowRoundingConfirm(false);
+    };
+
+    // Calculate rounded values for display in confirmation modal
+    const paymentAmount = isSwapped ? topAmount : bottomAmount;
+    const roundedPaymentAmount = Math.round(paymentAmount);
+    const ryfAmountAfterRounding = roundedPaymentAmount / currentRate;
+
     return (
         <>
-            <div className="m-4">
-                <button
-                    className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                    onClick={onBack}
-                    type="button"
-                >
-                    <svg 
-                        className="size-5" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                    >
-                        <path 
-                            d="M15 19l-7-7 7-7" 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2}
-                        />
-                    </svg>
-                    <span className="text-sm">Back to methods</span>
-                </button>
-            </div>
             <div className="m-5 mt-0 space-y-5">
                 {isLoading ? (
-                    <div className="m-5 min-w-[200px]">
-                        <Loader className="my-10" message="Creating order..." />
+                    <div className="flex flex-col items-center gap-4 p-10 pb-4">
+                        <Loader/>
+                        <span className="font-semibold text-lg">
+                            Creating your order...
+                        </span>
                     </div>
                 ) : (
                     <>
+                        <div className="my-4 -mx-1">
+                            <button
+                                className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                onClick={onBack}
+                                type="button"
+                            >
+                                <svg 
+                                    className="size-5" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path 
+                                        d="M15 19l-7-7 7-7" 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round" 
+                                        strokeWidth={2}
+                                    />
+                                </svg>
+                                <span className="text-sm">Back to methods</span>
+                            </button>
+                        </div>
+
                         {/* Currency Selection */}
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div className="flex flex-col gap-1">
@@ -304,8 +347,11 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                                                 </p>
                                             </div>
                                         ): (
-                                            <div className="my-2">
-                                                <Loader message="Loading..." />
+                                            <div className="flex flex-col items-center gap-4 p-2">
+                                                <Loader/>
+                                                <span className="font-semibold text-lg">
+                                                    Calculating exchange rate...
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -333,6 +379,18 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                     </>
                 )}
             </div>
+
+            {/* Rounding Confirmation Modal */}
+            <RoundingConfirmation
+                show={showRoundingConfirm}
+                currency={currency}
+                paymentAmount={paymentAmount}
+                roundedPaymentAmount={roundedPaymentAmount}
+                ryfAmountAfterRounding={ryfAmountAfterRounding}
+                isLoading={isLoading}
+                onConfirm={handleConfirmRounding}
+                onCancel={handleCancelRounding}
+            />
         </>
     );
 };

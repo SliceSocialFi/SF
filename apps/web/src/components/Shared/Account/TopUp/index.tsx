@@ -138,7 +138,12 @@ const TopUp = () => {
               payment={currentOrder.payment}
             />
           ) : (
-            <Loader className="my-10" message="Loading order details..." />
+            <div className="flex flex-col items-center gap-4 p-10">
+                <Loader/>
+                <span className="font-semibold text-lg">
+                    Loading order details...
+                </span>
+            </div>
           )
       }
     </>

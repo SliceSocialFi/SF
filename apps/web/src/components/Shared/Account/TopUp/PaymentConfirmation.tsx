@@ -68,14 +68,16 @@ const PaymentConfirmation = ({
 
   if (isLoading || isConfirming) {
     return (
-      <div className="m-5">
-        <Loader 
-          className="my-10" 
-          message={isConfirming ? "Confirming payment..." : "Processing..."} 
-        />
+      <div className="flex flex-col items-center gap-4 p-10">
+          <Loader/>
+          <span className="font-semibold text-lg">
+            {isConfirming ? "Confirming payment..." : "Loading order details..."}
+          </span>
       </div>
     );
   }
+
+  console.log("Rendering PaymentConfirmation with:", { order, payment, statusInfo });
 
   return (
     <>
@@ -130,7 +132,7 @@ const PaymentConfirmation = ({
                     }
                   />
                   <span className="font-semibold">
-                    {payment.amount} {payment.currency}
+                    {Number(payment.amount)} {payment.currency}
                   </span>
                 </div>
               </div>
@@ -144,7 +146,7 @@ const PaymentConfirmation = ({
                     src={MAINNET_CHAINS.bsc.token.icon}
                   />
                   <span className="font-semibold">
-                    {Number(order.amount)} {ERC20_TOKEN_SYMBOL}
+                    {Number(Number(order.amount).toFixed(6))} {ERC20_TOKEN_SYMBOL}
                   </span>
                 </div>
               </div>
@@ -186,10 +188,10 @@ const PaymentConfirmation = ({
                     </svg>
                         <b>Warning</b>
                 </div>
-                    <span className="text-gray-500 text-sm dark:text-gray-400">
-                        Please make sure you have completed the payment before confirming. 
-                        Confirming without payment may result in order failure.
-                    </span>
+                <span className="text-gray-500 text-sm dark:text-gray-400">
+                    Please make sure you have completed the payment before confirming. 
+                    Confirming without payment may result in order failure.
+                </span>
             </div>
           </div>
         </Card>
