@@ -1,0 +1,47 @@
+name: Deploy to EC2 (Docker Compose)
+
+on:
+  push:
+    branches:
+      - sandbox   # deploy khi push vào nhánh này
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ci_key
+          chmod 600 ~/.ssh/ci_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Upload source to EC2
+        run: |
+          rsync -avz \
+          -e "ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no" \
+          ./ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/hey_new/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+
+          # Stop old containers
+          cd ~/hey
+          docker-compose down || true
+
+          # Replace old source
+          rm -rf ~/hey
+          mv ~/hey_new ~/hey
+
+          cd ~/hey
+
+          # Rebuild and restart
+          docker-compose build --no-cache
+          docker-compose up -d
+
+          EOF
