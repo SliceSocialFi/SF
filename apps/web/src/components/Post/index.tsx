@@ -6,7 +6,7 @@ import {
   PostReferenceType,
   PostVisibilityFilter,
   useHiddenCommentsQuery,
-  usePostQuery
+  usePostQuery,
 } from "@slice/indexer";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router";
@@ -22,7 +22,12 @@ import SingleAccount from "@/components/Shared/Account/SingleAccount";
 import BackButton from "@/components/Shared/BackButton";
 import Footer from "@/components/Shared/Footer";
 import PageLayout from "@/components/Shared/PageLayout";
-import { Card, CardHeader, Image, WarningMessage } from "@/components/Shared/UI";
+import {
+  Card,
+  CardHeader,
+  Image,
+  WarningMessage,
+} from "@/components/Shared/UI";
 import { usePostLinkStore } from "@/store/non-persisted/navigation/usePostLinkStore";
 import { usePostStore } from "@/store/non-persisted/post/usePostStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -38,7 +43,7 @@ interface HiddenCommentFeedState {
 
 const store = create<HiddenCommentFeedState>((set) => ({
   setShowHiddenComments: (show) => set({ showHiddenComments: show }),
-  showHiddenComments: false
+  showHiddenComments: false,
 }));
 
 export const useHiddenCommentFeedStore = createTrackedSelector(store);
@@ -79,7 +84,7 @@ const ViewPost = () => {
       }
     },
     skip: !slug,
-    variables: { request: { post: slug } }
+    variables: { request: { post: slug } },
   });
 
   const { data: comments } = useHiddenCommentsQuery({
@@ -89,9 +94,9 @@ const ViewPost = () => {
         pageSize: PageSize.Ten,
         referencedPost: slug,
         referenceTypes: [PostReferenceType.CommentOn],
-        visibilityFilter: PostVisibilityFilter.Hidden
-      }
-    }
+        visibilityFilter: PostVisibilityFilter.Hidden,
+      },
+    },
   });
 
   const post = data?.post ?? cachedPost;
@@ -113,6 +118,16 @@ const ViewPost = () => {
   const canComment =
     targetPost.operations?.canComment.__typename ===
     "PostOperationValidationPassed";
+  
+  // Check if the comment's root post is deleted
+  const isCommentOnDeletedPost = post.commentOn?.isDeleted || post.root?.isDeleted;
+  
+  // Allow comments on reposts even if original post is deleted
+  // But disable comments on original deleted posts
+  // Also disable comments if this is a comment on a deleted post
+  const allowComment = isRepost(post) 
+    ? true 
+    : !post.isDeleted && !isCommentOnDeletedPost;
 
   return (
     <PageLayout
@@ -161,22 +176,26 @@ const ViewPost = () => {
               />
             </div>
           )}
-          {currentAccount && !post.isDeleted && canComment ? (
+          {currentAccount && allowComment && canComment ? (
             <div className="px-3">
               {mounted ? (
                 <ComposerPanel
                   isOpen={open}
                   onDismiss={handleDismiss}
                   onExited={handleExited}
-                  disableDismiss={Boolean(postContent && postContent.trim().length > 0)}
+                  disableDismiss={Boolean(
+                    postContent && postContent.trim().length > 0
+                  )}
                 >
-                  <NewPublication 
+                  <NewPublication
                     post={targetPost}
                     panelProps={{
                       isOpen: open,
                       onDismiss: handleDismiss,
                       onExited: handleExited,
-                      disableDismiss: Boolean(postContent && postContent.trim().length > 0),
+                      disableDismiss: Boolean(
+                        postContent && postContent.trim().length > 0
+                      ),
                     }}
                   />
                 </ComposerPanel>
@@ -206,12 +225,8 @@ const ViewPost = () => {
               )}
             </div>
           ) : null}
-          {post.isDeleted ? null : (
-            <>
-              <CommentFeed postId={targetPost.id} />
-              <NoneRelevantFeed postId={targetPost.id} />
-            </>
-          )}
+          <CommentFeed postId={targetPost.id} />
+          <NoneRelevantFeed postId={targetPost.id} />
         </>
       )}
     </PageLayout>

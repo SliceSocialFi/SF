@@ -17,7 +17,7 @@ interface EscrowReleaseProps {
   freelancerAddress: string;
   onSuccess?: () => void;
 }
-
+// Component for releasing escrow payment to freelancer
 export function EscrowRelease({
   application,
   taskExternalId,

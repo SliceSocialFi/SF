@@ -58,7 +58,7 @@ const Attachments = ({ asset, attachments }: AttachmentsProps) => {
   const ImageComponent = ({ uri, index }: { uri: string; index: number }) => (
     <Image
       alt={imageKit(uri, TRANSFORMS.ATTACHMENT)}
-      className="max-h-[300px] cursor-pointer rounded-lg border border-gray-200 bg-gray-100 object-cover md:max-h-[500px] dark:border-gray-700 dark:bg-gray-800"
+      className="w-full max-h-[300px] cursor-pointer rounded-lg border border-gray-200 bg-gray-100 object-cover md:max-h-[500px] dark:border-gray-700 dark:bg-gray-800"
       height={1000}
       loading="lazy"
       onClick={() => {
@@ -72,10 +72,10 @@ const Attachments = ({ asset, attachments }: AttachmentsProps) => {
   );
 
   return (
-    <div className="mt-3">
+    <div className="mt-3 max-w-full">
       {Array.isArray(displayDecision) && (
         <div
-          className={cn("grid gap-2", getClass(displayDecision.length)?.row)}
+          className={cn("grid gap-2 max-w-full", getClass(displayDecision.length)?.row)}
         >
           {displayDecision.map((attachment, index) => (
             <div

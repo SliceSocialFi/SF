@@ -4,12 +4,15 @@ import PageLayout from "@/components/Shared/PageLayout";
 import { default as SearchInput } from "@/components/Shared/Search";
 import Sidebar from "@/components/Shared/Sidebar";
 import { EmptyState } from "@/components/Shared/UI";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
+import StickyFeedBar from "@/components/Home/StickyFeedbar";
 import Accounts from "./Accounts";
 import FeedType, { SearchTabFocus } from "./FeedType";
 import Posts from "./Posts";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const q = searchParams.get("q");
   const type =
     searchParams.get("type") || SearchTabFocus.Accounts.toLowerCase();
@@ -29,10 +32,16 @@ const Search = () => {
 
   return (
     <PageLayout hideSearch sidebar={<Sidebar />} title="Search">
-      <div className="px-5 md:px-0">
-        <SearchInput />
-      </div>
-      <FeedType feedType={feedType as SearchTabFocus} />
+      {!showMobileDrawer && (
+        <StickyFeedBar
+          header={
+            <div className="px-5 md:px-0">
+              <SearchInput />
+            </div>
+          }
+          tabs={<FeedType feedType={feedType as SearchTabFocus} />}
+        />
+      )}
       {!q && (
         <div className="px-3">
           <EmptyState

@@ -40,7 +40,7 @@ export function EscrowManager({
     currentUserAddress?.toLowerCase() === employerAddress?.toLowerCase();
 
   const handleDepositSuccess = (txHash: string, taskId?: string) => {
-    console.log("Deposit success:", txHash, taskId);
+    // console.log("Deposit success:", txHash, taskId);
     if (taskId) {
       setOnChainTaskId(taskId);
     }
@@ -49,7 +49,7 @@ export function EscrowManager({
   };
 
   const handleActionSuccess = (txHash: string) => {
-    console.log("Action success:", txHash);
+    // console.log("Action success:", txHash);
     setRefreshKey((prev) => prev + 1);
   };
 
@@ -132,7 +132,6 @@ export function EscrowManager({
                     </h3>
                     <EscrowRelease
                       taskExternalId={taskId}
-                      freelancerAddress={freelancerAddress}
                       onSuccess={handleActionSuccess}
                     />
                   </div>

@@ -10,19 +10,20 @@ import getEnvConfig from "./utils/getEnvConfig";
 // Lens and Hey Env Config
 export const LENS_NETWORK = process.env.LENS_NETWORK || "mainnet";
 
+// console.log("LENS_NETWORK:", LENS_NETWORK);
+
 export const LENS_API_URL = getEnvConfig().lensApiEndpoint;
 export const DEFAULT_COLLECT_TOKEN = getEnvConfig().defaultCollectToken;
 export const SLICE_APP = getEnvConfig().appAddress;
 export const CHAINS = getEnvConfig().chains;
 
-// export const SLICE_TREASURY = "0x03Ba34f6Ea1496fa316873CF8350A3f7eaD317EF";
-export const SLICE_TREASURY = LENS_TREASURY[LENS_NETWORK as keyof typeof LENS_TREASURY];
 export const SLICE_API_URL = process.env.SLICE_API_URL || "https://localhost:3000/";
 
 export const IS_MAINNET = LENS_API_URL === LENS_ENDPOINT.Mainnet;
 export const CHAIN = IS_MAINNET ? chains.mainnet : chains.testnet;
 export const ADDRESS_PLACEHOLDER = "0x03Ba3...7EF";
 export const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const SLICE_TREASURY = IS_MAINNET ? LENS_TREASURY.Mainnet : LENS_TREASURY.Testnet;
 
 // Subscription
 export const SUBSCRIPTION_AMOUNT = 100;

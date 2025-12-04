@@ -106,15 +106,15 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
       try {
         const { freelancerAddress, amountWei, deadlineUnix, externalTaskId } = params;
 
-        console.log("Deposit params:", {
-          freelancerAddress,
-          amountWei: amountWei.toString(),
-          deadlineUnix,
-          externalTaskId,
-          ownerAddress: address,
-          tokenAddress: ERC20_TOKEN_ADDRESS,
-          escrowAddress: TASK_ESCROW_POOL_ADDRESS
-        });
+        // console.log("Deposit params:", {
+        //   freelancerAddress,
+        //   amountWei: amountWei.toString(),
+        //   deadlineUnix,
+        //   externalTaskId,
+        //   ownerAddress: address,
+        //   tokenAddress: ERC20_TOKEN_ADDRESS,
+        //   escrowAddress: TASK_ESCROW_POOL_ADDRESS
+        // });
 
         // Step 1: Check token balance
         const balance = await publicClient.readContract({
@@ -124,7 +124,7 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
           args: [address]
         }) as bigint;
         
-        console.log("Token balance:", formatUnits(balance, 18));
+        // console.log("Token balance:", formatUnits(balance, 18));
         
         if (balance < amountWei) {
           throw new Error(
@@ -140,8 +140,8 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
           args: [address, TASK_ESCROW_POOL_ADDRESS as Address]
         }) as bigint;
         
-        console.log("Current allowance:", formatUnits(currentAllowance, 18));
-        console.log("Required amount:", formatUnits(amountWei, 18));
+        // console.log("Current allowance:", formatUnits(currentAllowance, 18));
+        // console.log("Required amount:", formatUnits(amountWei, 18));
 
         if (currentAllowance < amountWei) {
           console.log("Insufficient allowance, approving token...");
@@ -229,34 +229,51 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         });
         toast.success("Funds deposited successfully", { id: "deposit" });
         console.log("Deposit successful, tx:", receipt.transactionHash);
+        console.log("📋 Receipt logs count:", receipt.logs.length);
 
         // Step 4: Extract taskId from event
         let taskId: string | undefined;
         try {
-          for (const log of receipt.logs) {
+          for (let i = 0; i < receipt.logs.length; i++) {
+            const log = receipt.logs[i];
             try {
+              // console.log(`📝 Log ${i}:`, {
+              //   address: log.address,
+              //   topics: log.topics,
+              //   data: log.data?.slice(0, 66) + "..." // First 66 chars
+              // });
+              
               const decoded = decodeEventLog({
                 abi: ESCROW_ABI,
                 data: log.data,
                 topics: log.topics
               });
               
+              // console.log(`✅ Decoded log ${i}:`, decoded.eventName, decoded.args);
+              
               if (decoded.eventName === "Deposited") {
                 // @ts-ignore - taskId is in the event args
-                taskId = decoded.args.taskId?.toString();
-                console.log("On-chain taskId:", taskId);
+                const rawTaskId = decoded.args.taskId;
+                taskId = rawTaskId?.toString();
+                  // console.log("🎯 On-chain taskId extracted:", taskId);
                 break;
               }
-            } catch {
-              // Skip logs that don't match
+            } catch (decodeError) {
+              // Skip logs that don't match our ABI (e.g., ERC20 Transfer events)
+              // console.log(`⏭️ Log ${i} skipped (different event):`, (decodeError as Error)?.message?.slice(0, 50));
               continue;
             }
           }
+          
+          if (!taskId) {
+            console.warn("⚠️ Could not extract taskId from any log. Backend will need to extract from txHash.");
+          }
         } catch (err) {
-          console.warn("Failed to parse taskId from event:", err);
+          console.warn("❌ Failed to parse taskId from event:", err);
         }
 
         const result = { txHash: receipt.transactionHash, taskId };
+        // console.log("📤 Returning deposit result:", result);
         onSuccess?.(result);
         return result;
       } catch (error: any) {
@@ -341,8 +358,8 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         console.log("Token for adminReleaseEscrow:", token);
         // Call backend API which handles admin release
         const apiUrl = (`${SLICE_API_URL}tasks/${taskId}/release`);
-        console.log("🔗 Calling API:", apiUrl);
-        console.log("📦 Payload:", { reason });
+        // console.log("🔗 Calling API:", apiUrl);
+        // console.log("📦 Payload:", { reason });
 
         const response = await fetch(apiUrl, {
           method: "POST",
@@ -378,10 +395,16 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
           throw new Error(errorMessage);
         }
 
-        // 3. Chỉ parse JSON khi status là 200-299
+        // Parse successful response
         const data = await response.json();
+        // console.log("✅ Release response:", data);
 
-        toast.success("Payment released successfully");
+        // Show appropriate success message
+        const message = data.releasedAfterDeadline 
+          ? "Payment released after deadline" 
+          : "Payment released successfully";
+        toast.success(message);
+        
         onSuccess?.({ txHash: data.txHash, taskId });
         return { txHash: data.txHash, taskId };
 
@@ -408,8 +431,8 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
         }
         // Call backend API which handles admin release
         const apiUrl = (`${SLICE_API_URL}/complete/${taskId}`);
-        console.log("🔗 Calling API:", apiUrl);
-        console.log("📦 Payload:", { reason })
+        // console.log("🔗 Calling API:", apiUrl);
+        // console.log("📦 Payload:", { reason })
         const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
@@ -448,99 +471,6 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
       } catch (error: any) {
         console.error("Release failed:", error);
         toast.error(error.message);
-        onError?.(error);
-        throw error;
-      } finally {
-        setIsReleasing(false);
-      }
-    },
-    [onSuccess, onError]
-  );
-
-  /**
-   * Permissionless release after deadline
-   * Can be called by anyone after deadline passes
-   * - If work submitted but no feedback: release to freelancer
-   * - If no work submitted: release to employer
-   * 
-   * Calls backend API instead of direct contract interaction
-   */
-  const releaseAfterDeadline = useCallback(
-    async (
-      taskId: string,
-      recipientAddress: Address,
-      reason: string
-    ): Promise<EscrowTransaction> => {
-      setIsReleasing(true);
-
-      try {
-        const token = getToken();
-        if (!token) {
-          throw new Error("Not authenticated");
-        }
-
-        toast.info("Releasing funds after deadline...");
-
-        // Call backend API to handle release after deadline
-        const apiUrl = `${SLICE_API_URL}tasks/${taskId}/release-after-deadline`;
-        console.log("🔗 Calling API:", apiUrl);
-        console.log("📦 Payload:", { recipientAddress, reason });
-
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            recipientAddress,
-            reason
-          })
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          
-          // Handle DEADLINE_NOT_REACHED error with detailed message
-          if (errorData.code === "DEADLINE_NOT_REACHED") {
-            const detailedError = new Error(errorData.error || "Deadline has not passed yet");
-            (detailedError as any).code = "DEADLINE_NOT_REACHED";
-            throw detailedError;
-          }
-          
-          throw new Error(errorData.message || errorData.error || `API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        
-        toast.success("Funds released successfully!");
-        
-        const result = { txHash: data.txHash, taskId };
-        onSuccess?.(result);
-        return result;
-      } catch (error: any) {
-        console.error("Release after deadline failed:", error);
-        
-        let message = "Failed to release funds";
-        
-        // Check error code first
-        if (error?.code === "DEADLINE_NOT_REACHED") {
-          message = error.message || "Deadline has not been reached yet";
-        } else if (error?.message) {
-          if (error.message.includes("deadline not reached") || error.message.includes("Chưa đến hạn")) {
-            message = error.message;
-          } else if (error.message.includes("settled")) {
-            message = "Escrow already settled";
-          } else if (error.message.includes("invalid recipient")) {
-            message = "Invalid recipient address";
-          } else if (error.message.includes("Not authenticated")) {
-            message = "Please login to continue";
-          } else {
-            message = error.message;
-          }
-        }
-        
-        toast.error(message);
         onError?.(error);
         throw error;
       } finally {
@@ -608,9 +538,8 @@ export function useEscrow({ onSuccess, onError }: UseEscrowOptions) {
   return {
     deposit,
     cancel,
-    adminReleaseEscrow,
+    adminReleaseEscrow,  // Unified release - handles both normal and after-deadline
     releaseAfterFeedback,
-    releaseAfterDeadline,
     readEscrow, // Fixed: Now properly handles struct tuple
     getTaskIdFromExternal,
     checkAllowance,

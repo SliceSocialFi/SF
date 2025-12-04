@@ -325,6 +325,27 @@ export default class ApiClient {
     return this.request('/escrow/sync', { method: 'POST' })
   }
 
+  /**
+   * Release payment after deadline (API v4.0 - Auto Logic)
+   * Backend automatically decides recipient based on work submission:
+   * - If freelancer submitted work (in_review/completed) → Release to freelancer
+   * - If freelancer NOT submitted or no freelancer → Refund to employer
+   * 
+   * @param taskId - Task ID
+   * @param reason - Optional reason for release
+   */
+  async releaseAfterDeadline(
+    taskId: string,
+    reason?: string
+  ): Promise<any> {
+    return this.request(`/tasks/${encodeURIComponent(taskId)}/release-after-deadline`, {
+      method: 'POST',
+      body: JSON.stringify({
+        reason // Optional - backend auto-generates if empty
+      })
+    })
+  }
+
   // ==================== CONVENIENCE METHODS ====================
   
   async applyForTask(taskId: string, coverLetter?: string) {

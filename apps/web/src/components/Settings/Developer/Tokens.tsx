@@ -75,34 +75,34 @@ const Tokens = () => {
   };
 
   return (
-    <Card>
+    <Card className="mx-2 sm:mx-0">
       <CardHeader
         icon={<BackButton path="/settings" />}
         title="Your temporary access token"
       />
       <div className="m-5 space-y-5">
         <div className="flex flex-col gap-y-3">
-          <b>Your temporary access token</b>
+          <div>Your temporary access token</div>
           <button
-            className="cursor-pointer break-all rounded-md bg-gray-300 p-2 px-3 text-left dark:bg-gray-600"
+            className="cursor-pointer break-all rounded-md bg-gray-300 p-2 px-3 text-left dark:bg-[#121212]"
             onClick={copyAccessToken}
             type="button"
           >
-            <H6>{accessToken}</H6>
+            <div className="text-sm">{accessToken}</div>
           </button>
         </div>
         <div className="flex flex-col gap-y-3">
-          <b>Your temporary refresh token</b>
+          <div>Your temporary refresh token</div>
           <button
-            className="cursor-pointer break-all rounded-md bg-gray-300 p-2 px-3 text-left dark:bg-gray-600"
+            className="cursor-pointer break-all rounded-md bg-gray-300 p-2 px-3 text-left dark:bg-[#121212]"
             onClick={copyRefreshToken}
             type="button"
           >
-            <H6>{refreshToken}</H6>
+            <div className="text-sm">{refreshToken}</div>
           </button>
         </div>
         <div className="flex flex-col gap-y-3">
-          <b>Your temporary builder token</b>
+          <div>Your temporary builder token</div>
           <Button
             disabled={isSubmitting}
             loading={isSubmitting}
@@ -116,7 +116,7 @@ const Tokens = () => {
               onClick={copyBuilderToken}
               type="button"
             >
-              <H6>{builderToken}</H6>
+              <div className="text-sm">{builderToken}</div>
             </button>
           )}
         </div>

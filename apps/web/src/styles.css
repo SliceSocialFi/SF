@@ -28,6 +28,10 @@
 }
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
   :root {
     @apply text-black dark:text-white;
     font-family: var(--font-system);
@@ -81,6 +85,13 @@
   /* Input & Form elements */
   input, textarea, select {
     font-weight: 400; /* Regular */
+  }
+
+  /* Prevent iOS zoom on input focus */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
 
   /* Labels */
@@ -696,12 +707,18 @@
 
   .post-action-count {
     display: inline-block;
-    min-width: 2.25rem;
+    min-width: 1.75rem;
     text-align: left;
     font-size: 11px;
   }
 
-  @screen sm {
+  @media (min-width: 400px) {
+    .post-action-count {
+      min-width: 2.25rem;
+    }
+  }
+
+  @media (min-width: 640px) {
     .post-action-count {
       font-size: 0.75rem;
     }

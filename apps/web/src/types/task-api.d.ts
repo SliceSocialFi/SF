@@ -68,7 +68,7 @@ export interface Application {
   rating?: number;
   comment?: string;
   submissionCount?: number;
-  createdAt: string;
+  appliedAt: string;
   completedAt?: string | null;
 }
 

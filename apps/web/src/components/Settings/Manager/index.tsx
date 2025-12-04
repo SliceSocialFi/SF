@@ -18,7 +18,7 @@ const ManagerSettings = () => {
 
   return (
     <PageLayout title="Manager settings">
-      <Card>
+      <Card className="mx-2 sm:mx-0">
         <CardHeader
           icon={<BackButton path="/settings" />}
           title="Manager settings"

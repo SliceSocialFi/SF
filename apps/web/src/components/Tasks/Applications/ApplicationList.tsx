@@ -155,13 +155,37 @@ const ApplicationList = ({
     if (!pendingApplication) return;
 
     try {
-      // Step 1: Confirm deposit to backend (save onChainTaskId and txHash)
-      if (onChainTaskId && taskExternalId) {
-        toast.info("Confirming deposit on backend...");
+      // Step 1: Confirm deposit to backend (REQUIRED - save onChainTaskId and txHash)
+      // This is critical for mainnet - backend needs txHash to verify deposit
+      if (!taskExternalId) {
+        toast.error("Task external ID not found. Cannot confirm deposit.");
+        return;
+      }
+
+      toast.info("Confirming deposit on backend...");
+
+      // IMPORTANT: Always call confirmDeposit even if onChainTaskId is missing
+      // Backend can extract onChainTaskId from txHash if needed
+      try {
         await apiClient.confirmDeposit(taskExternalId, {
-          onChainTaskId,
+          onChainTaskId: onChainTaskId || "", // Send empty string if not parsed from event
           depositedTxHash: txHash,
         });
+        // console.log("✅ Deposit confirmed on backend:", {
+        //   taskExternalId,
+        //   onChainTaskId,
+        //   txHash,
+        // });
+      } catch (confirmError: any) {
+        console.error("❌ Failed to confirm deposit on backend:", confirmError);
+        toast.error(
+          confirmError?.body?.message ||
+            "Failed to confirm deposit. Please contact support with tx: " +
+              txHash.slice(0, 10) +
+              "..."
+        );
+        // Don't proceed with accept if confirm fails
+        return;
       }
 
       // Step 2: Accept the application on backend
@@ -384,20 +408,19 @@ const ApplicationList = ({
       </Modal>
 
       {/* Escrow Release After Deadline (NEW FEATURE) */}
-      {taskExternalId && taskDeadline && (
-        <div className="mt-6">
-          <EscrowRelease
-            taskId={taskId}
-            taskExternalId={taskExternalId}
-            employerAddress={employerAddress}
-            freelancerAddress={
-              applications.find((app) => app.status === "accepted")
-                ?.applicantProfileId || ""
-            }
-            taskDeadline={taskDeadline}
-          />
-        </div>
-      )}
+      {/* Only show if task is not completed/cancelled (escrow not settled) */}
+      {taskExternalId &&
+        taskDeadline &&
+        taskStatus !== "completed" &&
+        taskStatus !== "cancelled" && (
+          <div className="mt-6">
+            <EscrowRelease
+              taskId={taskId}
+              taskExternalId={taskExternalId}
+              taskDeadline={taskDeadline}
+            />
+          </div>
+        )}
 
       {/* Revision Request Modal */}
       <Modal

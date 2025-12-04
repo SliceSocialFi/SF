@@ -15,7 +15,7 @@ const UsernameSettings = () => {
 
   return (
     <PageLayout title="Username settings">
-      <Card>
+      <Card className="mx-2 sm:mx-0">
         <CardHeader icon={<BackButton path="/settings" />} title="Username" />
         <UnlinkUsername />
         <div className="divider" />

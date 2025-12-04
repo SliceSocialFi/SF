@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { apiClient } from "@/lib/apiClient";
 import { useNotificationStore } from "@/store/non-persisted/useNotificationStore";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import NotLoggedIn from "@/components/Shared/NotLoggedIn";
 import PageLayout from "@/components/Shared/PageLayout";
 import MobileHeader from "@/components/Shared/MobileHeader";
@@ -22,10 +23,47 @@ import getAvatar from "@slice/helpers/getAvatar";
 import { DEFAULT_AVATAR } from "@slice/data/constants";
 import type { Notification } from "@/types/task-api";
 import { NotificationFeedType } from "@slice/data/enums";
+import { useAccountQuery } from "@slice/indexer";
 import FeedType from "./FeedType";
 import List from "./List";
 
+// Extended notification type with resolved sender info
+interface NotificationWithSender extends Notification {
+  resolvedSenderName?: string;
+  resolvedSenderAvatar?: string;
+}
+
 const NOTIFICATIONS_PER_PAGE = 10;
+
+// Regex to match Ethereum addresses (0x followed by 40 hex characters)
+const ETH_ADDRESS_REGEX = /0x[a-fA-F0-9]{40}/g;
+
+/**
+ * Format notification message by removing wallet addresses
+ * and cleaning up the text
+ */
+const formatNotificationMessage = (
+  message: string,
+  senderName?: string
+): string => {
+  if (!message) return "";
+
+  // Replace wallet addresses with sender name or remove them
+  let formatted = message.replace(ETH_ADDRESS_REGEX, senderName || "").trim();
+
+  // Clean up extra spaces and fix grammar
+  formatted = formatted
+    .replace(/\s+/g, " ") // Multiple spaces to single space
+    .replace(/^\s*has\s+/i, "") // Remove leading "has" if message starts with it
+    .trim();
+
+  // Capitalize first letter
+  if (formatted.length > 0) {
+    formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  }
+
+  return formatted;
+};
 
 /**
  * NotificationItem Component - Refactored with professional UI
@@ -36,102 +74,117 @@ const NotificationItem = ({
   onMarkAsRead,
   onClick,
 }: {
-  notification: Notification;
+  notification: NotificationWithSender;
   onMarkAsRead: (id: string) => void;
-  onClick: (notification: Notification) => void;
+  onClick: (notification: NotificationWithSender) => void;
 }) => {
-  const avatarUrl = notification.sender?.avatar || DEFAULT_AVATAR;
-  const senderName = notification.sender?.username || "System";
+  // Use resolved sender name/avatar (from Lens profile), fallback to API data, then "System"
+  const avatarUrl =
+    notification.resolvedSenderAvatar ||
+    notification.sender?.avatar ||
+    DEFAULT_AVATAR;
+  const senderName =
+    notification.resolvedSenderName ||
+    notification.sender?.username ||
+    "System";
+
+  // Format message to remove wallet addresses
+  const formattedMessage = formatNotificationMessage(
+    notification.message,
+    senderName
+  );
 
   return (
     <Card
       onClick={() => onClick(notification)}
-      className={`cursor-pointer p-4 transition-all hover:shadow-md ${
+      className={`cursor-pointer gap-4 p-4 transition-shadow hover:shadow-md ${
         !notification.isRead
           ? "border-brand-200 bg-brand-50/30 dark:border-brand-800 dark:bg-brand-900/5"
           : ""
       }`}
     >
-      <div className="flex items-start gap-4">
-        {/* Avatar with Unread Indicator */}
-        <div className="relative flex-shrink-0">
-          <img
-            src={avatarUrl}
-            alt={senderName}
-            className="h-12 w-12 rounded-full border-2 border-gray-100 object-cover dark:border-gray-800"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
-            }}
-          />
-          {!notification.isRead && (
-            <div className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-brand-600 ring-2 ring-white dark:ring-gray-900" />
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 space-y-2">
-          {/* Header: Sender + Time */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
+      <div className="space-y-3">
+        {/* Header: Avatar + Sender + Time */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Avatar with Unread Indicator */}
+            <div className="relative flex-shrink-0">
+              <img
+                src={avatarUrl}
+                alt={senderName}
+                className="h-10 w-10 rounded-full border-2 border-gray-100 object-cover dark:border-gray-800"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = DEFAULT_AVATAR;
+                }}
+              />
+              {!notification.isRead && (
+                <div className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full bg-brand-600 ring-2 ring-white dark:ring-gray-900" />
+              )}
+            </div>
+            <div>
               <p
-                className={`font-semibold text-gray-900 text-sm dark:text-white ${
-                  !notification.isRead ? "font-bold" : ""
+                className={`font-medium text-gray-900 text-sm dark:text-white ${
+                  !notification.isRead ? "font-semibold" : ""
                 }`}
               >
                 {senderName}
               </p>
-              <h3
-                className={`mt-0.5 text-gray-700 text-sm leading-snug dark:text-gray-300 ${
-                  !notification.isRead ? "font-semibold" : "font-normal"
-                }`}
-              >
-                {notification.title}
-              </h3>
             </div>
-            <span className="flex-shrink-0 text-gray-500 text-xs dark:text-gray-400">
-              {formatRelativeTime(notification.createdAt)}
-            </span>
           </div>
-
-          {/* Message */}
-          <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
-            {notification.message}
-          </p>
-
-          {/* Type Badge */}
-          {notification.type && (
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="primary"
-                className={`${
-                  notification.isRead
-                    ? "border-gray-300 bg-gray-100 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
-                    : "border-brand-300 bg-brand-100 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
-                }`}
-              >
-                {notification.type
-                  .replace(/_/g, " ")
-                  .toLowerCase()
-                  .replace(/\b\w/g, (c) => c.toUpperCase())}
-              </Badge>
-            </div>
-          )}
+          <span className="flex-shrink-0 text-gray-500 text-xs dark:text-gray-400">
+            {formatRelativeTime(notification.createdAt)}
+          </span>
         </div>
 
-        {/* Mark as Read Button */}
-        {!notification.isRead && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMarkAsRead(notification.id);
-            }}
-            className="flex-shrink-0 rounded-lg p-2 text-brand-600 transition-colors hover:bg-brand-100 dark:text-brand-400 dark:hover:bg-brand-900/20"
-            title="Mark as read"
-            type="button"
-          >
-            <CheckCircleIcon className="h-5 w-5" />
-          </button>
+        {/* Title */}
+        <h3
+          className={`text-gray-900 text-sm leading-snug dark:text-white ${
+            !notification.isRead ? "font-semibold" : "font-medium"
+          }`}
+        >
+          {notification.title}
+        </h3>
+
+        {/* Message - only show if there's content after formatting */}
+        {formattedMessage && (
+          <p className="text-gray-600 text-sm leading-relaxed dark:text-gray-400">
+            {formattedMessage}
+          </p>
         )}
+
+        {/* Type Badge & Mark as Read Button */}
+        <div className="flex items-center justify-between">
+          {notification.type && (
+            <Badge
+              variant="primary"
+              className={`${
+                notification.isRead
+                  ? "border-gray-300 bg-gray-100 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                  : "border-brand-300 bg-brand-100 text-brand-700 dark:border-brand-700 dark:bg-brand-900/30 dark:text-brand-300"
+              }`}
+            >
+              {notification.type
+                .replace(/_/g, " ")
+                .toLowerCase()
+                .replace(/\b\w/g, (c) => c.toUpperCase())}
+            </Badge>
+          )}
+
+          {/* Mark as Read Button */}
+          {!notification.isRead && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkAsRead(notification.id);
+              }}
+              className="flex-shrink-0 rounded-lg p-2 text-brand-600 transition-colors hover:bg-brand-100 dark:text-brand-400 dark:hover:bg-brand-900/20"
+              title="Mark as read"
+              type="button"
+            >
+              <CheckCircleIcon className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </div>
     </Card>
   );
@@ -143,6 +196,7 @@ const NotificationItem = ({
  */
 const NotificationsPage = () => {
   const { currentAccount } = useAccountStore();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
@@ -158,17 +212,21 @@ const NotificationsPage = () => {
     NotificationFeedType.All
   );
 
+  // State for notifications with resolved sender info
+  const [notificationsWithSender, setNotificationsWithSender] = useState<
+    NotificationWithSender[]
+  >([]);
+
   // Load hidden notification IDs from localStorage
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => {
     const stored = localStorage.getItem("hiddenNotifications");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 
-  // Fetch all notifications (paginate client-side like Tasks)
+  // Fetch all notifications first (paginate client-side like Tasks)
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["notifications", "list"],
     queryFn: async () => {
-      // Fetch all notifications without limit
       const notifications = await apiClient.getNotifications({ limit: 999 });
       return notifications;
     },
@@ -177,8 +235,82 @@ const NotificationsPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  // Filter out hidden notifications
-  const allNotifications = (data ?? []).filter((n) => !hiddenIds.has(n.id));
+  // useAccountQuery for fetching user metadata from Lens
+  // Similar pattern to ApplicationList.tsx
+  const { fetchMore } = useAccountQuery({
+    skip: !data || data.length === 0,
+    variables: {
+      request: {
+        address: data?.[0]?.senderProfileId || "",
+      },
+    },
+  });
+
+  // Function to get username by profileId from Lens
+  const getUsernameByProfileId = async (profileId: string) => {
+    if (!profileId) return null;
+    try {
+      const result = await fetchMore({
+        variables: {
+          request: {
+            address: profileId,
+          },
+        },
+      });
+      return {
+        name: result?.data?.account?.metadata?.name,
+        avatar: result?.data?.account?.metadata?.picture,
+      };
+    } catch (error) {
+      console.error("Error fetching account data for:", profileId, error);
+      return null;
+    }
+  };
+
+  // Resolve sender names when notifications data changes
+  useEffect(() => {
+    const resolveSenderNames = async () => {
+      if (!data || data.length === 0) {
+        setNotificationsWithSender([]);
+        return;
+      }
+
+      const notificationsData = data.filter(
+        (n: Notification) => !hiddenIds.has(n.id)
+      );
+
+      // Resolve sender info for each notification with senderProfileId
+      const resolved = await Promise.all(
+        notificationsData.map(async (notification: Notification) => {
+          if (notification.senderProfileId) {
+            const metadata = await getUsernameByProfileId(
+              notification.senderProfileId
+            );
+            return {
+              ...notification,
+              resolvedSenderName:
+                metadata?.name || notification.sender?.username || "System",
+              resolvedSenderAvatar:
+                metadata?.avatar || notification.sender?.avatar,
+            };
+          }
+          return {
+            ...notification,
+            resolvedSenderName: notification.sender?.username || "System",
+            resolvedSenderAvatar: notification.sender?.avatar,
+          };
+        })
+      );
+
+      setNotificationsWithSender(resolved);
+    };
+
+    resolveSenderNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, hiddenIds]);
+
+  // Filter out hidden notifications (using resolved notifications)
+  const allNotifications = notificationsWithSender;
 
   // Reset to page 0 when filter changes
   useEffect(() => {
@@ -250,7 +382,9 @@ const NotificationsPage = () => {
     toast.success(`${idsToHide.length} notifications hidden`);
   };
 
-  const handleNotificationClick = async (notification: Notification) => {
+  const handleNotificationClick = async (
+    notification: NotificationWithSender
+  ) => {
     // 1. Mark as read if not already
     if (!notification.isRead) {
       handleMarkAsRead(notification.id);
@@ -325,11 +459,11 @@ const NotificationsPage = () => {
   return (
     <PageLayout title="Task Notifications">
       {/* Tabs Navigation */}
-      <StickyFeedBar>
-        {/* Mobile Header */}
-        <MobileHeader searchPlaceholder="Search notifications..." />
-
-        <div className="px-5 md:px-0">
+      {!showMobileDrawer && (
+        <StickyFeedBar
+          header={<MobileHeader searchPlaceholder="Search notifications..." />}
+          tabs={
+            <div className="px-5 md:px-0">
           <Tabs
             active={filter}
             className="mb-0"
@@ -342,7 +476,7 @@ const NotificationsPage = () => {
                 suffix: (
                   <Badge
                     variant="primary"
-                    className="ml-1 border-gray-300 bg-gray-100 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                    className="flex items-center space-x-1 border-blue-600 bg-blue-500"
                   >
                     {totalCount}
                   </Badge>
@@ -367,53 +501,55 @@ const NotificationsPage = () => {
               },
             ]}
           />
-        </div>
+            </div>
+          }
+        />
+      )}
 
-        {/* Actions bar - Show when there are notifications */}
-        {totalCount > 0 && (
-          <div className="flex items-center justify-between border-gray-200 border-t px-5 py-3 md:px-0 dark:border-gray-700">
-            {unreadCountFromList > 0 ? (
-              <button
-                onClick={handleMarkAllAsRead}
-                className="group flex items-center gap-2 rounded-lg px-3 py-2 text-brand-600 text-sm font-medium transition-all hover:bg-brand-50 hover:text-brand-700 dark:text-brand-400 dark:hover:bg-brand-900/10 dark:hover:text-brand-300"
-                type="button"
-                title="Mark all notifications as read"
-              >
-                {/* Double check icon effect */}
-                <div className="relative">
-                  <CheckIcon className="h-4 w-4" />
-                  <CheckIcon className="absolute -right-1 -top-0.5 h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" />
-                </div>
-                <span>Mark all as read</span>
-              </button>
-            ) : (
-              <div />
-            )}
-
+      {/* Actions bar - Show when there are notifications */}
+      {totalCount > 0 && (
+        <div className="flex items-center justify-between border-gray-200 border-t px-5 pt-3 md:px-0 dark:border-gray-700">
+          {unreadCountFromList > 0 ? (
             <button
-              onClick={handleClearAll}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-red-600 text-sm font-medium transition-all hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/10 dark:hover:text-red-300"
+              onClick={handleMarkAllAsRead}
+              className="group flex items-center gap-2 rounded-lg px-3 py-2 text-brand-600 text-sm font-medium transition-all hover:bg-brand-50 hover:text-brand-700 dark:text-brand-400 dark:hover:bg-brand-900/10 dark:hover:text-brand-300"
               type="button"
-              title="Clear all notifications from view"
+              title="Mark all notifications as read"
             >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              <span>Clear all</span>
+              {/* Double check icon effect */}
+              <div className="relative">
+                <CheckIcon className="h-4 w-4" />
+                <CheckIcon className="absolute -right-1 -top-0.5 h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" />
+              </div>
+              <span>Mark all as read</span>
             </button>
-          </div>
-        )}
-      </StickyFeedBar>
+          ) : (
+            <div />
+          )}
+
+          <button
+            onClick={handleClearAll}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-red-600 text-sm font-medium transition-all hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/10 dark:hover:text-red-300"
+            type="button"
+            title="Clear all notifications from view"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            <span>Clear all</span>
+          </button>
+        </div>
+      )}
 
       {/* Notifications List */}
       <div className="space-y-3 px-3">

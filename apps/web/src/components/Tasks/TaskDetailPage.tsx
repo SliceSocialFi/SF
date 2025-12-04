@@ -154,6 +154,73 @@ const TaskDetailPage = () => {
     });
   };
 
+  const formatTimeRemaining = (deadlineInput: string | number | Date) => {
+    // Debug: Uncomment to see exact input data
+    // console.log("DeadlineInput:", deadlineInput, typeof deadlineInput);
+
+    try {
+      let deadline: Date;
+
+      if (deadlineInput instanceof Date) {
+        deadline = deadlineInput;
+      }
+      // Handle Unix Timestamp (number or numeric string)
+      // Use regex /^\d+$/ to ensure it only contains digits
+      else if (
+        typeof deadlineInput === "number" ||
+        (typeof deadlineInput === "string" && /^\d+$/.test(deadlineInput))
+      ) {
+        const timestamp = Number(deadlineInput);
+        // Check seconds vs milliseconds
+        if (timestamp < 100000000000) {
+          deadline = new Date(timestamp * 1000);
+        } else {
+          deadline = new Date(timestamp);
+        }
+      }
+      // Handle date strings (ISO, SQL format...)
+      else {
+        let dateString = String(deadlineInput);
+
+        // 🔥 CRITICAL FIX: Handle SQL format "YYYY-MM-DD HH:mm:ss"
+        // Replace space with 'T' so new Date() can parse it correctly
+        if (dateString.includes(" ") && !dateString.includes("T")) {
+          dateString = dateString.replace(" ", "T");
+          // If timezone is missing (no Z or +), may need to add 'Z' to treat as UTC
+          // dateString += "Z";
+        }
+
+        deadline = new Date(dateString);
+      }
+
+      // Validate date
+      if (Number.isNaN(deadline.getTime())) {
+        console.error("Invalid deadline parsed from:", deadlineInput);
+        return "invalid date";
+      }
+
+      const now = new Date();
+      const diffMs = deadline.getTime() - now.getTime();
+
+      if (diffMs <= 0) return "expired";
+
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffMins < 60) {
+        return `${diffMins} minutes left`;
+      } else if (diffHours < 24) {
+        return `${diffHours} hours left`;
+      } else {
+        return `${diffDays} days left`;
+      }
+    } catch (error) {
+      console.error("Deadline parsing error:", error);
+      return "invalid date";
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "open":
@@ -202,7 +269,14 @@ const TaskDetailPage = () => {
                 {task.deadline && (
                   <div className="flex items-center gap-1">
                     <CalendarIcon className="h-4 w-4" />
-                    <span>Deadline {formatDate(task.deadline)}</span>
+                    <span>
+                      Deadline {formatDate(task.deadline)}
+                      {!isDeadlinePassed && (
+                        <span className="ml-2 text-blue-600 dark:text-blue-400">
+                          ({formatTimeRemaining(task.deadline)})
+                        </span>
+                      )}
+                    </span>
                   </div>
                 )}
                 {task.location && (
