@@ -28,8 +28,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "echo OK"
 
-
-
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
