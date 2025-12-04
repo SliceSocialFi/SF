@@ -24,6 +24,11 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
 
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "echo OK"
+
+
 
       - name: Setup SSH key
         run: |
