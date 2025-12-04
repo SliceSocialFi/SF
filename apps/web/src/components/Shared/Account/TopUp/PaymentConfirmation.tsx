@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Button, Card, Image, Modal } from "@/components/Shared/UI";
 import { usePaymentApi } from "@/hooks/usePaymentApi";
 import { toast } from "sonner";
-import Loader from "@/components/Shared/Loader";
-import type { PaymentData, OrderData } from "@/types/payment-api";
 import { MAINNET_CHAINS } from "@slice/data/chains";
+import { ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
+import { getPaymentStatus } from "@/helpers/getDNPAYPaymentStatus";
+import type { PaymentData, OrderData } from "@/types/payment-api";
+import Loader from "@/components/Shared/Loader";
 
 enum Currency {
-    USDT = "USDT",
-    VNDC = "VNDC",
+  USDT = "USDT",
+  VNDC = "VNDC",
 }
 
 interface PaymentConfirmationProps {
@@ -29,6 +31,8 @@ const PaymentConfirmation = ({
   const { confirmPayment, cancelOrder, isLoading } = usePaymentApi();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+
+  const statusInfo = getPaymentStatus(payment.status);
 
   const handleConfirmPayment = async () => {
     setIsConfirming(true);
@@ -115,7 +119,7 @@ const PaymentConfirmation = ({
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 text-sm dark:text-gray-400">Amount</span>
+                <span className="text-gray-600 text-sm dark:text-gray-400">Amount {payment.currency} you must pay</span>
                 <div className="flex items-center gap-2">
                   <Image
                     alt={payment.currency}
@@ -132,9 +136,23 @@ const PaymentConfirmation = ({
               </div>
 
               <div className="flex items-center justify-between">
+                <span className="text-gray-600 text-sm dark:text-gray-400">Amount {ERC20_TOKEN_SYMBOL} you will receive</span>
+                <div className="flex items-center gap-2">
+                  <Image
+                    alt={ERC20_TOKEN_SYMBOL}
+                    className="size-5 rounded-full"
+                    src={MAINNET_CHAINS.bsc.token.icon}
+                  />
+                  <span className="font-semibold">
+                    {Number(order.amount)} {ERC20_TOKEN_SYMBOL}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
                 <span className="text-gray-600 text-sm dark:text-gray-400">Status</span>
-                <span className="rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 font-medium text-yellow-800 text-xs dark:text-yellow-300">
-                  {payment.status}
+                <span className={`rounded-full px-3 py-1 font-medium text-xs ${statusInfo.colorClass}`}>
+                  {statusInfo.label}
                 </span>
               </div>
 

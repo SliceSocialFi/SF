@@ -54,6 +54,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
 
     // Get current exchange rate based on selected currency
     const currentRate = currency === Currency.USDT ? exchangeRates.usdt : exchangeRates.vndc;
+    const currencyDecimals = currency === Currency.USDT ? 6 : 0;
 
     // Fetch exchange rates on mount and refresh every 10 seconds
     useEffect(() => {
@@ -65,13 +66,6 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                     vndc: Number(rates.vndcRate),
                 };
                 setExchangeRates(newRates);
-                
-                console.log("Fetched exchange rates:", {
-                    usdt: newRates.usdt,
-                    vndc: newRates.vndc,
-                    currentCurrency: currency,
-                    currentRate: currency === Currency.USDT ? newRates.usdt : newRates.vndc
-                });
             } catch (error: any) {
                 console.error("Fetch exchange rates error:", error);
                 toast.error(error.message || "Failed to fetch exchange rates");
@@ -111,19 +105,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                 result = topAmount / currentRate;
             }
 
-            // Format based on currency
-            const decimals = !isSwapped && currency === Currency.USDT ? 6 : 
-                           !isSwapped && currency === Currency.VNDC ? 0 : 2;
-            setBottomAmount(Number(result.toFixed(decimals)));
-
-            console.log("Conversion calculated:", {
-                topAmount,
-                bottomAmount: result,
-                isSwapped,
-                currentRate,
-                currency,
-                exchangeRates
-            });
+            setBottomAmount(Number(result.toFixed(currencyDecimals)));
         } catch (error: any) {
             console.error("Conversion error:", error);
             toast.error(error.message || "Failed to calculate conversion");
@@ -333,13 +315,15 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
 
                         {/* Create Order Button */}
                         <Button
-                            className="w-full"
-                            disabled={isLoading || !topAmount || Number(topAmount) <= 0 || isCalculating}
+                            className="w-full disabled:cursor-not-allowed"
+                            disabled={isLoading || !topAmount || Number(topAmount) <= 0 || isCalculating || bottomAmount < 1}
                             loading={isLoading}
                             onClick={handleCreateOrder}
                             size="lg"
                         >
-                            Create Order
+                            {bottomAmount < 1 && topAmount > 0 && !isCalculating 
+                                ? `Minimum ${isSwapped ? 'RYF' : currencySymbol} amount is 1` 
+                                : 'Create Order'}
                         </Button>
 
                         {/* Info Text */}
