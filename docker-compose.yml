@@ -5,7 +5,7 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
-    container_name: hey-web
+    container_name: slice-web
     restart: always
     environment:
       - LENS_NETWORK=staging
