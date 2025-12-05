@@ -56,8 +56,6 @@ export const usePaymentApi = () => {
             );
             const data = response.data.data;
             setCurrentOrder(data);
-            console.log("Current order set:", currentOrder);
-            console.log("Order created:", data);
             return data;
         } catch (error: any) {
             if (axios.isAxiosError(error)) {

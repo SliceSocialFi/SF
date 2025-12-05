@@ -145,6 +145,11 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             return;
         }
 
+        if (topAmount > 1000) {
+            toast.error("Amount cannot exceed 1000");
+            return;
+        }
+
         // Get payment amount (the amount in payment currency)
         const paymentAmount = isSwapped ? topAmount : bottomAmount;
         
@@ -178,6 +183,12 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             onOrderCreated();
         } catch (error: any) {
             console.error("Create order error:", error);
+
+            if (error?.message && error.message.includes("Insufficient balance")) {
+                toast.error("Insufficient balance in your DNPay wallet");
+                return;
+            }
+
             toast.error(error.message || "Failed to create order");
         }
     };
@@ -269,7 +280,13 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                                             className="flex-1"
                                             inputMode="decimal"
                                             min="0"
-                                            onChange={(e) => setTopAmount(Number(e.target.value))}
+                                            max="1000"
+                                            onChange={(e) => {
+                                                const raw = e.currentTarget.value ?? "";
+                                                const limited = raw.toString().slice(0, 10); // enforce 10 chars
+                                                const parsed = limited === "" ? 0 : Number(limited);
+                                                setTopAmount(Number.isNaN(parsed) ? 0 : parsed);
+                                            }}
                                             placeholder="0.00"
                                             type="number"
                                             value={topAmount}
@@ -316,7 +333,6 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                                         />
                                         <Input
                                             className="flex-1"
-                                            onChange={(e) => setTopAmount(Number(e.target.value))}
                                             placeholder="0.00"
                                             disabled
                                             value={isCalculating ? "Calculating..." : bottomAmount}
@@ -362,12 +378,14 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                         {/* Create Order Button */}
                         <Button
                             className="w-full disabled:cursor-not-allowed"
-                            disabled={isLoading || !topAmount || Number(topAmount) <= 0 || isCalculating || bottomAmount < 1}
+                            disabled={isLoading || !topAmount || Number(topAmount) <= 0 || topAmount > 1000 || isCalculating || bottomAmount < 1}
                             loading={isLoading}
                             onClick={handleCreateOrder}
                             size="lg"
                         >
-                            {bottomAmount < 1 && topAmount > 0 && !isCalculating 
+                            {topAmount > 1000 && !isCalculating
+                                ? `Maximum ${ERC20_TOKEN_SYMBOL} amount is 1000`
+                                : bottomAmount < 1 && topAmount > 0 && !isCalculating 
                                 ? `Minimum ${isSwapped ? 'RYF' : currencySymbol} amount is 1` 
                                 : 'Create Order'}
                         </Button>

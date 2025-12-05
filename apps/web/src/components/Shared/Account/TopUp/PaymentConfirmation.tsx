@@ -77,8 +77,6 @@ const PaymentConfirmation = ({
     );
   }
 
-  console.log("Rendering PaymentConfirmation with:", { order, payment, statusInfo });
-
   return (
     <>
       <div className="m-4">
