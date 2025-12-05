@@ -115,7 +115,7 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
     "No bio yet.";
 
   const avatarUrl = getAvatar(currentAccount as any, TRANSFORMS.AVATAR_BIG);
-  const coverUrl = (currentAccount as any)?.metadata?.coverPicture ?? null;
+  const coverUrl = (currentAccount as any)?.metadata?.coverPicture ?? "/cover.png";
 
   // Stats cho tasks - already calculated above before early return
   const rewardPoints = user?.rewardPoints ?? 0;
