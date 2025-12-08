@@ -10,7 +10,9 @@ import {
     ConfirmPaymentResponse,
     ConfirmPaymentData,
     OrderCancellationResponse,
-    OrderData
+    OrderData,
+    GetPriceResponse,
+    PriceData
 } from "@/types/payment-api";
 
 export const usePaymentApi = () => {
@@ -111,5 +113,19 @@ export const usePaymentApi = () => {
         }
     };
 
-    return { isLoading, currentOrder, createOrder, confirmPayment, cancelOrder };
+    const getPrice = async (): Promise<PriceData> => {
+        try {
+            const response = await api.get<GetPriceResponse>(`/api/price`);
+            return response.data.data;
+        } catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                throw new Error(
+                    error.response?.data?.message || "Failed to get price"
+                );
+            }
+            throw error;
+        }
+    };
+
+    return { isLoading, currentOrder, createOrder, confirmPayment, cancelOrder, getPrice };
 };

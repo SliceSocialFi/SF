@@ -3,11 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import { Button, Card, Input, Image, Select } from "@/components/Shared/UI";
 import { usePaymentApi } from "@/hooks/usePaymentApi";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
-import { getRYFExchangeRates } from "@/helpers/getRYFExchangeRates";
 import Loader from "@/components/Shared/Loader";
 import { MAINNET_CHAINS } from "@slice/data/chains";
 import { ERC20_TOKEN_SYMBOL } from "@slice/data/constants";
-import RoundingConfirmation from "./RoundingConfirmation";
+// import RoundingConfirmation from "./RoundingConfirmation";
 
 enum Currency {
     USDT = "USDT",
@@ -26,7 +25,7 @@ interface DNPAYTopUpProps {
 
 const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     const { currentAccount } = useAccountStore();
-    const { createOrder, isLoading } = usePaymentApi();
+    const { createOrder, isLoading, getPrice } = usePaymentApi();
 
     const [currency, setCurrency] = useState<Currency>(Currency.USDT);
     const [topAmount, setTopAmount] = useState<number>(10); // Amount in top input
@@ -62,7 +61,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     useEffect(() => {
         const fetchExchangeRates = async () => {
             try {
-                const rates = await getRYFExchangeRates();
+                const rates = await getPrice();
                 const newRates = {
                     usdt: Number(rates.usdtRate),
                     vndc: Number(rates.vndcRate),
@@ -80,7 +79,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
         // Then refresh every 10 seconds
         const intervalId = setInterval(() => {
             fetchExchangeRates();
-        }, 10000);
+        }, 60000); // 1 minute
 
         return () => clearInterval(intervalId);
     }, []); // Empty dependency array - only run once on mount

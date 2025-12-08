@@ -70,3 +70,12 @@ export type ConfirmPaymentResponse = {
 export type OrderCancellationResponse = {
     data: OrderData;
 } & PaymentResponse;
+
+export type PriceData = {
+    usdtRate: number;
+    vndcRate: number;
+}
+
+export type GetPriceResponse = {
+    data: PriceData;
+} & PaymentResponse;
