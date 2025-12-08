@@ -115,7 +115,7 @@ export const usePaymentApi = () => {
 
     const getPrice = async (): Promise<PriceData> => {
         try {
-            const response = await api.get<GetPriceResponse>(`/api/price`);
+            const response = await api.get<GetPriceResponse>(`/api/token-prices`);
             return response.data.data;
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
