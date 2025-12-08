@@ -113,7 +113,7 @@ export const usePaymentApi = () => {
         }
     };
 
-    const getPrice = async (): Promise<PriceData> => {
+    const getPrices = async (): Promise<PriceData> => {
         try {
             const response = await api.get<GetPriceResponse>(`/api/token-prices`);
             return response.data.data;
@@ -127,5 +127,5 @@ export const usePaymentApi = () => {
         }
     };
 
-    return { isLoading, currentOrder, createOrder, confirmPayment, cancelOrder, getPrice };
+    return { isLoading, currentOrder, createOrder, confirmPayment, cancelOrder, getPrices };
 };

@@ -25,7 +25,7 @@ interface DNPAYTopUpProps {
 
 const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     const { currentAccount } = useAccountStore();
-    const { createOrder, isLoading, getPrice } = usePaymentApi();
+    const { createOrder, isLoading, getPrices } = usePaymentApi();
 
     const [currency, setCurrency] = useState<Currency>(Currency.USDT);
     const [topAmount, setTopAmount] = useState<number>(10); // Amount in top input
@@ -61,9 +61,9 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     useEffect(() => {
         const fetchExchangeRates = async () => {
             try {
-                const rates = await getPrice();
+                const rates = await getPrices();
                 const newRates = {
-                    usdt: Number(rates.usdtRate),
+                    usdt: Number(rates.usdtRate.toFixed(6)),
                     vndc: Number(rates.vndcRate),
                 };
                 setExchangeRates(newRates);
