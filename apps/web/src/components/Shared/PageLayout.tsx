@@ -22,8 +22,8 @@ const AuthButtons = ({ className }: AuthButtonsProps) => {
 
   return (
     <div className={cn("flex items-center gap-x-2", className)}>
-      <SignupButton className="w-full" />
-      <LoginButton className="w-full" />
+      <SignupButton className="w-full button-animated" />
+      <LoginButton className="w-full button-animated" />
     </div>
   );
 };

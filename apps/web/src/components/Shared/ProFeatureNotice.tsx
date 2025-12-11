@@ -21,7 +21,8 @@ const ProFeatureNotice = ({ feature, className }: ProFeatureNoticeProps) => {
       <SparklesIcon className="size-4" />
       <span>
         <button
-          className="underline"
+          className="underline transition-colors"
+          style={{ color: "var(--primary)" }}
           onClick={() => setShowProModal(true)}
           type="button"
         >
