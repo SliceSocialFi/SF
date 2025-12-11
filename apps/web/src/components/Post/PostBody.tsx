@@ -62,7 +62,7 @@ const PostBody = ({
     !targetPost.quoteOf;
 
   return (
-    <div className="break-words">
+    <div className="break-words w-full max-w-full">
       <Markup
         className={cn(
           { "line-clamp-5": canShowMore },
@@ -81,10 +81,12 @@ const PostBody = ({
       ) : null}
       {/* Attachments and Quotes */}
       {showAttachments ? (
-        <Attachments asset={filteredAsset} attachments={filteredAttachments} />
+        <div className="mt-3 max-w-full overflow-hidden">
+          <Attachments asset={filteredAsset} attachments={filteredAttachments} />
+        </div>
       ) : null}
       {showLive ? (
-        <div className="mt-3">
+        <div className="mt-3 max-w-full overflow-hidden">
           <Video src={getSrc(metadata.liveUrl || metadata.playbackUrl)} />
         </div>
       ) : null}

@@ -134,7 +134,7 @@ const Subscribe = () => {
             </div>
             <div className="flex items-center gap-x-1">
               <CheckCircleIcon className="size-4.5" />
-              <span className="text-sm">Contribute to Hey's growth</span>
+              <span className="text-sm">Contribute to Slice's growth</span>
             </div>
           </div>
           {balanceLoading ? (

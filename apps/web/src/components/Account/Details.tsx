@@ -96,7 +96,7 @@ const Details = ({
     );
   };
 
-  const avatarUrl = getAvatar(account);
+  const avatarUrl = getAvatar(account, TRANSFORMS.AVATAR_BIG);
 
   return (
     <div className="mb-4 space-y-3 px-5 md:px-0">

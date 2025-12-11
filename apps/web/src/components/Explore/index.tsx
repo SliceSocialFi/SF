@@ -6,11 +6,13 @@ import MobileHeader from "@/components/Shared/MobileHeader";
 import ContentFeedType from "@/components/Shared/Post/ContentFeedType";
 import WhoToFollow from "@/components/Shared/Sidebar/WhoToFollow";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import ExploreFeed from "./ExploreFeed";
 import StickyFeedBar from "../Home/StickyFeedbar";
 
 const Explore = () => {
   const { currentAccount } = useAccountStore();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const [focus, setFocus] = useState<MainContentFocus>();
 
   return (
@@ -24,14 +26,18 @@ const Explore = () => {
       title="Explore"
     >
       <div className="space-y-3">
-        <StickyFeedBar>
-          <MobileHeader searchPlaceholder="Search users..." />
-          <ContentFeedType
-            focus={focus}
-            layoutId="explore_tab"
-            setFocus={setFocus}
+        {!showMobileDrawer && (
+          <StickyFeedBar
+            header={<MobileHeader searchPlaceholder="Search users..." />}
+            tabs={
+              <ContentFeedType
+                focus={focus}
+                layoutId="explore_tab"
+                setFocus={setFocus}
+              />
+            }
           />
-        </StickyFeedBar>
+        )}
         <ExploreFeed focus={focus} />
       </div>
     </PageLayout>

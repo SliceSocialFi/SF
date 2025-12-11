@@ -6,6 +6,8 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { apiClient } from "@/lib/apiClient";
 import cn from "@/helpers/cn";
 import getAccount from "@slice/helpers/getAccount";
+import getAvatar from "@slice/helpers/getAvatar";
+import { TRANSFORMS } from "@slice/data/constants";
 import { useAccountStatsQuery } from "@slice/indexer";
 import humanize from "@/helpers/humanize";
 
@@ -112,8 +114,8 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
     (user?.professionalRoles || []).join(" • ") ||
     "No bio yet.";
 
-  const avatarUrl = (currentAccount as any)?.metadata?.picture || "/default-avatar.png";
-  const coverUrl = (currentAccount as any)?.metadata?.coverPicture ?? null;
+  const avatarUrl = getAvatar(currentAccount as any, TRANSFORMS.AVATAR_BIG);
+  const coverUrl = (currentAccount as any)?.metadata?.coverPicture ?? "/cover.png";
 
   // Stats cho tasks - already calculated above before early return
   const rewardPoints = user?.rewardPoints ?? 0;
@@ -125,9 +127,9 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
     <Link to={accountLink}>
       <Card
         className={cn(
-          "overflow-hidden rounded-2xl backdrop-blur-sm cursor-pointer transition-transform",
+          "overflow-hidden rounded-2xl cursor-pointer transition-transform",
           // Light mode
-          "border border-gray-200 bg-white/90",
+          "border border-gray-200 bg-white",
           // Dark mode
           "dark:border-gray-700 dark:bg-black"
         )}
@@ -151,6 +153,7 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
               src={avatarUrl}
               alt={displayName}
               className="h-full w-full object-cover"
+              loading="eager"
             />
           </div>
           {/* Desktop: tên + username */}

@@ -26,7 +26,7 @@ const PostActions = ({ post, showCount = false }: PostActionsProps) => {
 
   return (
     <div
-      className="mt-3 flex w-full items-center gap-x-3 sm:gap-x-4 justify-start sm:-ml-14 sm:pl-14" 
+      className="mt-3 flex w-full items-center gap-x-2 sm:gap-x-4 justify-start sm:-ml-14 sm:pl-14" 
       onClick={stopEventPropagation}
     >
       <span className="post-action post-action-comment">

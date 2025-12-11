@@ -1,0 +1,69 @@
+name: Deploy to EC2 (Docker Compose)
+
+on:
+  push:
+    branches:
+      - sandbox   # deploy khi push vào nhánh này
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Debug secrets
+        run: |
+          echo "Checking if EC2_HOST is empty"
+          if [ -z "$EC2_HOST" ]; then echo "EC2_HOST is EMPTY"; exit 1; fi
+          
+          echo "Raw length: ${#EC2_HOST}"
+          
+          echo "Testing host (masked by GitHub if secret): $EC2_HOST"
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "echo OK"
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+      
+          echo "$EC2_SSH_KEY" > ~/.ssh/ci_key
+          chmod 600 ~/.ssh/ci_key
+      
+          echo "Testing host: $EC2_HOST"
+      
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+
+      - name: Upload source to EC2
+        run: |
+          rsync -avz \
+          -e "ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no" \
+          ./ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/hey_new/
+
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/ci_key -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
+
+          # Stop old containers
+          cd ~/hey
+          docker-compose down || true
+
+          # Replace old source
+          rm -rf ~/hey
+          mv ~/hey_new ~/hey
+
+          cd ~/hey
+
+          # Rebuild and restart
+          docker-compose build --no-cache
+          docker-compose up -d
+
+          EOF

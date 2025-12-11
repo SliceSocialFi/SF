@@ -22,8 +22,8 @@ const AuthButtons = ({ className }: AuthButtonsProps) => {
 
   return (
     <div className={cn("flex items-center gap-x-2", className)}>
-      <SignupButton className="w-full" />
-      <LoginButton className="w-full" />
+      <SignupButton className="w-full button-animated" />
+      <LoginButton className="w-full button-animated" />
     </div>
   );
 };
@@ -55,8 +55,9 @@ const PageLayout = ({
     <>
       <MetaTags description={description} title={title} />
       <div
-        className={cn("mt-2 mb-16 flex-1 space-y-5 md:mb-5", {
-          "mt-0 md:mt-5": zeroTopMargin
+        className={cn("mt-0 mb-20 pb-safe flex-1 space-y-5 w-full max-w-full md:mb-5", {
+          "md:mt-5": zeroTopMargin,
+          "mt-2 md:mt-5": !zeroTopMargin
         })}
       >
         <AuthButtons
