@@ -160,7 +160,7 @@ const Login = ({ setHasAccounts }: LoginProps) => {
                 }}
               >
                 <Card
-                  className="max-h-[50vh] w-full overflow-y-auto dark:divide-gray-700"
+                  className="max-h-[50vh] w-full overflow-y-auto dark:divide-gray-700 dark:bg-gray-700/20"
                   forceRounded
                 >
                   {accounts.map((account, index) => (
@@ -177,7 +177,7 @@ const Login = ({ setHasAccounts }: LoginProps) => {
                         }
                       }}
                       whileHover={{
-                        backgroundColor: "rgba(0, 0, 0, 0.05)",
+                        backgroundColor: "rgba(0, 0, 0, 1)",
                         transition: { duration: 0.2 }
                       }}
                     >

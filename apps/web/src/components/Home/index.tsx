@@ -5,6 +5,7 @@ import PageLayout from "@/components/Shared/PageLayout";
 import MobileHeader from "@/components/Shared/MobileHeader";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useHomeTabStore } from "@/store/persisted/useHomeTabStore";
+import { useMobileDrawerModalStore } from "@/store/non-persisted/modal/useMobileDrawerModalStore";
 import FeedType from "./FeedType";
 import ForYou from "./ForYou";
 import Hero from "./Hero";
@@ -15,25 +16,32 @@ import StickyFeedBar from "./StickyFeedbar";
 const Home = () => {
   const { currentAccount } = useAccountStore();
   const { feedType } = useHomeTabStore();
+  const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const loggedInWithAccount = Boolean(currentAccount);
+
+  console.log('🔴 Home render, feedType:', feedType);
 
   return (
     <PageLayout>
       {loggedInWithAccount ? (
-        <>
-          <StickyFeedBar>
-            <MobileHeader searchPlaceholder="Search users..." />
-            <FeedType />
-          </StickyFeedBar>  
+        <div className="w-full max-w-full space-y-3">
+          {!showMobileDrawer && (
+            <StickyFeedBar
+              header={<MobileHeader searchPlaceholder="Search users..." />}
+              tabs={<FeedType />}
+            />
+          )}
           <NewPost />
-          {feedType === HomeFeedType.FOLLOWING ? (
-            <Timeline />
-          ) : feedType === HomeFeedType.HIGHLIGHTS ? (
-            <Highlights />
-          ) : feedType === HomeFeedType.FORYOU ? (
-            <ForYou />
-          ) : null}
-        </>
+          <div className="pb-20 md:pb-0">
+            {feedType === HomeFeedType.FOLLOWING ? (
+              <Timeline key="following-feed" />
+            ) : feedType === HomeFeedType.HIGHLIGHTS ? (
+              <Highlights key="highlights-feed" />
+            ) : feedType === HomeFeedType.FORYOU ? (
+              <ForYou key="foryou-feed" />
+            ) : null}
+          </div>
+        </div>
       ) : (
         <>
           <Hero />

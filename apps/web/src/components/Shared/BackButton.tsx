@@ -22,7 +22,7 @@ const BackButton = ({ path }: BackButtonProps) => {
 
   return (
     <button
-      className="rounded-lg px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800"
+      className="rounded-lg px-2 py-1 hover:bg-[#121212] button-animated"
       onClick={handleBack}
       type="button"
     >

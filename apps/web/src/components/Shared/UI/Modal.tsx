@@ -62,11 +62,11 @@ const Modal = ({ children, onClose, show, size = "sm", title }: ModalProps) => {
         >
           <DialogPanel className={modalVariants({ size })}>
             {title ? (
-              <DialogTitle className="divider flex items-center justify-between px-5 py-3.5">
+              <DialogTitle className="divider flex items-center justify-between px-5 py-3.5 rounded-t-xl text-lg font-medium text-gray-900 dark:text-gray-100">
                 <b>{title}</b>
                 {onClose ? (
                   <button
-                    className="rounded-full p-1 text-gray-800 hover:bg-gray-200 dark:text-gray-100 dark:hover:bg-gray-700"
+                    className="rounded-full p-1 text-gray-800 dark:hover:bg-[#121212] dark:text-gray-100 button-animated"
                     onClick={(e) => {
                       e.stopPropagation();
                       onClose();

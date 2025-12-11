@@ -28,6 +28,10 @@
 }
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
   :root {
     @apply text-black dark:text-white;
     font-family: var(--font-system);
@@ -81,6 +85,13 @@
   /* Input & Form elements */
   input, textarea, select {
     font-weight: 400; /* Regular */
+  }
+
+  /* Prevent iOS zoom on input focus */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
 
   /* Labels */
@@ -308,7 +319,7 @@
     @apply [&>div]:divide-gray-200 dark:[&>div]:divide-gray-700;
   }
 
-  button:not(:disabled),
+  button:not(:disabled):not(.post-action-count),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
@@ -671,7 +682,11 @@
   }
 
   .post-action {
-    @apply inline-flex items-center cursor-pointer select-none;
+    @apply inline-flex items-center select-none;
+  }
+
+  .post-action button {
+    @apply cursor-pointer;
   }
 
   .post-action svg {
@@ -679,13 +694,13 @@
     transform-origin: center;
   }
 
-  .post-action:hover svg {
+  .post-action button:hover svg {
     transform: scale(2);
     color: var(--primary);
     filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.18));
   }
 
-  .post-action:active svg {
+  .post-action button:active svg {
     transform: scale(1);
     filter: none;
   }
@@ -696,54 +711,53 @@
 
   .post-action-count {
     display: inline-block;
-    min-width: 2.25rem;
+    min-width: 1.75rem;
     text-align: left;
     font-size: 11px;
+    cursor: default;
   }
 
-  @screen sm {
+  @media (min-width: 400px) {
+    .post-action-count {
+      min-width: 2.25rem;
+    }
+  }
+
+  @media (min-width: 640px) {
     .post-action-count {
       font-size: 0.75rem;
     }
   }
 
-  .post-action-like:not(.post-action--active):hover svg,
-  .post-action-like:not(.post-action--active):hover .post-action-count {
+  .post-action-like:not(.post-action--active) button:hover svg {
     color: #fb3a5d;
   }
 
-  .dark .post-action-like:not(.post-action--active):hover svg,
-  .dark .post-action-like:not(.post-action--active):hover .post-action-count {
+  .dark .post-action-like:not(.post-action--active) button:hover svg {
     color: #e91546;
   }
 
-  .post-action-comment:not(.post-action--active):hover svg,
-  .post-action-comment:not(.post-action--active):hover .post-action-count {
+  .post-action-comment:not(.post-action--active) button:hover svg {
     color: #3b82f6;
   }
 
-  .dark .post-action-comment:not(.post-action--active):hover svg,
-  .dark .post-action-comment:not(.post-action--active):hover .post-action-count {
+  .dark .post-action-comment:not(.post-action--active) button:hover svg {
     color: #60a5fa;
   }
 
-  .post-action-repost:not(.post-action--active):hover svg,
-  .post-action-repost:not(.post-action--active):hover .post-action-count {
+  .post-action-repost:not(.post-action--active) button:hover svg {
     color: #10b981;
   }
 
-  .dark .post-action-repost:not(.post-action--active):hover svg,
-  .dark .post-action-repost:not(.post-action--active):hover .post-action-count {
+  .dark .post-action-repost:not(.post-action--active) button:hover svg {
     color: #34d399;
   }
 
-  .post-action-tip:not(.post-action--active):hover svg,
-  .post-action-tip:not(.post-action--active):hover .post-action-count {
+  .post-action-tip:not(.post-action--active) button:hover svg {
     color: #f59e0b;
   }
 
-  .dark .post-action-tip:not(.post-action--active):hover svg,
-  .dark .post-action-tip:not(.post-action--active):hover .post-action-count {
+  .dark .post-action-tip:not(.post-action--active) button:hover svg {
     color: #fbbf24;
   }
 
