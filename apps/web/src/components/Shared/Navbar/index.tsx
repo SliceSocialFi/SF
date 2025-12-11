@@ -70,8 +70,9 @@ const NavItems = memo(({ isLoggedIn }: { isLoggedIn: boolean }) => {
   const routes = [
     "/",
     "/explore",
-    "/tasks",
-    ...(isLoggedIn ? ["/notifications", "/groups", "/bookmarks"] : []),
+    ...(isLoggedIn
+      ? ["/notifications", "/groups", "/tasks", "/bookmarks"]
+      : []),
   ];
 
   return (
