@@ -16,6 +16,7 @@ enum Currency {
 interface PaymentConfirmationProps {
   order: OrderData;
   payment: PaymentData;
+  isDNPAYReady: boolean;
   onBack: () => void;
   onCancel: () => void;
   onSuccess: () => void;
@@ -24,6 +25,7 @@ interface PaymentConfirmationProps {
 const PaymentConfirmation = ({ 
   order, 
   payment, 
+  isDNPAYReady,
   onBack, 
   onCancel,
   onSuccess 
@@ -34,7 +36,7 @@ const PaymentConfirmation = ({
 
   const statusInfo = getPaymentStatus(payment.status);
 
-  const handleConfirmPayment = async () => {
+  const confirmManualPayment = async () => {
     setIsConfirming(true);
     try {
       await confirmPayment(payment.id, {
@@ -48,6 +50,18 @@ const PaymentConfirmation = ({
       toast.error(error.message || "Failed to confirm payment");
     } finally {
       setIsConfirming(false);
+    }
+  };
+
+  const redirectDNPAYPayment = () => {
+    window.location.href = payment.redirectUrl!;
+  };
+
+  const handleConfirmPayment = async () => {
+    if (isDNPAYReady) {
+      await confirmManualPayment();
+    } else {
+      redirectDNPAYPayment();
     }
   };
 
@@ -212,7 +226,7 @@ const PaymentConfirmation = ({
             onClick={handleConfirmPayment}
             size="lg"
           >
-            Confirm Payment
+            {isDNPAYReady ? "Confirm Payment" : "Go to DNPAY"}
           </Button>
         </div>
       </div>

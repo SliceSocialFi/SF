@@ -54,7 +54,9 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
     ];
 
     // Get current exchange rate based on selected currency
-    const currentRate = currency === Currency.USDT ? exchangeRates.usdt : exchangeRates.vndc;
+    const currentRate = currency === Currency.USDT
+        ? Number(exchangeRates.usdt.toFixed(6))
+        : Number(exchangeRates.vndc.toFixed(0));
     const currencyDecimals = currency === Currency.USDT ? 6 : 0;
 
     // Fetch exchange rates on mount and refresh every 10 seconds
@@ -64,7 +66,7 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
                 const rates = await getPrices();
                 const newRates = {
                     usdt: Number(rates.usdtRate.toFixed(6)),
-                    vndc: Number(rates.vndcRate),
+                    vndc: Number(rates.vndcRate.toFixed(0)),
                 };
                 setExchangeRates(newRates);
             } catch (error: any) {
@@ -173,7 +175,6 @@ const DNPAYTopUp = ({ onBack, onOrderCreated }: DNPAYTopUpProps) => {
             const ryfAmount = paymentAmount / currentRate;
             
             await createOrder({
-                userWalletAddress: currentAccount.address,
                 amount: Number(ryfAmount),
                 currency
             });

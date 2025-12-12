@@ -24,13 +24,8 @@ const TopUp = () => {
   const { currentAccount } = useAccountStore();
   const { token } = useFundModalStore();
   const { isReady: isDNPAYReady } = useDNPAYSuperApp();
-  const data = usePaymentApi();
-  const { currentOrder } = data;
-  const [currentScreen, setCurrentScreen] = useState<TopUpScreen>(
-    isDNPAYReady
-      ? TopUpScreen.METHOD_SELECTION
-      : TopUpScreen.METAMASK
-  );
+  const { currentOrder } = usePaymentApi();
+  const [currentScreen, setCurrentScreen] = useState<TopUpScreen>(TopUpScreen.METHOD_SELECTION);
 
   const { data: balance, loading } = useBalancesBulkQuery({
     fetchPolicy: "no-cache",
@@ -61,7 +56,6 @@ const TopUp = () => {
   if (currentScreen === TopUpScreen.METHOD_SELECTION) {
     return (
       <MethodSelection
-        isDNPAYAvailable={isDNPAYReady}
         onSelectDNPAY={() => setCurrentScreen(TopUpScreen.DNPAY)}
         onSelectMetaMask={() => setCurrentScreen(TopUpScreen.METAMASK)}
       />
@@ -72,28 +66,26 @@ const TopUp = () => {
   if (currentScreen === TopUpScreen.METAMASK) {
     return (
       <div className="m-3">
-        {isDNPAYReady && (
-          <button
-            className="mb-4 flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-            onClick={() => setCurrentScreen(TopUpScreen.METHOD_SELECTION)}
-            type="button"
+        <button
+          className="mb-4 flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          onClick={() => setCurrentScreen(TopUpScreen.METHOD_SELECTION)}
+          type="button"
+        >
+          <svg 
+            className="size-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
           >
-            <svg 
-              className="size-5" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                d="M15 19l-7-7 7-7" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2}
-              />
-            </svg>
-            <span>Back to methods</span>
-          </button>
-        )}
+            <path 
+              d="M15 19l-7-7 7-7" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2}
+            />
+          </svg>
+          <span>Back to methods</span>
+        </button>
         <div className="flex flex-col items-center gap-2 text-center">
           <Image
             alt={token?.symbol}
@@ -134,6 +126,7 @@ const TopUp = () => {
               onSuccess={() => {
                 setCurrentScreen(TopUpScreen.METHOD_SELECTION);
               }}
+              isDNPAYReady={isDNPAYReady}
               order={currentOrder.order}
               payment={currentOrder.payment}
             />

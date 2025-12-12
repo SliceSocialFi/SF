@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMemo } from "react";
+import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 import { PAYMENT_API_URL } from "@slice/data/constants";
 import {
@@ -12,18 +13,23 @@ import {
     OrderCancellationResponse,
     OrderData,
     GetPriceResponse,
-    PriceData
+    PriceData,
+    GetOrderByProviderPaymentIdData,
+    GetOrderByProviderPaymentIdResponse
 } from "@/types/payment-api";
 
 export const usePaymentApi = () => {
     const {
-        token,
+        isReady,
+        token: dnpayAccessToken,
         appSessionId,
         currentOrder,
         setCurrentOrder,
         isLoading,
         setIsLoading
     } = useDNPAYSuperApp();
+
+    const { accessToken: lensAccessToken } = hydrateAuthTokens();
 
     const api = useMemo(() => {
         const instance = axios.create({
@@ -34,27 +40,41 @@ export const usePaymentApi = () => {
             },
         });
 
-        if (token) {
-            instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        if (lensAccessToken) {
+            instance.defaults.headers.common["Authorization"] = `Bearer ${lensAccessToken}`;
+        }
+
+        if (dnpayAccessToken) {
+            instance.defaults.headers.common["X-DNPAY-Access-Token"] = `Bearer ${dnpayAccessToken}`;
         }
 
         return instance;
-    }, [token]);
+    }, [lensAccessToken, dnpayAccessToken]);
 
     const createOrder = async (orderData: OrderCreationRequest): Promise<OrderCreationData> => {
         try {
             setIsLoading(true);
 
-            if (!appSessionId) {
-                throw new Error("DNPAY session not available");
+            if (isReady) {
+                if (!appSessionId) {
+                    throw new Error("DNPAY session not available");
+                }
+
+                const response = await api.post<OrderCreationResponse>(
+                    `/api/orders`,
+                    {
+                        ...orderData,
+                        appSessionId: appSessionId!,
+                    }
+                );
+                const data = response.data.data;
+                setCurrentOrder(data);
+                return data;
             }
 
             const response = await api.post<OrderCreationResponse>(
-                `/api/orders`,
-                {
-                    ...orderData,
-                    appSessionId: appSessionId!,
-                }
+                `/api/orders/redirect-payment`,
+                orderData,
             );
             const data = response.data.data;
             setCurrentOrder(data);
@@ -92,7 +112,10 @@ export const usePaymentApi = () => {
         }
     };
 
-    const confirmPayment = async (paymentId: string, paymentData: ConfirmPaymentRequest): Promise<ConfirmPaymentData> => {
+    const confirmPayment = async (
+        paymentId: string,
+        paymentData: ConfirmPaymentRequest
+    ): Promise<ConfirmPaymentData> => {
         try {
             setIsLoading(true);
             const response = await api.post<ConfirmPaymentResponse>(
@@ -127,5 +150,31 @@ export const usePaymentApi = () => {
         }
     };
 
-    return { isLoading, currentOrder, createOrder, confirmPayment, cancelOrder, getPrices };
+    const getOrderByProviderPaymentId = async (
+        providerPaymentId: string
+    ): Promise<GetOrderByProviderPaymentIdData> => {
+        try {
+            const response = await api.get<GetOrderByProviderPaymentIdResponse>(
+                `/api/orders/provider-payment/${providerPaymentId}`
+            );
+            return response.data.data;
+        } catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                throw new Error(
+                    error.response?.data?.message || "Failed to get payment"
+                );
+            }
+            throw error;
+        }
+    }
+
+    return {
+        isLoading,
+        currentOrder,
+        createOrder,
+        confirmPayment,
+        cancelOrder,
+        getPrices,
+        getOrderByProviderPaymentId,
+    };
 };

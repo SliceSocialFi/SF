@@ -32,6 +32,8 @@ export type PaymentData = {
     amount: number;
     createdAt: string;
     expiresAt: string;
+    token?: string;
+    redirectUrl?: string;
 }
 
 type PaymentResponse = {
@@ -45,7 +47,6 @@ export type OrderCreationData = {
 }
 
 export type OrderCreationRequest = {
-    userWalletAddress: string;
     tokenAddress?: string;
     amount: number; // Số lượng token gốc để chuyển đổi
     currency: Currency;
@@ -78,4 +79,27 @@ export type PriceData = {
 
 export type GetPriceResponse = {
     data: PriceData;
+} & PaymentResponse;
+
+export type GetPaymentData = {
+    id: string;
+    providerPaymentId: string;
+    provider: string;
+    appSessionId?: string | null;
+    currency: Currency;
+    amount: number;
+    status: string;
+    orderId: string;
+    createdAt: string;
+    expiresAt: string;
+    processedAt?: string | null;
+}
+
+export type GetOrderByProviderPaymentIdData = {
+    order: OrderData;
+    payment: GetPaymentData;
+}
+
+export type GetOrderByProviderPaymentIdResponse = {
+    data: GetOrderByProviderPaymentIdData;
 } & PaymentResponse;
