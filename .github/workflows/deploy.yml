@@ -1,45 +1,40 @@
-diff --git a/d:\TITOPS\social\SF\.github/workflows/deploy.yml b/d:\TITOPS\social\SF\.github/workflows/deploy.yml
-new file mode 100644
---- /dev/null
-+++ b/d:\TITOPS\social\SF\.github/workflows/deploy.yml
-@@ -0,0 +1,40 @@
-+name: Deploy to EC2 (Docker Compose)
-+
-+on:
-+  push:
-+    branches: [sandbox]
-+
-+jobs:
-+  deploy:
-+    runs-on: self-hosted
-+
-+    steps:
-+      - name: Checkout source
-+        uses: actions/checkout@v4
-+
-+      - name: Setup Node.js
-+        uses: actions/setup-node@v4
-+        with:
-+          node-version: 20
-+          cache: pnpm
-+
-+      - name: Setup pnpm
-+        uses: pnpm/action-setup@v4
-+        with:
-+          version: 10
-+
-+      - name: Install dependencies
-+        run: pnpm install --frozen-lockfile
-+
-+      - name: Build web assets
-+        env:
-+          LENS_NETWORK: staging
-+        run: pnpm -F @slice/web build
-+
-+      - name: Deploy with Docker Compose
-+        run: |
-+          cd "$GITHUB_WORKSPACE"
-+          docker compose down || true
-+          docker compose build --no-cache web
-+          docker compose up -d web
-+          docker compose ps
+name: Deploy to EC2 (Docker Compose)
+
+on:
+  push:
+    branches: [sandbox]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web assets
+        env:
+          LENS_NETWORK: staging
+        run: pnpm -F @slice/web build
+
+      - name: Deploy with Docker Compose
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          docker compose down || true
+          docker compose build --no-cache web
+          docker compose up -d web
+          docker compose ps
