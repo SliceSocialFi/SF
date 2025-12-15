@@ -11,13 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy (pull + docker compose)
+      - name: Deploy (build + docker compose)
         run: |
-          cd /home/ec2-user/hey
-          git fetch origin
-          git checkout sandbox
-          git reset --hard origin/sandbox
-
           docker-compose down || true
           docker-compose build --no-cache
           docker-compose up -d
