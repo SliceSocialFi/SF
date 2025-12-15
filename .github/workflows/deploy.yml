@@ -1,18 +1,23 @@
-name: Deploy Hey (Docker Compose)
+name: Deploy to EC2 (Docker Compose)
 
 on:
   push:
-    branches: [sandbox]
+    branches: [ sandbox ]
 
 jobs:
   deploy:
     runs-on: self-hosted
+
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Deploy (build + docker compose)
+      - name: Deploy with Docker Compose
         run: |
-          docker-compose down || true
-          docker-compose build --no-cache
-          docker-compose up -d
+          cd "$GITHUB_WORKSPACE"
+
+          docker compose down || true
+          docker compose build --no-cache web
+          docker compose up -d
+
+          docker compose ps
