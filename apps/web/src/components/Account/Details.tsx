@@ -140,7 +140,7 @@ const Details = ({
           <AccountMenu account={account} />
         </div>
       </div>
-      <div className="space-y-1 py-2">
+      <div className="space-y-0 py-0">
         <div className="flex items-center gap-1.5">
           <H3 className="truncate">{getAccount(account).name}</H3>
           {account.hasSubscribed ? (
