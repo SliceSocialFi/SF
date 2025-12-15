@@ -35,7 +35,8 @@ jobs:
       - name: Deploy with Docker Compose
         run: |
           cd "$GITHUB_WORKSPACE"
-          docker compose down || true
+          docker compose down --remove-orphans || true
+          docker rm -f hey-web || true
           docker compose build --no-cache web
-          docker compose up -d web
+          docker compose up -d --force-recreate web
           docker compose ps
