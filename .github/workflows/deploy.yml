@@ -1,0 +1,28 @@
+name: Deploy Hey (Docker Compose)
+
+on:
+  push:
+    branches:
+      - sandbox
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy on EC2
+        run: |
+          set -e
+          cd /home/ec2-user/hey
+          git fetch origin
+          git checkout sandbox
+          git pull origin sandbox
+
+          docker-compose down || true
+          docker-compose build --no-cache
+          docker-compose up -d
+
+          docker ps
