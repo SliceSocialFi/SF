@@ -1,38 +1,19 @@
-name: Deploy (self-hosted)
+name: Deploy Hey (Docker Compose)
 
 on:
   push:
-    branches: [ sandbox ]
+    branches: [sandbox]
 
 jobs:
   deploy:
     runs-on: self-hosted
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          ref: sandbox
 
-      - name: Deploy on EC2
-        env:
-          REPO_READ_TOKEN: ${{ secrets.REPO_READ_TOKEN }}
+      - name: Deploy (pull + docker compose)
         run: |
-          set -e
-
           cd /home/ec2-user/hey
-
-          # đảm bảo origin là https để dùng token
-          git remote set-url origin https://github.com/SliceSocialFi/SF.git
-
-          # ghi token vào netrc để git pull không hỏi user/pass
-          cat > /home/ec2-user/.netrc <<EOF
-          machine github.com
-          login x-access-token
-          password ${REPO_READ_TOKEN}
-          EOF
-          chmod 600 /home/ec2-user/.netrc
-
           git fetch origin
           git checkout sandbox
           git reset --hard origin/sandbox
@@ -40,5 +21,3 @@ jobs:
           docker-compose down || true
           docker-compose build --no-cache
           docker-compose up -d
-
-          docker ps
