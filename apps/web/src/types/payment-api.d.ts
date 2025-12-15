@@ -25,13 +25,15 @@ export type PaymentData = {
     id: string;
     orderId: string;
     clientSecret: string;
+    providerPaymentId: string;
     provider: string;
-    appSessionId: string;
+    appSessionId?: string | null;
     status: string;
     currency: Currency;
     amount: number;
     createdAt: string;
     expiresAt: string;
+    processedAt?: string | null;
     token?: string;
     redirectUrl?: string;
 }

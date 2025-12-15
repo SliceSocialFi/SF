@@ -113,13 +113,13 @@ export const usePaymentApi = () => {
     };
 
     const confirmPayment = async (
-        paymentId: string,
+        providerPaymentId: string,
         paymentData: ConfirmPaymentRequest
     ): Promise<ConfirmPaymentData> => {
         try {
             setIsLoading(true);
             const response = await api.post<ConfirmPaymentResponse>(
-                `/api/dnpay-payment/${paymentId}/confirm`,
+                `/api/dnpay-payment/${providerPaymentId}/confirm`,
                 paymentData
             );
             setCurrentOrder(null);

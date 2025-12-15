@@ -39,7 +39,7 @@ const PaymentConfirmation = ({
   const confirmManualPayment = async () => {
     setIsConfirming(true);
     try {
-      await confirmPayment(payment.id, {
+      await confirmPayment(payment.providerPaymentId, {
         clientSecret: payment.clientSecret
       });
       
