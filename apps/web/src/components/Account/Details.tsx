@@ -29,12 +29,14 @@ interface DetailsProps {
   isBlockedByMe: boolean;
   hasBlockedMe: boolean;
   account: AccountFragment;
+  professionalRoles?: string[];
 }
 
 const Details = ({
   isBlockedByMe = false,
   hasBlockedMe = false,
-  account
+  account,
+  professionalRoles: propProfessionalRoles
 }: DetailsProps) => {
   const navigate = useNavigate();
   const { currentAccount } = useAccountStore();
@@ -43,6 +45,7 @@ const Details = ({
   const { theme } = useTheme();
   const [reputation, setReputation] = useState<number>(0);
   const [level, setLevel] = useState<number>(1);
+  const [professionalRoles, setProfessionalRoles] = useState<string[]>(propProfessionalRoles || []);
 
   useEffect(() => {
     const loadUserReputation = async () => {
@@ -51,12 +54,27 @@ const Details = ({
         const data = await apiClient.getUser(account.address);
         setReputation(typeof data?.reputationScore === "number" ? data.reputationScore : Number(data?.reputation) || 0);
         setLevel(Number(data?.level) || 1);
+        // Chỉ fetch roles từ API nếu không được truyền từ prop (dành cho trang your account)
+        if (!propProfessionalRoles) {
+          if (Array.isArray(data?.professionalRoles)) {
+            setProfessionalRoles(data.professionalRoles);
+          } else if (typeof data?.professionalRoles === "string") {
+            try {
+              const parsed = JSON.parse(data.professionalRoles);
+              setProfessionalRoles(Array.isArray(parsed) ? parsed : [parsed]);
+            } catch {
+              setProfessionalRoles([]);
+            }
+          } else {
+            setProfessionalRoles([]);
+          }
+        }
       } catch (err) {
-        console.error("Failed to load user reputation", err);
+        setProfessionalRoles([]);
       }
     };
     loadUserReputation();
-  }, [account?.address]);
+  }, [account?.address, propProfessionalRoles]);
 
   const handleShowLightBox = useCallback(() => {
     setShowLightBox(true);
@@ -122,7 +140,7 @@ const Details = ({
           <AccountMenu account={account} />
         </div>
       </div>
-      <div className="space-y-1 py-2">
+      <div className="space-y-0 py-0">
         <div className="flex items-center gap-1.5">
           <H3 className="truncate">{getAccount(account).name}</H3>
           {account.hasSubscribed ? (
@@ -152,13 +170,25 @@ const Details = ({
           ) : null}
         </div>
       </div>
-      {!isBlockedByMe && !hasBlockedMe && account?.metadata?.bio ? (
+      {!isBlockedByMe && !hasBlockedMe && account?.metadata?.bio && (
         <div className="markup linkify">
           <Markup mentions={getMentions(account?.metadata.bio)}>
             {account?.metadata.bio}
           </Markup>
         </div>
-      ) : null}
+      )}
+      {!isBlockedByMe && !hasBlockedMe && professionalRoles.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {professionalRoles.map((role) => (
+            <span
+              key={"role-" + role}
+              className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 border dark:border-[var(--primary)] dark:bg-transparent hover:bg-gray-900 dark:text-gray-200 cursor-pointer"
+            >
+              {role}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="space-y-5">
         <Followerings account={account} />
         {!isBlockedByMe &&
