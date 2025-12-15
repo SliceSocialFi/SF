@@ -61,7 +61,7 @@ export const usePaymentApi = () => {
                 }
 
                 const response = await api.post<OrderCreationResponse>(
-                    `/api/orders`,
+                    `/api/orders/without-redirect-payment`,
                     {
                         ...orderData,
                         appSessionId: appSessionId!,
