@@ -75,7 +75,6 @@ const ViewAccount = () => {
 
   const renderAccountDetails = () => {
     if (isDeleted) return <DeletedDetails account={account} />;
-
     return (
       <Details
         account={account}
@@ -115,6 +114,7 @@ const ViewAccount = () => {
         }
       />
       {renderAccountDetails()}
+      
       </div>
       {isDeleted || isBlockedByMe || hasBlockedMe ? (
         renderEmptyState()

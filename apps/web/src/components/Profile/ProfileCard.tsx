@@ -193,6 +193,20 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
           {bio}
         </p>
 
+        {/* Professional Roles */}
+        {user?.professionalRoles && user.professionalRoles.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {user.professionalRoles.map((role) => (
+              <span
+                key={`role-${role}`}
+                className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 border dark:border-[var(--primary)] dark:bg-transparent hover:bg-gray-900 dark:text-gray-200 cursor-pointer"
+              >
+                {role}
+              </span>
+            ))}
+          </div>
+        )}
+
         {variant === "home" ? (
           /* ========== HOME: Followers / Following ========== */
           <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
