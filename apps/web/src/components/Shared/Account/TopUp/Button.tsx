@@ -3,6 +3,7 @@ import {
   type FundingToken,
   useFundModalStore
 } from "@/store/non-persisted/modal/useFundModalStore";
+import { useState } from "react";
 
 interface TopUpButtonProps {
   size?: "sm" | "md";
@@ -22,7 +23,7 @@ const TopUpButton = ({
   amountToTopUp
 }: TopUpButtonProps) => {
   const { setShowFundModal } = useFundModalStore();
-
+  
   return (
     <Button
       aria-label={label}
