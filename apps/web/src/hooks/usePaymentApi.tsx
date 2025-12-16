@@ -4,7 +4,6 @@ import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 import { PAYMENT_API_URL } from "@slice/data/constants";
 import {
-    OrderStatus,
     OrderCreationRequest,
     OrderCreationResponse,
     OrderCreationData,
@@ -142,11 +141,11 @@ export const usePaymentApi = () => {
             do {
                 await new Promise((resolve) => setTimeout(resolve, 3000));
                 orderRes = await getOrderByProviderPaymentId(providerPaymentId);
-                if (orderRes.order.status === OrderStatus.COMPLETED) {
+                if (orderRes.order.status === "COMPLETED") {
                     return {} as ConfirmPaymentData;
                 }
 
-                if (orderRes.order.status === OrderStatus.FAILED) {
+                if (orderRes.order.status === "FAILED") {
                     throw new Error("Payment failed");
                 }
 
@@ -154,7 +153,7 @@ export const usePaymentApi = () => {
                 if (count >= 5) {
                     break;
                 }
-            } while (orderRes.order.status === OrderStatus.PENDING);
+            } while (orderRes.order.status === "PENDING");
             
             if (axios.isAxiosError(error)) {
                 throw new Error(
