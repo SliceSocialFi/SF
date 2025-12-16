@@ -67,10 +67,8 @@ const PaymentConfirmation = ({
 
   const handleCancelOrder = async () => {
     try {
-      const result = await cancelOrder(order.id);
-      if (result !== {} as OrderData) {
-        toast.success("Order cancelled");
-      }
+      await cancelOrder(order.id);
+      toast.success("Order cancelled");
       onCancel();
     } catch (error: any) {
       console.error("Cancel order error:", error);
