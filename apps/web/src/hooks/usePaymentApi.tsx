@@ -4,6 +4,7 @@ import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 import { PAYMENT_API_URL } from "@slice/data/constants";
 import {
+    OrderStatus,
     OrderCreationRequest,
     OrderCreationResponse,
     OrderCreationData,
@@ -55,6 +56,7 @@ export const usePaymentApi = () => {
         try {
             setIsLoading(true);
 
+            let orderRes = null;
             if (isReady) {
                 if (!appSessionId) {
                     throw new Error("DNPAY session not available");
@@ -67,18 +69,17 @@ export const usePaymentApi = () => {
                         appSessionId: appSessionId!,
                     }
                 );
-                const data = response.data.data;
-                setCurrentOrder(data);
-                return data;
+                orderRes = response.data.data;
+            } else {
+                const response = await api.post<OrderCreationResponse>(
+                    `/api/orders/redirect-payment`,
+                    orderData,
+                );
+                orderRes = response.data.data;
             }
-
-            const response = await api.post<OrderCreationResponse>(
-                `/api/orders/redirect-payment`,
-                orderData,
-            );
-            const data = response.data.data;
-            setCurrentOrder(data);
-            return data;
+            console.log("Created order:", orderRes);
+            setCurrentOrder(orderRes);
+            return orderRes;
         } catch (error: any) {
             if (axios.isAxiosError(error)) {
                 throw new Error(
@@ -101,6 +102,9 @@ export const usePaymentApi = () => {
             setCurrentOrder(null);
             return response.data.data;
         } catch (error: any) {
+            if (error.message.includes("Only pending orders can be cancelled")) {
+                return {} as OrderData;
+            }
             if (axios.isAxiosError(error)) {
                 throw new Error(
                     error.response?.data?.message || "Failed to cancel order"
@@ -117,6 +121,10 @@ export const usePaymentApi = () => {
         paymentData: ConfirmPaymentRequest
     ): Promise<ConfirmPaymentData> => {
         try {
+            if (!providerPaymentId) {
+                throw new Error("Provider payment ID is required to confirm payment");
+            }
+
             setIsLoading(true);
             const response = await api.post<ConfirmPaymentResponse>(
                 `/api/dnpay-payment/${providerPaymentId}/confirm`,
@@ -125,6 +133,29 @@ export const usePaymentApi = () => {
             setCurrentOrder(null);
             return response.data.data;
         } catch (error: any) {
+            if (error.message.includes("has already been confirmed")) {
+                return {} as ConfirmPaymentData;
+            }
+
+            let orderRes = null;
+            let count = 0;
+            do {
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+                orderRes = await getOrderByProviderPaymentId(providerPaymentId);
+                if (orderRes.order.status === OrderStatus.COMPLETED) {
+                    return {} as ConfirmPaymentData;
+                }
+
+                if (orderRes.order.status === OrderStatus.FAILED) {
+                    throw new Error("Payment failed");
+                }
+
+                count++;
+                if (count >= 5) {
+                    break;
+                }
+            } while (orderRes.order.status === OrderStatus.PENDING);
+            
             if (axios.isAxiosError(error)) {
                 throw new Error(
                     error.response?.data?.message || "Failed to confirm payment"

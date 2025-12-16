@@ -35,7 +35,7 @@ const PaymentConfirmation = ({
   const [isConfirming, setIsConfirming] = useState(false);
 
   const statusInfo = getPaymentStatus(payment.status);
-
+  
   const confirmManualPayment = async () => {
     setIsConfirming(true);
     try {
@@ -67,8 +67,10 @@ const PaymentConfirmation = ({
 
   const handleCancelOrder = async () => {
     try {
-      await cancelOrder(order.id);
-      toast.success("Order cancelled");
+      const result = await cancelOrder(order.id);
+      if (result !== {} as OrderData) {
+        toast.success("Order cancelled");
+      }
       onCancel();
     } catch (error: any) {
       console.error("Cancel order error:", error);
