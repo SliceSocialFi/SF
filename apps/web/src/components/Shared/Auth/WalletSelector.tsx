@@ -48,7 +48,7 @@ const WalletSelector: FC = () => {
           <button
             className={cn(
               {
-                "hover:bg-gray-100 dark:hover:bg-gray-700":
+                "button-animated dark:bg-[#121212]":
                   connector.id !== activeConnector?.id
               },
               "flex w-full items-center justify-between space-x-2.5 overflow-hidden rounded-xl border border-gray-200 px-4 py-3 outline-hidden dark:border-gray-700"

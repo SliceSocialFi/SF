@@ -34,7 +34,7 @@ interface DetailsProps {
 const Details = ({
   isBlockedByMe = false,
   hasBlockedMe = false,
-  account
+  account,
 }: DetailsProps) => {
   const navigate = useNavigate();
   const { currentAccount } = useAccountStore();
@@ -49,7 +49,11 @@ const Details = ({
       try {
         if (!account?.address) return;
         const data = await apiClient.getUser(account.address);
-        setReputation(typeof data?.reputationScore === "number" ? data.reputationScore : Number(data?.reputation) || 0);
+        setReputation(
+          typeof data?.reputationScore === "number"
+            ? data.reputationScore
+            : Number(data?.reputation) || 0
+        );
         setLevel(Number(data?.level) || 1);
       } catch (err) {
         console.error("Failed to load user reputation", err);
@@ -112,7 +116,11 @@ const Details = ({
         </div>
         <div className="flex items-center gap-x-2 pt-2">
           {currentAccount?.address === account.address ? (
-            <Button onClick={() => navigate("/settings")} outline className="button-animated">
+            <Button
+              onClick={() => navigate("/settings")}
+              outline
+              className="button-animated"
+            >
               Edit Account
             </Button>
           ) : isBlockedByMe || hasBlockedMe ? null : (
@@ -195,7 +203,9 @@ const Details = ({
               alt="X Logo"
               className="size-4"
               height={16}
-              src={`${STATIC_IMAGES_URL}/brands/${theme === "dark" ? "x-dark.png" : "x-light.png"}`}
+              src={`${STATIC_IMAGES_URL}/brands/${
+                theme === "dark" ? "x-dark.png" : "x-light.png"
+              }`}
               width={16}
             />
           )}
@@ -203,9 +213,9 @@ const Details = ({
             Joined {dayjs(account.createdAt).format("MMM YYYY")}
           </MetaDetails>
         </div>
-        
+
         {/* Reputation Progress Bar - chỉ hiển thị cho chính chủ account */}
-        {currentAccount?.address === account.address && (
+        {
           <div className="space-y-2 pt-3">
             <div className="flex items-center justify-between text-xs">
               <span className="text-gray-500 dark:text-gray-400">
@@ -226,7 +236,7 @@ const Details = ({
               <span>Reach 100 to level up</span>
             </div>
           </div>
-        )}
+        }
       </div>
     </div>
   );
