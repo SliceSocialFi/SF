@@ -207,7 +207,7 @@ const PersonalizeSettingsForm = () => {
           {...form.register("name")}
         />
         <Input
-          label="Location"
+          label="Your Location"
           placeholder="Miami"
           type="text"
           {...form.register("location")}
