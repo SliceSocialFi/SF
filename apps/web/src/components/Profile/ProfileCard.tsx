@@ -18,6 +18,8 @@ interface User {
   reputationScore: number;
   rewardPoints: number;
   level: number;
+  isWarned: boolean;
+  isBanned: boolean;
   createdAt: string;
 }
 
@@ -65,6 +67,8 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
               ? data.rewardPoints
               : Number(data?.points) || 0,
           level: Number(data?.level) || 0,
+          isWarned: data?.isWarned || false,
+          isBanned: data?.isBanned || false,
           createdAt: data?.createdAt || new Date().toISOString()
         });
       } catch (err) {
@@ -247,6 +251,22 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
                 <span>Reach 100 to level up</span>
               </div>
             </div>
+
+            {/* Status Badge for Warned/Banned */}
+              {user?.isBanned && (
+                <div className="rounded-lg bg-red-100 px-3 py-2 text-center dark:bg-red-900/30">
+                  <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                    🚫 Tài khoản bị khóa
+                  </span>
+                </div>
+              )}
+              {user?.isWarned && !user?.isBanned && (
+                <div className="rounded-lg bg-yellow-100 px-3 py-2 text-center dark:bg-yellow-900/30">
+                  <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                    ⚠️ Cảnh báo: Điểm uy tín thấp
+                  </span>
+                </div>
+              )}
 
             {/* Reward points */}
             <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-900/60">

@@ -3,6 +3,8 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  ExclamationTriangleIcon,
+  NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -50,6 +52,8 @@ const Tasks = () => {
     reputationScore: number;
     rewardPoints: number;
     level: number;
+    isWarned?: boolean;
+    isBanned?: boolean;
     createdAt: string;
   }
   const [user, setUser] = useState<User | null>(null);
@@ -181,6 +185,8 @@ const Tasks = () => {
               ? data.rewardPoints
               : Number(data?.points) || 0,
           level: Number(data?.level) || 0,
+          isWarned: data?.isWarned || false,
+          isBanned: data?.isBanned || false,
           createdAt: data?.createdAt || new Date().toISOString(),
         });
       } catch (err) {
@@ -299,6 +305,50 @@ const Tasks = () => {
       )}
 
       <div className="space-y-6">
+        {/* Banned Warning Banner */}
+        {user?.isBanned && (
+          <div className="mx-3 rounded-lg border-2 border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+            <div className="flex items-start gap-3">
+              <NoSymbolIcon className="h-6 w-6 flex-shrink-0 text-red-600 dark:text-red-400" />
+              <div>
+                <h4 className="font-semibold text-red-800 dark:text-red-300">
+                  Tài khoản đã bị khóa
+                </h4>
+                <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+                  Điểm uy tín của bạn đã giảm xuống dưới 30. Bạn không thể tạo
+                  task mới hoặc ứng tuyển vào các task. Vui lòng liên hệ hỗ trợ
+                  để được giải quyết.
+                </p>
+                <p className="mt-2 text-xs text-red-600 dark:text-red-500">
+                  Điểm uy tín hiện tại: {user.reputationScore}/100
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+         {/* Warning Banner (only show if not banned) */}
+        {user?.isWarned && !user?.isBanned && (
+          <div className="mx-3 rounded-lg border-2 border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-900/20">
+            <div className="flex items-start gap-3">
+              <ExclamationTriangleIcon className="h-6 w-6 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
+              <div>
+                <h4 className="font-semibold text-yellow-800 dark:text-yellow-300">
+                  Điểm uy tín thấp
+                </h4>
+                <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-400">
+                  Điểm uy tín của bạn đang ở mức thấp (dưới 70). Nếu tiếp tục
+                  giảm xuống dưới 30, tài khoản sẽ bị khóa và không thể sử dụng
+                  các tính năng task.
+                </p>
+                <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-500">
+                  Điểm uy tín hiện tại: {user.reputationScore}/100
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3 px-3">
           {loading ? (
             <TasksShimmer count={5} />

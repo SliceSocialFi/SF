@@ -1,5 +1,10 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { 
+  PlusIcon, 
+  TrashIcon,
+  LinkIcon,
+  NoSymbolIcon, 
+} from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/apiClient";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
@@ -73,7 +78,22 @@ const NewTask = ({
 }: NewTaskProps) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const { currentAccount } = useAccountStore();
+
+  // Check if user is banned
+  useEffect(() => {
+    const checkBannedStatus = async () => {
+      if (!currentAccount?.address) return;
+      try {
+        const userData = await apiClient.getUser(currentAccount.address);
+        setIsBanned(userData?.isBanned ?? false);
+      } catch (err) {
+        // User might not exist yet, that's ok
+      }
+    };
+    checkBannedStatus();
+  }, [currentAccount?.address]);
 
   // Use external control if provided, otherwise use internal state
   const isModalOpen =
@@ -217,26 +237,43 @@ const NewTask = ({
 
   return (
     <>
-      {externalIsOpen === undefined && (
-        <Card
-          className="cursor-pointer p-4 transition-shadow hover:shadow-md"
-          onClick={() => setInternalIsModalOpen(true)}
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full task-gradient">
-              <PlusIcon className="h-5 w-5 text-white" />
+      {externalIsOpen === undefined &&
+        (isBanned ? (
+          <Card className="p-4 opacity-60 cursor-not-allowed">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                <NoSymbolIcon className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <H5 className="text-gray-500 dark:text-gray-400">
+                  Không thể tạo Task
+                </H5>
+                <p className="text-red-500 text-sm">
+                  Tài khoản đã bị khóa do điểm uy tín thấp
+                </p>
+              </div>
             </div>
-            <div>
-              <H5 className="text-gray-900 dark:text-white">
-                Create Task Agreement
-              </H5>
-              <p className="text-gray-500 text-sm dark:text-gray-400">
-                Create detailed agreement and find the right freelancer
-              </p>
-            </div>
-          </div>
         </Card>
-      )}
+        ) : (
+          <Card
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+            onClick={() => setInternalIsModalOpen(true)}
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full task-gradient">
+                <PlusIcon className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <H5 className="text-gray-900 dark:text-white">
+                  Create Task Agreement
+                </H5>
+                <p className="text-gray-500 text-sm dark:text-gray-400">
+                  Create detailed agreement and find the right freelancer
+                </p>
+              </div>
+              </div>
+      </Card>
+        ))}
 
       <Modal
         onClose={handleClose}
