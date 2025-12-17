@@ -22,6 +22,12 @@ import {
 import type { TaskItem } from "@/components/Shared/Sidebar/TaskSystem";
 import DeadlineInput from "@/components/Tasks/DeadlineInput";
 
+const resourceSchema = z.object({
+  label: z.string().min(1, "Label is required"),
+  url: z.string().optional(),
+  description: z.string().optional(),
+});
+
 const TaskAgreementSchema = z
   .object({
     title: z.string().trim().min(3, "Title must be at least 3 characters"),
@@ -37,6 +43,9 @@ const TaskAgreementSchema = z
       .string()
       .trim()
       .min(10, "Acceptance criteria must be at least 10 characters"),
+    resources: z
+      .array(resourceSchema)
+      .optional(),
     rewardPoints: z
       .number()
       .int()
@@ -109,12 +118,20 @@ const NewTask = ({
       objective: "",
       deliverables: "",
       acceptanceCriteria: "",
+      resources: [] as Array<{
+        label: string;
+        url?: string;
+        description?: string;
+      }>,
       // default to 1 so an accidental empty submit doesn't immediately fail validation
       rewardPoints: 1,
       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
     schema: TaskAgreementSchema,
   });
+
+  // Watch resources for dynamic rendering
+  const resources = form.watch("resources") || [];
 
   const handleSubmit = async (data: TaskAgreementData) => {
     if (!currentAccount?.address) {
@@ -146,6 +163,18 @@ const NewTask = ({
         acceptanceCriteria: data.acceptanceCriteria,
         rewardPoints: data.rewardPoints,
       };
+
+      // Add resources if provided (with default type 'other')
+      if (data.resources && data.resources.length > 0) {
+        payload.resources = data.resources
+          .filter((r) => r.label.trim()) // Only include resources with labels
+          .map((r) => ({
+            type: "other" as const,
+            label: r.label,
+            url: r.url || undefined,
+            description: r.description || undefined,
+          }));
+      }
 
       if (data.deadline) {
         payload.deadline = new Date(data.deadline).toISOString();
@@ -194,6 +223,7 @@ const NewTask = ({
             objective: t.objective,
             deliverables: t.deliverables,
             acceptanceCriteria: t.acceptanceCriteria,
+            resources: t.resources || [],
             status: t.status || "open",
             assigneeId: t.assigneeId,
             applicants: t.applications || t.applicants || [],
@@ -363,6 +393,64 @@ const NewTask = ({
               rows={3}
               {...form.register("acceptanceCriteria")}
             />
+
+            {/* Resources */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Resources (Optional)
+              </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Add links to design files, API docs, repos, or other helpful
+                resources
+              </p>
+              {resources.map((_, index) => (
+                <div key={index} className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Label (e.g. Figma Design)"
+                      {...form.register(`resources.${index}.label`)}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      placeholder="URL (optional)"
+                      {...form.register(`resources.${index}.url`)}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const current = form.getValues("resources") || [];
+                      form.setValue(
+                        "resources",
+                        current.filter((_, i) => i !== index),
+                        { shouldValidate: true }
+                      );
+                    }}
+                    className="mt-2 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded dark:hover:bg-red-900/20"
+                  >
+                    <TrashIcon className="size-4" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const current = form.getValues("resources") || [];
+                  form.setValue(
+                    "resources",
+                    [...current, { label: "", url: "" }],
+                    {
+                      shouldValidate: true,
+                    }
+                  );
+                }}
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <LinkIcon className="size-4" />
+                Add resource
+              </button>
+            </div>
 
             <Input
               label="Reward (points)"

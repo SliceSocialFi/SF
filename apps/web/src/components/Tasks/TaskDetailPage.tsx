@@ -372,6 +372,37 @@ const TaskDetailPage = () => {
               </div>
             )}
 
+            {/* Resources */}
+            {taskData.resources && taskData.resources.length > 0 && (
+              <div>
+                <H5 className="mb-2 text-gray-900 dark:text-white">
+                  Resources
+                </H5>
+                <div className="flex flex-col gap-4 text-gray-600 text-sm leading-relaxed dark:text-gray-300">
+                  {taskData.resources.map((resource, index) => (
+                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
+                      <div className="font-semibold flex items-center gap-2">
+                        {(resource as { label: string }).label}
+                        {(resource as { url?: string }).url && (
+                          <a
+                            href={(resource as { url: string }).url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline dark:text-blue-400"
+                          >
+                            (Link)
+                          </a>
+                        )}
+                      </div>
+                      {(resource as { description?: string }).description && (
+                        <div className="ml-2 mt-1 text-gray-500 dark:text-gray-400">{(resource as { description: string }).description}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Deadline Warning */}
             {isDeadlinePassed && (
               <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
