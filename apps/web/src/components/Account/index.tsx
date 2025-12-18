@@ -122,7 +122,7 @@ const ViewAccount = () => {
       ) : (
         <>
           <FeedType feedType={feedType} setFeedType={setFeedType} />
-          {currentAccount?.address === account?.address && (
+          {currentAccount?.address === account?.address && feedType === AccountFeedType.Feed && (
             <div className="mb-3">
               <NewPost />
             </div>
