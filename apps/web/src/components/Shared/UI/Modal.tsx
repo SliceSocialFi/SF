@@ -87,7 +87,7 @@ const Modal = ({ children, onClose, show, size = "sm", title, staticBackdrop = f
           <DialogPanel className={modalVariants({ size })}
           onClick={(e) => e.stopPropagation()}>
             {title ? (
-              <DialogTitle className="divider flex items-center justify-between px-5 py-3.5">
+              <DialogTitle className="divider flex items-center justify-between px-5 py-3.5 rounded-t-xl text-lg font-medium text-gray-900 dark:text-gray-100">
                 <b>{title}</b>
                 {onClose ? (
                   <button
