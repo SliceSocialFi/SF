@@ -6,7 +6,7 @@ services:
     container_name: hey-web
     restart: always
     environment:
-      - LENS_NETWORK=staging
+      - LENS_NETWORK=mainnet
       - SLICE_API_URL=https://slice-api-indol.vercel.app/
     ports:
       - "3000:80"
