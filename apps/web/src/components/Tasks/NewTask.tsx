@@ -75,13 +75,13 @@ const TaskAgreementSchema = z
 type TaskAgreementData = z.infer<typeof TaskAgreementSchema>;
 
 interface NewTaskProps {
-  onSubmit?: (tasks: any) => void;
+  onSubmit: () => Promise<void>;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
 const NewTask = ({
-  onSubmit = (tasks: any) => {},
+  onSubmit,
   isOpen: externalIsOpen,
   onClose: externalOnClose,
 }: NewTaskProps) => {
@@ -186,60 +186,7 @@ const NewTask = ({
       toast.success("Task agreement posted successfully!");
 
       // Refresh task list
-      try {
-        const res = await apiClient.listTasks();
-
-        const mapped = (res || []).map((t: any) => {
-          let postedDays = 0;
-          if (t.createdAt) {
-            const createdDate = new Date(t.createdAt);
-            const now = new Date();
-            const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-            postedDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          }
-
-          return {
-            id: t.id || t.taskId,
-            companyLogo: t.companyLogo || t.company?.logo || "",
-            companyName: t.companyName || t.company?.name || t.ownerName || "",
-            jobTitle: t.title || t.jobTitle,
-            description: t.description || t.summary || "",
-            skills: t.skills || [],
-            location: t.location || "",
-            salary: t.salary || "",
-            postedDays,
-            owner: t.owner || {
-              id: t.ownerId || t.ownerProfileId,
-              name: t.ownerName || "",
-            },
-            rewardTokens: t.rewardPoints || t.rewardTokens || 0,
-            employerProfileId:
-              t.employerProfileId || t.ownerProfileId || t.ownerId,
-            freelancerProfileId: t.freelancerProfileId ?? null,
-            title: t.title,
-            rewardPoints: t.rewardPoints || t.rewardTokens || 0,
-            createdAt: t.createdAt,
-            deadline: t.deadline,
-            objective: t.objective,
-            deliverables: t.deliverables,
-            acceptanceCriteria: t.acceptanceCriteria,
-            resources: t.resources || [],
-            status: t.status || "open",
-            assigneeId: t.assigneeId,
-            applicants: t.applications || t.applicants || [],
-          } as TaskItem;
-        });
-
-        const sorted = mapped.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return dateB - dateA;
-        });
-
-        onSubmit(sorted);
-      } catch (err) {
-        console.error("Failed to load tasks:", err);
-      }
+      await onSubmit()
 
       setIsModalOpen(false);
       form.reset();

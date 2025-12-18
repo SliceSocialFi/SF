@@ -269,7 +269,7 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
               )}
 
             {/* Reward points */}
-            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-[#121212]">
               <div>
                 <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   Reward Points

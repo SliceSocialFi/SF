@@ -94,9 +94,10 @@ const Tasks = () => {
       console.error("Error fetching account data:", error);
       return null;
     }
+    
     return {
       name: data?.data?.account?.metadata?.name,
-      avatar: data?.data?.account?.metadata?.picture,
+      avatar: data?.data?.account?.metadata?.picture || "",
     };
   };
 
@@ -146,6 +147,7 @@ const Tasks = () => {
           assigneeId: t.assigneeId,
           applicants: t.applications || t.applicants || [],
         } as TaskItem;
+        console.log("Mapped task:", t)
       });
 
       // Sort by createdAt descending (newest first)
@@ -272,7 +274,7 @@ const Tasks = () => {
           <ProfileCard variant="tasks" />
           {/* New Task Button */}
           <div className="pt-4">
-            <NewTask onSubmit={setTasks} />
+            <NewTask onSubmit={fetchTasks} />
           </div>
 
           {/* Footer */}
@@ -423,7 +425,7 @@ const Tasks = () => {
       {/* Modal for creating new task (controlled by FAB on mobile) */}
       {isNewTaskModalOpen && (
         <NewTask
-          onSubmit={setTasks}
+          onSubmit={fetchTasks}
           isOpen={isNewTaskModalOpen}
           onClose={() => setIsNewTaskModalOpen(false)}
         />

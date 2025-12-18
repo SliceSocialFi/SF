@@ -24,7 +24,7 @@ const MethodSelection = ({
 
       {/* MetaMask Method */}
       <Card 
-        className="cursor-pointer transition-all hover:border-brand-500 hover:shadow-lg px-6 py-4"
+        className="cursor-pointer transition-all hover:shadow-lg px-6 py-4 button-animated"
         forceRounded
         onClick={onSelectMetaMask}
       >
@@ -62,7 +62,7 @@ const MethodSelection = ({
 
       {/* DNPAY Method */}
       <Card 
-        className="cursor-pointer transition-all hover:border-brand-500 hover:shadow-lg px-6 py-4"
+        className="cursor-pointer transition-all button-animated hover:shadow-lg px-6 py-4"
         forceRounded
         onClick={onSelectDNPAY}
       >
