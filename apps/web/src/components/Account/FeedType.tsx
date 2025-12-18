@@ -13,7 +13,8 @@ const FeedType = ({ feedType, setFeedType }: FeedTypeProps) => {
     { name: "Feed", type: AccountFeedType.Feed },
     { name: "Replies", type: AccountFeedType.Replies },
     { name: "Media", type: AccountFeedType.Media },
-    { name: "Collected", type: AccountFeedType.Collects }
+    { name: "Collected", type: AccountFeedType.Collects },
+    { name: "Ratings", type: AccountFeedType.Ratings }
   ];
 
   return (

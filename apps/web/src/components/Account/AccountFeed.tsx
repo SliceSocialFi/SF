@@ -19,14 +19,16 @@ interface AccountFeedProps {
     | AccountFeedType.Collects
     | AccountFeedType.Feed
     | AccountFeedType.Media
-    | AccountFeedType.Replies;
+    | AccountFeedType.Replies
+    | AccountFeedType.Ratings;
 }
 
 const EMPTY_MESSAGES: Record<AccountFeedType, string> = {
   [AccountFeedType.Feed]: "has nothing in their feed yet!",
   [AccountFeedType.Media]: "has no media yet!",
   [AccountFeedType.Replies]: "hasn't replied yet!",
-  [AccountFeedType.Collects]: "hasn't collected anything yet!"
+  [AccountFeedType.Collects]: "hasn't collected anything yet!",
+  [AccountFeedType.Ratings]: "has no ratings yet!"
 };
 
 const AccountFeed = ({ username, address, type }: AccountFeedProps) => {

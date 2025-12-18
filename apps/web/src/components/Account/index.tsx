@@ -23,6 +23,7 @@ import DeletedDetails from "./DeletedDetails";
 import Details from "./Details";
 import FeedType from "./FeedType";
 import AccountPageShimmer from "./Shimmer";
+import RatingFeeds from "./RatingFeeds";
 import cn from "@/helpers/cn";
 
 const ViewAccount = () => {
@@ -129,10 +130,17 @@ const ViewAccount = () => {
           {(feedType === AccountFeedType.Feed ||
             feedType === AccountFeedType.Replies ||
             feedType === AccountFeedType.Media ||
-            feedType === AccountFeedType.Collects) && (
+            feedType === AccountFeedType.Collects
+          ) && (
             <AccountFeed
               address={account.address}
               type={feedType}
+              username={accountInfo.usernameWithPrefix}
+            />
+          )}
+          {feedType === AccountFeedType.Ratings && (
+            <RatingFeeds
+              address={account.address}
               username={accountInfo.usernameWithPrefix}
             />
           )}
