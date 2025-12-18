@@ -118,15 +118,15 @@ const DeadlineInput = ({
       )}
 
       {/* Mode Toggle */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 pb-1">
         <button
           type="button"
           onClick={() => handleModeSwitch("datetime")}
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all",
             mode === "datetime"
-              ? "border-gray-700 bg-gray-900 text-white dark:border-gray-300 dark:bg-white dark:text-gray-900"
-              : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600"
+              ? "bg-gray-900 text-white dark:bg-[#121212] border-2 border-[var(--primary)] dark:text-gray-300"
+              : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-gray-700 dark:bg-[#121212] dark:text-gray-300 dark:hover:border-gray-600 border-2"
           )}
         >
           <CalendarIcon className="h-4 w-4" />
@@ -138,8 +138,8 @@ const DeadlineInput = ({
           className={cn(
             "flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all",
             mode === "duration"
-              ? "border-gray-700 bg-gray-900 text-white dark:border-gray-300 dark:bg-white dark:text-gray-900"
-              : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-gray-600"
+              ? "bg-gray-900 text-white dark:bg-[#121212] border-2 border-[var(--primary)] dark:text-gray-300"
+              : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-gray-700 dark:bg-[#121212] dark:text-gray-300 dark:hover:border-gray-600 border-2 "
           )}
         >
           <ClockIcon className="h-4 w-4" />
@@ -149,7 +149,7 @@ const DeadlineInput = ({
 
       {/* Input based on mode */}
       {mode === "datetime" ? (
-        <div className="relative">
+        <div className="flex gap-2 pb-1">
           <input
             type="datetime-local"
             value={datetimeLocalValue}
@@ -157,13 +157,13 @@ const DeadlineInput = ({
             onChange={handleDatetimeChange}
             name={name}
             className={cn(
-              "w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900 outline-hidden focus:border-gray-500 focus:ring-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-white",
+              "w-full rounded-xl bg-white px-3 py-2 text-gray-900 outline-hidden border-2 border-[var(--primary)] focus:ring-gray-400 dark:bg-[#121212] dark:text-gray-300",
               { "!border-red-500": error }
             )}
           />
         </div>
       ) : (
-        <div className="flex gap-2">
+        <div className="flex gap-2 pb-1">
           <Input
             type="number"
             min="1"
@@ -176,12 +176,12 @@ const DeadlineInput = ({
               }
             }}
             placeholder="e.g: 7"
-            className="flex-1"
+            className="flex-1 rounded-xl"
             error={error}
             skipWrapper={false}
           />
           <Select
-            className="w-32"
+            className="w-32 py-2.5 dark:bg-[#121212] dark:text-gray-300"
             defaultValue={durationUnit}
             onChange={(val: DurationUnit) => {
               setDurationUnit(val);
@@ -198,7 +198,7 @@ const DeadlineInput = ({
 
       {/* Preview */}
       {value && (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-600 text-sm dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400">
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-600 text-sm dark:border-gray-700 dark:bg-[#121212] dark:text-gray-400">
           <span className="font-medium">Deadline: </span>
           {new Date(value).toLocaleString("en-US", {
             dateStyle: "medium",

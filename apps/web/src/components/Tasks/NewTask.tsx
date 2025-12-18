@@ -314,35 +314,43 @@ const NewTask = ({
         >
           {/* Minimal Task fields required by backend */}
           <div className="space-y-4">
-            <Input
+            <div className="pb-1">
+              <Input
               label="Title"
               placeholder="e.g: Frontend Engineer - UI"
               {...form.register("title")}
             />
+            </div>
 
-            <TextArea
+            <div className="pb-1">
+              <TextArea
               label="Objective"
               placeholder="Short objective of the task"
               rows={3}
               {...form.register("objective")}
             />
+            </div>
 
-            <TextArea
+            <div className="pb-1">
+              <TextArea
               label="Deliverables"
               placeholder="What the freelancer should deliver"
               rows={3}
               {...form.register("deliverables")}
             />
+            </div>
 
-            <TextArea
+            <div className="pb-1">
+              <TextArea
               label="Acceptance Criteria"
               placeholder="How you'll accept the work"
               rows={3}
               {...form.register("acceptanceCriteria")}
             />
+            </div>
 
             {/* Resources */}
-            <div className="space-y-2">
+            <div className="space-y-2 pb-1">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Resources (Optional)
               </label>
@@ -399,27 +407,29 @@ const NewTask = ({
               </button>
             </div>
 
-            <Input
+            <div className="pb-1">
+              <Input
               label="Reward (points)"
               min="1"
               placeholder="e.g: 100"
               type="number"
               {...form.register("rewardPoints", { valueAsNumber: true })}
             />
+            </div>
 
             <DeadlineInput
-              value={form.watch("deadline")}
-              onChange={(isoString) => {
-                form.setValue("deadline", isoString, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                });
-              }}
-              error={!!form.formState.errors.deadline}
-              name="deadline"
-              label="Deadline"
-              helper="When should this task be completed?"
-            />
+            value={form.watch("deadline")}
+            onChange={(isoString) => {
+              form.setValue("deadline", isoString, {
+                shouldValidate: true,
+                shouldDirty: true,
+              });
+            }}
+            error={!!form.formState.errors.deadline}
+            name="deadline"
+            label="Deadline"
+            helper="When should this task be completed?"
+          />
           </div>
 
           {/* Action Buttons */}
