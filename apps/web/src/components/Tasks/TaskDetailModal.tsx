@@ -406,7 +406,7 @@ const TaskDetailModal = ({
                   <h6 className="mb-2 font-medium text-gray-700 text-sm dark:text-gray-300">
                     Main Objective
                   </h6>
-                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-gray-800 dark:text-gray-400">
+                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-[#121212] dark:text-gray-400">
                     {task.objective}
                   </p>
                 </div>
@@ -418,7 +418,7 @@ const TaskDetailModal = ({
                   <h6 className="mb-2 font-medium text-gray-700 text-sm dark:text-gray-300">
                     Deliverables
                   </h6>
-                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-gray-800 dark:text-gray-400">
+                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-[#121212] dark:text-gray-400">
                     {task.deliverables}
                   </p>
                 </div>
@@ -430,7 +430,7 @@ const TaskDetailModal = ({
                   <h6 className="mb-2 font-medium text-gray-700 text-sm dark:text-gray-300">
                     Acceptance Criteria
                   </h6>
-                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-gray-800 dark:text-gray-400">
+                  <p className="rounded-lg bg-gray-50 p-3 text-gray-600 text-sm dark:bg-[#121212] dark:text-gray-400">
                     {task.acceptanceCriteria}
                   </p>
                 </div>

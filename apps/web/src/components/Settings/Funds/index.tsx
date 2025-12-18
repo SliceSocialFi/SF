@@ -4,25 +4,44 @@ import NotLoggedIn from "@/components/Shared/NotLoggedIn";
 import PageLayout from "@/components/Shared/PageLayout";
 import { Card, CardHeader } from "@/components/Shared/UI";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
+import { usePaymentReturn, PaymentReturnState } from "@/hooks/usePaymentReturn";
 import Balances from "./Balances";
 import ImportTokenModal from "./ImportTokenModal";
+import PaymentSuccessModal from "./PaymentSuccessModal";
 
 const FundsSettings = () => {
   const { currentAccount } = useAccountStore();
   const [showImportModal, setShowImportModal] = useState(false);
+  
+  const {
+    state,
+    // order,
+    errorMessage,
+    hasPaymentParams,
+    clearPaymentParams
+  } = usePaymentReturn();
 
   useEffect(() => {
-    if (currentAccount) {
+    if (!currentAccount) return;
+
+    if (!hasPaymentParams) {
       const hasSeenModal = localStorage.getItem("hasSeenImportTokenModal");
       if (!hasSeenModal) {
         setShowImportModal(true);
       }
     }
-  }, [currentAccount]);
+  }, [currentAccount, hasPaymentParams]);
+
+  const handleClosePaymentModal = () => {
+    clearPaymentParams();
+  };
 
   if (!currentAccount) {
     return <NotLoggedIn />;
   }
+
+  console.log("hasPaymentParams:", hasPaymentParams);
+  console.log("Rendering FundsSettings with payment state:", state);
 
   return (
     <PageLayout title="Funds settings">
@@ -33,8 +52,17 @@ const FundsSettings = () => {
         />
         <Balances />
       </Card>
+      
+      <PaymentSuccessModal
+        show={hasPaymentParams || state !== PaymentReturnState.IDLE}
+        state={state}
+        // order={order}
+        errorMessage={errorMessage}
+        onClose={handleClosePaymentModal}
+      />
+      
       <ImportTokenModal 
-        show={showImportModal} 
+        show={showImportModal && !hasPaymentParams} 
         onClose={() => setShowImportModal(false)} 
       />
     </PageLayout>
