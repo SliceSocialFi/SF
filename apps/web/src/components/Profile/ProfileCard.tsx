@@ -18,6 +18,8 @@ interface User {
   reputationScore: number;
   rewardPoints: number;
   level: number;
+  isWarned: boolean;
+  isBanned: boolean;
   createdAt: string;
 }
 
@@ -65,6 +67,8 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
               ? data.rewardPoints
               : Number(data?.points) || 0,
           level: Number(data?.level) || 0,
+          isWarned: data?.isWarned || false,
+          isBanned: data?.isBanned || false,
           createdAt: data?.createdAt || new Date().toISOString()
         });
       } catch (err) {
@@ -193,6 +197,20 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
           {bio}
         </p>
 
+        {/* Professional Roles */}
+        {user?.professionalRoles && user.professionalRoles.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {user.professionalRoles.map((role) => (
+              <span
+                key={`role-${role}`}
+                className="rounded bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700 border dark:border-[var(--primary)] dark:bg-transparent hover:bg-gray-900 dark:text-gray-200 cursor-pointer"
+              >
+                {role}
+              </span>
+            ))}
+          </div>
+        )}
+
         {variant === "home" ? (
           /* ========== HOME: Followers / Following ========== */
           <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
@@ -234,8 +252,24 @@ const ProfileCard = ({ variant = "home" }: ProfileCardProps) => {
               </div>
             </div>
 
+            {/* Status Badge for Warned/Banned */}
+              {user?.isBanned && (
+                <div className="rounded-lg bg-red-100 px-3 py-2 text-center dark:bg-red-900/30">
+                  <span className="text-sm font-medium text-red-700 dark:text-red-400">
+                    🚫 Tài khoản bị khóa
+                  </span>
+                </div>
+              )}
+              {user?.isWarned && !user?.isBanned && (
+                <div className="rounded-lg bg-yellow-100 px-3 py-2 text-center dark:bg-yellow-900/30">
+                  <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                    ⚠️ Cảnh báo: Điểm uy tín thấp
+                  </span>
+                </div>
+              )}
+
             {/* Reward points */}
-            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-900/60">
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 dark:bg-[#121212]">
               <div>
                 <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                   Reward Points

@@ -89,7 +89,8 @@ const SwitchAccounts = () => {
       />
       {accountsAvailable.map((accountAvailable, index) => (
         <button
-          className="flex w-full cursor-pointer items-center justify-between space-x-2 rounded-lg py-3 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="flex w-full cursor-pointer items-center justify-between space-x-2 rounded-xl py-3 pr-4 pl-3 
+                    text-gray-700 hover:border-[var(--primary)] button-animated dark:text-gray-200"
           disabled={
             currentAccount?.address === accountAvailable.account.address
           }

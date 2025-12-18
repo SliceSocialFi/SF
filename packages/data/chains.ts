@@ -68,6 +68,20 @@ export const MAINNET_CHAINS = {
             name: "BNB",
             symbol: "BNB",
             decimals: 18
+        },
+        usdt: {
+            name: "Tether USD",
+            symbol: "USDT",
+            address: "0x55d398326f99059fF775485246999027B3197955",
+            decimals: 18,
+            icon: "/usdt-icon.png"
+        },
+        vndc: {
+            name: "VNDC Token",
+            symbol: "VNDC",
+            address: "0xDDE5B33a56f3F1C22e5a6bd8429E6ad508BFF24E",
+            decimals: 0,
+            icon: "/vndc-icon.png"
         }
     },
 }
