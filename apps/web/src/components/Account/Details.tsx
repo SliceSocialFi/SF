@@ -52,7 +52,11 @@ const Details = ({
       try {
         if (!account?.address) return;
         const data = await apiClient.getUser(account.address);
-        setReputation(typeof data?.reputationScore === "number" ? data.reputationScore : Number(data?.reputation) || 0);
+        setReputation(
+          typeof data?.reputationScore === "number"
+            ? data.reputationScore
+            : Number(data?.reputation) || 0
+        );
         setLevel(Number(data?.level) || 1);
         // Chỉ fetch roles từ API nếu không được truyền từ prop (dành cho trang your account)
         if (!propProfessionalRoles) {
@@ -130,7 +134,11 @@ const Details = ({
         </div>
         <div className="flex items-center gap-x-2 pt-2">
           {currentAccount?.address === account.address ? (
-            <Button onClick={() => navigate("/settings")} outline className="button-animated">
+            <Button
+              onClick={() => navigate("/settings")}
+              outline
+              className="button-animated"
+            >
               Edit Account
             </Button>
           ) : isBlockedByMe || hasBlockedMe ? null : (
@@ -225,7 +233,9 @@ const Details = ({
               alt="X Logo"
               className="size-4"
               height={16}
-              src={`${STATIC_IMAGES_URL}/brands/${theme === "dark" ? "x-dark.png" : "x-light.png"}`}
+              src={`${STATIC_IMAGES_URL}/brands/${
+                theme === "dark" ? "x-dark.png" : "x-light.png"
+              }`}
               width={16}
             />
           )}
@@ -233,7 +243,7 @@ const Details = ({
             Joined {dayjs(account.createdAt).format("MMM YYYY")}
           </MetaDetails>
         </div>
-        
+
         {/* Reputation Progress Bar - chỉ hiển thị cho chính chủ account */}
         {
           <div className="space-y-2 pt-3">

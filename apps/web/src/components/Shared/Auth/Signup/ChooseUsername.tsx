@@ -2,7 +2,7 @@ import {
   CheckIcon,
   ExclamationTriangleIcon,
   FaceFrownIcon,
-  FaceSmileIcon
+  FaceSmileIcon,
 } from "@heroicons/react/24/outline";
 import { account as accountMetadata } from "@lens-protocol/metadata";
 import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
@@ -12,7 +12,7 @@ import {
   useAccountQuery,
   useAuthenticateMutation,
   useChallengeMutation,
-  useCreateAccountWithUsernameMutation
+  useCreateAccountWithUsernameMutation,
 } from "@slice/indexer";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -30,7 +30,7 @@ import cn from "@/helpers/cn";
 export const SignupMessage = () => (
   <AuthMessage
     description="Let's start by buying your username for you. Buying you say? Yep - usernames cost a little bit of money to support the network and keep bots away"
-    title="Welcome to Hey!"
+    title="Welcome to Slice!"
   />
 );
 
@@ -41,8 +41,8 @@ const ValidationSchema = z.object({
     .max(26, { message: "Username must be at most 26 characters long" })
     .regex(Regex.username, {
       message:
-        "Username must start with a letter/number, only _ allowed in between"
-    })
+        "Username must start with a letter/number, only _ allowed in between",
+    }),
 });
 
 const ChooseUsername = () => {
@@ -50,7 +50,7 @@ const ChooseUsername = () => {
     setChosenUsername,
     setScreen,
     setTransactionHash,
-    setOnboardingToken
+    setOnboardingToken,
   } = useSignupStore();
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,10 +88,10 @@ const ChooseUsername = () => {
       return await handleTransactionLifecycle({
         onCompleted,
         onError,
-        transactionData: createAccountWithUsername
+        transactionData: createAccountWithUsername,
       });
     },
-    onError
+    onError,
   });
 
   const username = form.watch("username");
@@ -103,12 +103,12 @@ const ChooseUsername = () => {
     onCompleted: (data) => setIsAvailable(!data.account),
     skip: !canCheck,
     variables: {
-      request: { username: { localName: username?.toLowerCase() } }
-    }
+      request: { username: { localName: username?.toLowerCase() } },
+    },
   });
 
   const handleSignup = async ({
-    username
+    username,
   }: z.infer<typeof ValidationSchema>) => {
     try {
       setIsSubmitting(true);
@@ -119,10 +119,10 @@ const ChooseUsername = () => {
           request: {
             onboardingUser: {
               app: IS_MAINNET ? SLICE_APP : undefined,
-              wallet: address
-            }
-          }
-        }
+              wallet: address,
+            },
+          },
+        },
       });
 
       if (!challenge?.data?.challenge?.text) {
@@ -131,12 +131,12 @@ const ChooseUsername = () => {
 
       // Get signature
       const signature = await signMessageAsync({
-        message: challenge?.data?.challenge?.text
+        message: challenge?.data?.challenge?.text,
       });
 
       // Auth account
       const auth = await authenticate({
-        variables: { request: { id: challenge.data.challenge.id, signature } }
+        variables: { request: { id: challenge.data.challenge.id, signature } },
       });
 
       if (auth.data?.authenticate.__typename === "AuthenticationTokens") {
@@ -151,9 +151,9 @@ const ChooseUsername = () => {
           variables: {
             request: {
               metadataUri,
-              username: { localName: username.toLowerCase() }
-            }
-          }
+              username: { localName: username.toLowerCase() },
+            },
+          },
         });
       }
 
