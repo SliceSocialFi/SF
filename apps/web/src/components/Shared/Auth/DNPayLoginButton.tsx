@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/Shared/UI";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 
@@ -9,6 +9,7 @@ interface DNPayLoginButtonProps {
 
 const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) => {
 	const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
 		setIsLoading(false);
@@ -16,6 +17,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		
 		// Call the success callback with full data
 		onSuccess?.(data);
+        setIsSuccess(true);
 	};
 
 	const handleError = (error: string) => {
@@ -23,7 +25,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		console.error("DNPAY SSO Error:", error);
 	};
 
-	const { openDNPayLogin } = useDNPaySSO({
+	const { openDNPayLogin, closeDNPayPopup } = useDNPaySSO({
 		onSuccess: handleSuccess,
 		onError: handleError
 	});
@@ -33,6 +35,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		setIsLoading(true);
 		openDNPayLogin();
 	};
+
+    useEffect(() => {
+        if (isSuccess) {
+            console.log("DNPAY login successful, closing popup if still open");
+            closeDNPayPopup();
+        }
+    }, [isSuccess]);
 
 	return (
 		<Button

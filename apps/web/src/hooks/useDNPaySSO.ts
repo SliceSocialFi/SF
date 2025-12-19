@@ -151,6 +151,16 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		}
 	}, [generateState]);
 
+    const closeDNPayPopup = useCallback(() => {
+        const accessToken = localStorage.getItem("dnpayAccessToken");
+        // Has access token, close popup
+        if (accessToken && popupRef.current && !popupRef.current.closed) {
+            console.log("🔐 DNPAY token found, closing popup...");
+            popupRef.current.close();
+            cleanup();
+        }
+    }, []);
+
 	// Listen for messages from popup
 	useEffect(() => {
 		window.addEventListener("message", handleMessage);
@@ -162,6 +172,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 
 	return {
 		openDNPayLogin,
+        closeDNPayPopup,
 		cleanup
 	};
 };
