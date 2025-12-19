@@ -70,8 +70,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				toast.success("DNPAY login successful!");
 				onSuccess?.({ access_token: accessToken });
 				cleanup();
-			} else {
-				toast.error("No DNPAY token found in localStorage");
 			}
 		},
 		[onSuccess, onError, cleanup]
@@ -80,9 +78,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Check popup status
 	const checkPopupClosed = useCallback(() => {
 		if (popupRef.current?.closed) {
-			console.log("⚠ Popup window was closed");
 			cleanup();
-			toast.error("Login window was closed");
 		}
 	}, [cleanup]);
 
@@ -113,20 +109,9 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				`width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
 			);
 
-            console.log("Attempting to open popup window for DNPAY SSO", popupRef.current);
-
 			if (!popupRef.current) {
 				toast.error("Failed to open login window. Please allow popups.");
 				return;
-			}
-
-			console.log("✓ Popup opened successfully");
-			
-			// Try to monitor popup URL (will fail due to CORS if different origin)
-			try {
-				console.log("Initial popup URL:", popupRef.current.location.href);
-			} catch (e) {
-				console.log("Cannot access popup URL (CORS) - this is normal");
 			}
 
 			// Check if popup is closed periodically
