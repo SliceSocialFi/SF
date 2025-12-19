@@ -13,7 +13,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
 		setIsLoading(false);
-		console.log("DNPAY Authentication Data:", data);
 		
 		// Call the success callback with full data
 		onSuccess?.(data);
@@ -31,7 +30,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	});
 
 	const handleClick = () => {
-		console.log("DNPay login button clicked");
 		setIsLoading(true);
 		openDNPayLogin();
 	};
