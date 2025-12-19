@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
+import { au } from "react-router/dist/development/routeModules-DnUHijGz";
 
 interface DNPayAuthResponse {
 	code?: string;
@@ -20,6 +21,8 @@ interface UseDNPaySSOOptions {
  * Hook for handling DNPAY SSO authentication flow
  * Opens a popup window for DNPAY login similar to Google OAuth
  */
+
+
 export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	const popupRef = useRef<Window | null>(null);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,7 +56,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			}
 
 			const data = event.data as DNPayAuthResponse;
-			console.log("Received message from popup:", data);
 
 			if (data.error) {
 				const errorMessage = data.error_description || data.error;
@@ -69,6 +71,14 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 					token: data.token, 
 					access_token: data.access_token 
 				});
+				
+				// Save access_token to localStorage (backup in case popup didn't do it)
+				if (data.access_token) {
+					console.log("Saving access_token to localStorage in parent window...");
+					localStorage.setItem("TokenAccessDNPAY", data.access_token);
+					console.log("✓ Token saved to localStorage from parent with key: TokenAccessDNPAY");
+				}
+				
 				toast.success("DNPAY login successful!");
 				onSuccess?.({
 					code: data.code,
@@ -97,13 +107,13 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			sessionStorage.setItem("dnpay_oauth_state", state);
 
 			// Use app's own callback URL
-			// const redirectUri = `${window.location.origin}/auth/dnpay/callback`;
+			const redirectUri = `http://localhost:5173`;
 
 			// Build URL manually without encoding
 			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
 
 			console.log("Opening DNPAY auth URL:", authUrl);
-			// console.log("Expected callback URL:", redirectUri);
+			console.log("Expected callback URL:", redirectUri);
 
 			// Open popup window (similar to Google login)
 			const width = 500;
@@ -139,15 +149,15 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			toast.error("Failed to initialize DNPAY login");
 			console.error("DNPAY SSO Error:", error);
 		}
-	}, [generateState, checkPopupClosed]);
+	}, [generateState]);
 
 	// Listen for messages from popup
 	useEffect(() => {
 		window.addEventListener("message", handleMessage);
-		return () => {
-			window.removeEventListener("message", handleMessage);
-			cleanup();
-		};
+		// return () => {
+		// 	window.removeEventListener("message", handleMessage);
+		// 	cleanup();
+		// };
 	}, [handleMessage, cleanup]);
 
 	return {

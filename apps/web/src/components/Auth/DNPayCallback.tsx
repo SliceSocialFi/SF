@@ -73,6 +73,13 @@ const DNPayCallback = () => {
 			return;
 		}
 
+		// Save access_token to localStorage
+		if (accessToken) {
+			console.log("Saving access_token to localStorage...");
+			localStorage.setItem("TokenAccessDNPAY", accessToken);
+			console.log("✓ Token saved to localStorage with key: TokenAccessDNPAY");
+		}
+
 		// Send authorization data to opener window
 		if (window.opener && !window.opener.closed) {
 			console.log("Sending message to opener window:", {
@@ -96,6 +103,12 @@ const DNPayCallback = () => {
 			sessionStorage.removeItem("dnpay_oauth_state");
 			
 			console.log("Message sent successfully!");
+			
+			// Auto-close popup after a short delay
+			setTimeout(() => {
+				console.log("Closing popup window...");
+				window.close();
+			}, 1000);
 		} else {
 			console.warn("No opener window found or opener is closed");
 			// If not in popup, redirect to home

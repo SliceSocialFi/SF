@@ -49,6 +49,11 @@ const WalletSelector: FC = () => {
         onSuccess={(data) => {
           console.log("=== DNPAY LOGIN SUCCESS ===");
           console.log("Authorization data:", data);
+          
+          // Double-check localStorage
+          const savedToken = localStorage.getItem("TokenAccessDNPAY");
+          console.log("Token from localStorage (TokenAccessDNPAY):", savedToken);
+          
           if (data.code) {
             console.log("Code:", data.code);
           }
@@ -57,10 +62,11 @@ const WalletSelector: FC = () => {
           }
           if (data.access_token) {
             console.log("Access Token:", data.access_token);
+            console.log("Token saved to localStorage: ✓");
           }
           console.log("==========================");
           // TODO: Handle DNPAY authentication flow
-          // Next step: Exchange code for access token via backend
+          // Next step: Use access_token from localStorage or data.access_token
         }}
       />
       
