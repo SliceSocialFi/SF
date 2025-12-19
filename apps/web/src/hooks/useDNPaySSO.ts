@@ -67,7 +67,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 
 			const accessToken = localStorage.getItem("dnpayAccessToken");
 			if (accessToken) {
-				toast.success("DNPAY login successful!");
 				onSuccess?.({ access_token: accessToken });
 				cleanup();
 			}

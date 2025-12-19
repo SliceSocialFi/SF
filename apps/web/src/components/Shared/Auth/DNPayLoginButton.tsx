@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
+import { toast } from "sonner";
 
 interface DNPayLoginButtonProps {
 	onSuccess?: (data: { code?: string; token?: string; access_token?: string }) => void;
@@ -37,7 +38,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
     useEffect(() => {
         if (isSuccess) {
-            console.log("DNPAY login successful, closing popup if still open");
+            toast.success("DNPAY login successful!");
             closeDNPayPopup();
         }
     }, [isSuccess]);
