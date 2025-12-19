@@ -5,8 +5,7 @@ import type { Connector } from "wagmi";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import cn from "@/helpers/cn";
 import getWalletDetails from "@/helpers/getWalletDetails";
-// import DNPayLoginButton from "./DNPayLoginButton"; // Popup version
-import DNPayLoginButtonFullPage from "./DNPayLoginButtonFullPage"; // Full page redirect version
+import DNPayLoginButton from "./DNPayLoginButton";
 
 const WalletSelector: FC = () => {
   const { connectAsync, connectors, isPending } = useConnect();
@@ -45,7 +44,25 @@ const WalletSelector: FC = () => {
     </div>
   ) : (
     <div className="inline-block w-full space-y-3 overflow-hidden text-left align-middle">
-      <DNPayLoginButtonFullPage className="w-full" />
+      <DNPayLoginButton
+        className="w-full"
+        onSuccess={(data) => {
+          console.log("=== DNPAY LOGIN SUCCESS ===");
+          console.log("Authorization data:", data);
+          if (data.code) {
+            console.log("Code:", data.code);
+          }
+          if (data.token) {
+            console.log("Token:", data.token);
+          }
+          if (data.access_token) {
+            console.log("Access Token:", data.access_token);
+          }
+          console.log("==========================");
+          // TODO: Handle DNPAY authentication flow
+          // Next step: Exchange code for access token via backend
+        }}
+      />
       
       <div className="relative">
         <div className="absolute inset-0 flex items-center">

@@ -99,11 +99,11 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			// Use app's own callback URL
 			const redirectUri = `${window.location.origin}/auth/dnpay/callback`;
 
-			// DNPAY requires redirect_uri NOT to be URL encoded
-			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=${redirectUri}`;
+			// Build URL manually without encoding
+			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
 
 			console.log("Opening DNPAY auth URL:", authUrl);
-			console.log("Redirect URI:", redirectUri);
+			console.log("Expected callback URL:", redirectUri);
 
 			// Open popup window (similar to Google login)
 			const width = 500;
