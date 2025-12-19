@@ -132,7 +132,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
         const accessToken = localStorage.getItem("dnpayAccessToken");
 
         // Gọi API verify
-			fetch(`${PAYMENT_API_URL}/api/auth/dnpay/verify`, {
+			fetch(`${PAYMENT_API_URL}api/auth/dnpay/verify`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json"
