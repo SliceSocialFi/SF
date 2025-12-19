@@ -48,19 +48,19 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			onClick={handleClick}
 			type="button"
 		>
-			<span>Continue with DNPay</span>
+			<span>Continue with DNPAY</span>
 			<img 
 				src="/dnpay-logo-darkmode.png" 
-				alt="DNPay" 
-				className="size-6 dark:block hidden"
+				alt="DNPAY" 
+				className="size-6 m-0 dark:block hidden"
 				draggable={false}
 				height={24}
 				width={24}
 			/>
 			<img 
 				src="/dnpay-logo-lightmode.png" 
-				alt="DNPay" 
-				className="size-6 dark:hidden block"
+				alt="DNPAY" 
+				className="size-6 m-0 dark:hidden block"
 				draggable={false}
 				height={24}
 				width={24}
