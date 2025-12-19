@@ -12,12 +12,27 @@ import Hero from "./Hero";
 import Highlights from "./Highlights";
 import Timeline from "./Timeline";
 import StickyFeedBar from "./StickyFeedbar";
+import { useSearchParams } from "react-router";
+import { useEffect } from "react";
 
 const Home = () => {
   const { currentAccount } = useAccountStore();
   const { feedType } = useHomeTabStore();
   const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const loggedInWithAccount = Boolean(currentAccount);
+
+  const [searchParams] = useSearchParams()
+  console.log("Home searchParams", searchParams.toString())
+  useEffect(() => {
+    const getAccesToken = () => {
+      const accessToken = searchParams.get("access_token")
+      console.log("accessToken", accessToken)
+      if(accessToken){
+        localStorage.setItem("dnpayAccessToken", accessToken)
+      }
+    }
+    getAccesToken()
+  }, [searchParams])
 
   return (
     <PageLayout>

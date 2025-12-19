@@ -76,8 +76,8 @@ const DNPayCallback = () => {
 		// Save access_token to localStorage
 		if (accessToken) {
 			console.log("Saving access_token to localStorage...");
-			localStorage.setItem("TokenAccessDNPAY", accessToken);
-			console.log("✓ Token saved to localStorage with key: TokenAccessDNPAY");
+			localStorage.setItem("dnpayAccessToken", accessToken);
+			console.log("✓ Token saved to localStorage with key: dnpayAccessToken");
 		}
 
 		// Send authorization data to opener window
