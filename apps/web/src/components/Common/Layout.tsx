@@ -43,25 +43,30 @@ const Layout = () => {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  // Nếu là popup, có access_token trên URL, lưu token, gửi về opener và tự đóng
+  // Nếu là popup, có access_token trên URL, lưu token và tự đóng
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const accessToken = params.get("access_token");
-    if (accessToken && window.opener) {
+    const accessToken = localStorage.getItem("dnpayAccessToken") || params.get("access_token");
+    if (accessToken) {
       console.log("🔐 DNPAY token detected in popup URL");
       // Lưu token vào localStorage (popup và parent cùng origin)
       localStorage.setItem("dnpayAccessToken", accessToken);
-      console.log("✓ Token saved to localStorage in popup");
       
-      // Gửi message về parent window
-      window.opener.postMessage({ access_token: accessToken }, window.location.origin);
-      console.log("✓ Message sent to parent window");
+      // Thử gửi message về parent window (có thể fail do CORS)
+      try {
+        if (window.opener) {
+          window.opener.postMessage({ access_token: accessToken }, "*");
+          console.log("✓ Message sent to parent window");
+        }
+      } catch (e) {
+        console.log("⚠ Cannot send message to parent (CORS)");
+      }
       
-      // Đóng popup sau 1 giây
+      // Đóng popup ngay lập tức
+      console.log("🔒 Closing popup in 500ms...");
       setTimeout(() => {
-        console.log("🔒 Closing popup...");
         window.close();
-      }, 1000);
+      }, 500);
     }
   }, []);
 
