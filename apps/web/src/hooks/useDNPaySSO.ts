@@ -65,27 +65,13 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			if (data.code || data.token || data.access_token) {
-				console.log("DNPAY auth data received:", { 
-					code: data.code, 
-					token: data.token, 
-					access_token: data.access_token 
-				});
-				
-				// Save access_token to localStorage (backup in case popup didn't do it)
-				if (data.access_token) {
-					console.log("Saving access_token to localStorage in parent window...");
-					localStorage.setItem("TokenAccessDNPAY", data.access_token);
-					console.log("✓ Token saved to localStorage from parent with key: TokenAccessDNPAY");
-				}
-				
+			const accessToken = localStorage.getItem("dnpayAccessToken");
+			if (accessToken) {
 				toast.success("DNPAY login successful!");
-				onSuccess?.({
-					code: data.code,
-					token: data.token,
-					access_token: data.access_token
-				});
+				onSuccess?.({ access_token: accessToken });
 				cleanup();
+			} else {
+				toast.error("No DNPAY token found in localStorage");
 			}
 		},
 		[onSuccess, onError, cleanup]
