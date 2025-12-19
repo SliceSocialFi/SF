@@ -78,6 +78,35 @@ const DNPayCallback = () => {
 			console.log("Saving access_token to localStorage...");
 			localStorage.setItem("dnpayAccessToken", accessToken);
 			console.log("✓ Token saved to localStorage with key: dnpayAccessToken");
+
+			// Gọi API verify
+			fetch("/api/auth/dnpay/verify", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ dnpayAccessToken: accessToken })
+			})
+				.then(res => res.json())
+				.then(data => {
+					if (data.status === "LOGIN_SUCCESS") {
+						console.log("✅ DNPAY LOGIN SUCCESS:", {
+							accessToken: data.accessToken,
+							userId: data.user?.id,
+							email: data.user?.email
+						});
+					} else if (data.status === "ONBOARDING_REQUIRED") {
+						console.log("🟡 DNPAY ONBOARDING REQUIRED:", {
+							onboardingToken: data.onboardingToken,
+							email: data.email
+						});
+					} else {
+						console.log("❓ DNPAY UNKNOWN RESPONSE:", data);
+					}
+				})
+				.catch(err => {
+					console.error("DNPAY VERIFY ERROR:", err);
+				});
 		}
 
 		// Send authorization data to opener window
