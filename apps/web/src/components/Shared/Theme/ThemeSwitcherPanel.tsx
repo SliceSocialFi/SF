@@ -21,7 +21,7 @@ const ThemeSwitcherPanel: React.FC<ThemeSwitcherPanelProps> = ({ onClose }) => {
       {/* Light/Dark Mode Toggle */}
       <button
         type="button"
-        className="mb-3 flex w-full items-center justify-between rounded-lg border border-gray-200 p-2.5 text-sm transition hover:bg-gray-500 dark:border-gray-700 dark:hover:bg-black-800"
+        className="mb-3 flex w-full items-center justify-between rounded-lg border border-gray-200 p-2.5 text-sm transition hover:bg-[#F9FAFB] dark:border-gray-700 dark:hover:bg-[#121212] button-animated"
         onClick={(e) => {
           e.stopPropagation();
           toggleTheme();
