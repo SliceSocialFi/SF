@@ -97,13 +97,13 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			sessionStorage.setItem("dnpay_oauth_state", state);
 
 			// Use app's own callback URL
-			const redirectUri = `${window.location.origin}/auth/dnpay/callback`;
+			// const redirectUri = `${window.location.origin}/auth/dnpay/callback`;
 
 			// Build URL manually without encoding
 			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
 
 			console.log("Opening DNPAY auth URL:", authUrl);
-			console.log("Expected callback URL:", redirectUri);
+			// console.log("Expected callback URL:", redirectUri);
 
 			// Open popup window (similar to Google login)
 			const width = 500;
@@ -116,6 +116,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				"DNPay Login",
 				`width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
 			);
+
+            console.log("Attempting to open popup window for DNPAY SSO", popupRef.current);
 
 			if (!popupRef.current) {
 				toast.error("Failed to open login window. Please allow popups.");
