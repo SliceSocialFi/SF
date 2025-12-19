@@ -49,21 +49,10 @@ const Layout = () => {
     const accessToken = localStorage.getItem("dnpayAccessToken") || params.get("access_token");
     if (accessToken) {
       console.log("🔐 DNPAY token detected in popup URL");
-      // Lưu token vào localStorage (popup và parent cùng origin)
+
       localStorage.setItem("dnpayAccessToken", accessToken);
       
-      // Thử gửi message về parent window (có thể fail do CORS)
-      try {
-        if (window.opener) {
-          window.opener.postMessage({ access_token: accessToken }, "*");
-          console.log("✓ Message sent to parent window");
-        }
-      } catch (e) {
-        console.log("⚠ Cannot send message to parent (CORS)");
-      }
-      
       // Đóng popup ngay lập tức
-      console.log("🔒 Closing popup in 500ms...");
       setTimeout(() => {
         window.close();
       }, 500);

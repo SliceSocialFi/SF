@@ -125,7 +125,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
         const accessToken = localStorage.getItem("dnpayAccessToken");
         // Has access token, close popup
         if (accessToken && popupRef.current && !popupRef.current.closed) {
-            console.log("🔐 DNPAY token found, closing popup...");
             popupRef.current.close();
             cleanup();
         }
