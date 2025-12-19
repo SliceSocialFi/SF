@@ -17,6 +17,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		// Call the success callback with full data
 		onSuccess?.(data);
         setIsSuccess(true);
+        verifyDNPayToken();
 	};
 
 	const handleError = (error: string) => {
@@ -24,9 +25,9 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		console.error("DNPAY SSO Error:", error);
 	};
 
-	const { openDNPayLogin, closeDNPayPopup } = useDNPaySSO({
+	const { openDNPayLogin, closeDNPayPopup, verifyDNPayToken } = useDNPaySSO({
 		onSuccess: handleSuccess,
-		onError: handleError
+		onError: handleError,
 	});
 
 	const handleClick = () => {

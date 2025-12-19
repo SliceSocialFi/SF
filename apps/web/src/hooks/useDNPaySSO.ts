@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
 import { au } from "react-router/dist/development/routeModules-DnUHijGz";
+import { PAYMENT_API_URL } from "@slice/data/constants";
 
 interface DNPayAuthResponse {
 	code?: string;
@@ -92,7 +93,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 
 			// Build URL manually without encoding
 			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
-            
+
 			// Open popup window (similar to Google login)
 			const width = 500;
 			const height = 600;
@@ -127,6 +128,39 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
         }
     }, []);
 
+    const verifyDNPayToken = useCallback(() => {
+        const accessToken = localStorage.getItem("dnpayAccessToken");
+
+        // Gọi API verify
+			fetch(`${PAYMENT_API_URL}/api/auth/dnpay/verify`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ dnpayAccessToken: accessToken })
+			})
+				.then(res => res.json())
+				.then(data => {
+					if (data.status === "LOGIN_SUCCESS") {
+						console.log("✅ DNPAY LOGIN SUCCESS:", {
+							accessToken: data.accessToken,
+							userId: data.user?.id,
+							email: data.user?.email
+						});
+					} else if (data.status === "ONBOARDING_REQUIRED") {
+						console.log("🟡 DNPAY ONBOARDING REQUIRED:", {
+							onboardingToken: data.onboardingToken,
+							email: data.email
+						});
+					} else {
+						console.log("❓ DNPAY UNKNOWN RESPONSE:", data);
+					}
+				})
+				.catch(err => {
+					console.error("DNPAY VERIFY ERROR:", err);
+				});
+    }, []);
+
 	// Listen for messages from popup
 	useEffect(() => {
 		window.addEventListener("message", handleMessage);
@@ -139,6 +173,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	return {
 		openDNPayLogin,
         closeDNPayPopup,
-		cleanup
+        verifyDNPayToken,
+        cleanup
 	};
 };
