@@ -8,7 +8,8 @@ export enum AccountFeedType {
   Collects = "COLLECTS",
   Feed = "FEED",
   Media = "MEDIA",
-  Replies = "REPLIES"
+  Replies = "REPLIES",
+  Ratings = "RATINGS"
 }
 
 export enum NotificationFeedType {

@@ -120,9 +120,8 @@ const ViewPost = () => {
     "PostOperationValidationPassed";
 
   // Check if the comment's root post is deleted
-  const isCommentOnDeletedPost =
-    targetPost.commentOn?.isDeleted || targetPost.root?.isDeleted;
-
+  const isCommentOnDeletedPost = post.isDeleted;
+  
   // Allow comments on reposts even if original post is deleted
   // But disable comments on original deleted posts
   // Also disable comments if this is a comment on a deleted post

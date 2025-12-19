@@ -258,6 +258,10 @@ export default class ApiClient {
     return this.request(`/users/${encodeURIComponent(profileId).toLowerCase()}/adjust-points`, { method: 'POST', body: JSON.stringify(payload) })
   }
 
+  async getFreelancerRatings(profileId: string): Promise<Array<{ rating: number; comment: string | null }>> {
+    return this.request(`/applications/freelancer/${encodeURIComponent(profileId).toLowerCase()}/ratings`, { method: 'GET' })
+  }
+
   // ==================== NOTIFICATIONS ====================
   
   /**

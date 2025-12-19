@@ -12,7 +12,7 @@ import { Regex } from "@slice/data/regex";
 import trimify from "@slice/helpers/trimify";
 import { useMeLazyQuery, useSetAccountMetadataMutation } from "@slice/indexer";
 import type { ApolloClientError } from "@slice/types/errors";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import AvatarUpload from "@/components/Shared/AvatarUpload";
@@ -31,6 +31,7 @@ import errorToast from "@/helpers/errorToast";
 import getAccountAttribute from "@/helpers/getAccountAttribute";
 import uploadMetadata from "@/helpers/uploadMetadata";
 import useTransactionLifecycle from "@/hooks/useTransactionLifecycle";
+import { apiClient } from "@/lib/apiClient";
 import useWaitForTransactionToComplete from "@/hooks/useWaitForTransactionToComplete";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 
@@ -49,7 +50,10 @@ const ValidationSchema = z.object({
     z.string().regex(Regex.url, { message: "Invalid website" }),
     z.string().max(0)
   ]),
-  x: z.string().max(100, { message: "X handle must not exceed 100 characters" })
+  x: z.string().max(100, { message: "X handle must not exceed 100 characters" }),
+  professionalRoles: z.string().max(500, {
+    message: "Professional roles must not exceed 500 characters"
+  })
 });
 
 const PersonalizeSettingsForm = () => {
@@ -61,17 +65,86 @@ const PersonalizeSettingsForm = () => {
   const [coverUrl, setCoverUrl] = useState<string | undefined>(
     currentAccount?.metadata?.coverPicture
   );
+  const [initialProfessionalRoles, setInitialProfessionalRoles] =
+    useState<string>("");
   const handleTransactionLifecycle = useTransactionLifecycle();
   const waitForTransactionToComplete = useWaitForTransactionToComplete();
   const [getCurrentAccountDetails] = useMeLazyQuery({
     fetchPolicy: "no-cache",
-    variables: { proBannerId: BANNER_IDS.PRO }
+    variables: { proBannerId: BANNER_IDS.PRO },
   });
 
-  const onCompleted = async (hash: string) => {
+  // Load professionalRoles from slice-api on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!currentAccount?.address) return;
+      try {
+        const userData = await apiClient.getUser(currentAccount.address);
+        if (userData?.professionalRoles) {
+          const rolesStr = Array.isArray(userData.professionalRoles)
+            ? userData.professionalRoles.join(", ")
+            : String(userData.professionalRoles);
+          setInitialProfessionalRoles(rolesStr);
+          form.setValue("professionalRoles", rolesStr);
+        }
+      } catch (err) {
+        // User might not exist yet
+        console.debug("Could not load user data", err);
+      }
+    };
+    loadUserData();
+  }, [currentAccount?.address]);
+
+  const onCompleted = async (
+    hash: string,
+    formData?: z.infer<typeof ValidationSchema>
+  ) => {
     await waitForTransactionToComplete(hash);
     const accountData = await getCurrentAccountDetails();
     setCurrentAccount(accountData?.data?.me.loggedInAs.account);
+
+    // Sync username and professionalRoles to slice-api
+    if (currentAccount?.address && formData) {
+      try {
+        const professionalRolesArray = formData.professionalRoles
+          ? formData.professionalRoles
+              .split(",")
+              .map((r) => r.trim())
+              .filter(Boolean)
+          : [];
+
+          console.log("professionalRolesArray", professionalRolesArray);
+        
+        const result = await apiClient.updateUser(currentAccount.address, {
+          username: formData.name || currentAccount?.metadata?.name,
+          professionalRoles: professionalRolesArray,
+        });
+        console.log("Slice-api user sync result", result);
+      } catch (err: any) {
+        // If user doesn't exist, create them
+        if (err?.status === 404) {
+          try {
+            const professionalRolesArray = formData.professionalRoles
+              ? formData.professionalRoles
+                  .split(",")
+                  .map((r) => r.trim())
+                  .filter(Boolean)
+              : [];
+            await apiClient.createUser({
+              profileId: currentAccount.address,
+              username:
+                formData.name || currentAccount?.metadata?.name || undefined,
+              professionalRoles: professionalRolesArray,
+            });
+          } catch (createErr) {
+            console.error("Failed to create user in slice-api", createErr);
+          }
+        } else {
+          console.error("Failed to sync user to slice-api", err);
+        }
+      }
+    }
+
     setIsSubmitting(false);
     toast.success("Account updated");
   };
@@ -81,20 +154,14 @@ const PersonalizeSettingsForm = () => {
     errorToast(error);
   }, []);
 
-  const [setAccountMetadata] = useSetAccountMetadataMutation({
-    onCompleted: async ({ setAccountMetadata }) => {
-      if (setAccountMetadata.__typename === "SetAccountMetadataResponse") {
-        return onCompleted(setAccountMetadata.hash);
-      }
+  const [setAccountMetadata, { data: metadataData }] =
+    useSetAccountMetadataMutation({
+      onError,
+    });
 
-      return await handleTransactionLifecycle({
-        onCompleted,
-        onError,
-        transactionData: setAccountMetadata
-      });
-    },
-    onError
-  });
+  const pendingFormDataRef = {
+    current: null as z.infer<typeof ValidationSchema> | null,
+  };
 
   const form = useZodForm({
     defaultValues: {
@@ -111,9 +178,10 @@ const PersonalizeSettingsForm = () => {
       x: getAccountAttribute(
         "x",
         currentAccount?.metadata?.attributes
-      )?.replace(/(https:\/\/)?x\.com\//, "")
+      )?.replace(/(https:\/\/)?x\.com\//, ""),
+      professionalRoles: "",
     },
-    schema: ValidationSchema
+    schema: ValidationSchema,
   });
 
   const updateAccount = async (
@@ -126,6 +194,8 @@ const PersonalizeSettingsForm = () => {
     }
 
     setIsSubmitting(true);
+    pendingFormDataRef.current = data;
+
     const otherAttributes =
       currentAccount.metadata?.attributes
         ?.filter(
@@ -135,7 +205,7 @@ const PersonalizeSettingsForm = () => {
         .map(({ key, type, value }) => ({
           key,
           type: MetadataAttributeType[type] as any,
-          value
+          value,
         })) || [];
 
     const preparedAccountMetadata: AccountOptions = {
@@ -146,22 +216,22 @@ const PersonalizeSettingsForm = () => {
         {
           key: "location",
           type: MetadataAttributeType.STRING,
-          value: data.location
+          value: data.location,
         },
         {
           key: "website",
           type: MetadataAttributeType.STRING,
-          value: data.website
+          value: data.website,
         },
         { key: "x", type: MetadataAttributeType.STRING, value: data.x },
         {
           key: "timestamp",
           type: MetadataAttributeType.STRING,
-          value: new Date().toISOString()
-        }
+          value: new Date().toISOString(),
+        },
       ],
       coverPicture: coverUrl || undefined,
-      picture: avatarUrl || undefined
+      picture: avatarUrl || undefined,
     };
     preparedAccountMetadata.attributes =
       preparedAccountMetadata.attributes?.filter((m) => {
@@ -170,10 +240,27 @@ const PersonalizeSettingsForm = () => {
     const metadataUri = await uploadMetadata(
       accountMetadata(preparedAccountMetadata)
     );
+    console.log("data", data);
+    console.log("Uploading metadata", preparedAccountMetadata, metadataUri);
 
-    return await setAccountMetadata({
-      variables: { request: { metadataUri } }
+    const result = await setAccountMetadata({
+      variables: { request: { metadataUri } },
     });
+
+    console.log("SetAccountMetadata result", result);
+
+    const setAccountMetadataResult = result?.data?.setAccountMetadata;
+    if (setAccountMetadataResult?.__typename === "SetAccountMetadataResponse") {
+      return onCompleted(setAccountMetadataResult.hash, data);
+    }
+
+    if (setAccountMetadataResult) {
+      return await handleTransactionLifecycle({
+        onCompleted: (hash: string) => onCompleted(hash, data),
+        onError,
+        transactionData: setAccountMetadataResult,
+      });
+    }
   };
 
   const onSetAvatar = async (src: string | undefined) => {
@@ -237,6 +324,12 @@ const PersonalizeSettingsForm = () => {
           label="Bio"
           placeholder="Tell us something about you!"
           {...form.register("bio")}
+        />
+        <Input
+          label="Professional Roles"
+          placeholder="Developer, Designer, Writer (comma-separated)"
+          type="text"
+          {...form.register("professionalRoles")}
         />
         <AvatarUpload setSrc={onSetAvatar} src={avatarUrl || ""} />
         <CoverUpload setSrc={onSetCover} src={coverUrl || ""} />

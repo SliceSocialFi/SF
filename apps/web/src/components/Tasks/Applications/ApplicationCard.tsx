@@ -188,7 +188,7 @@ const ApplicationCard = ({
 
         {/* Outcome Section */}
         {application.outcome && (
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+          <div className="rounded-lg bg-gray-50 p-3 dark:bg-[#121212]">
             <div className="mb-1 font-medium text-gray-900 text-xs dark:text-white">
               Submitted Work:
             </div>

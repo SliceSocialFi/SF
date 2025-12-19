@@ -19,8 +19,6 @@ const Home = () => {
   const { show: showMobileDrawer } = useMobileDrawerModalStore();
   const loggedInWithAccount = Boolean(currentAccount);
 
-  console.log('🔴 Home render, feedType:', feedType);
-
   return (
     <PageLayout>
       {loggedInWithAccount ? (
