@@ -51,7 +51,6 @@ const UsernameSettings = lazy(() => import("@/components/Settings/Username"));
 const RewardsSettings = lazy(() => import("./components/Settings/Rewards"));
 const Staff = lazy(() => import("./components/Staff"));
 const DNPayCallback = lazy(() => import("./components/Auth/DNPayCallback"));
-const DNPayTestPage = lazy(() => import("./components/Auth/DNPayTestPage"));
 
 const Routes = () => {
   return (
@@ -73,14 +72,6 @@ const Routes = () => {
               </Suspense>
             }
             path="auth/dnpay/callback"
-          />
-          <Route
-            element={
-              <Suspense fallback={<PageShimmer />}>
-                <DNPayTestPage />
-              </Suspense>
-            }
-            path="auth/dnpay/test"
           />
           <Route
             element={
