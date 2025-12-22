@@ -20,10 +20,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
+		console.log("✅ handleSuccess called with data:", data);
 		setIsLoading(false);
 		onSuccess?.(data);
 		setIsSuccess(true);
+		
 		// Gọi verifyDNPayToken để kiểm tra trạng thái ONBOARDING_REQUIRED
+		console.log("📞 Calling verifyDNPayToken...");
 		verifyDNPayToken();
 	};
 
@@ -34,7 +37,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-		console.log("📋 Onboarding required, connecting wallet...");
+		console.log("📋 handleOnboardingRequired called with data:", data);
+		console.log("🔔 About to connect wallet...");
 		setOnboardingData(data);
 		// Chỉ khi ONBOARDING_REQUIRED mới trigger popup chọn ví Metamask
 		await handleConnectWallet(data.onboardingToken);
@@ -83,7 +87,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const handleClick = () => {
 		setIsLoading(true);
 		openDNPayLogin();
-		// Chỉ trigger popup chọn ví khi ONBOARDING_REQUIRED
+		// Popup Metamask chỉ xuất hiện khi nhận ONBOARDING_REQUIRED từ API
 	};
 
 	useEffect(() => {
