@@ -165,18 +165,27 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			.then(data => {
 				if (logged) return;
 				logged = true;
-				if (data.status === "LOGIN_SUCCESS") {
+				
+				console.log("📦 Full API response:", data);
+				
+				// Check nested status in data.data
+				const status = data.data?.status || data.status;
+				
+				if (status === "LOGIN_SUCCESS") {
 					console.log("✅ DNPAY LOGIN SUCCESS:", {
-						accessToken: data.accessToken,
-						userId: data.user?.id,
-						email: data.user?.email
+						accessToken: data.data?.accessToken || data.accessToken,
+						userId: data.data?.user?.id || data.user?.id,
+						email: data.data?.user?.email || data.user?.email
 					});
-				} else if (data.status === "ONBOARDING_REQUIRED") {
-					console.log("📝 DNPAY ONBOARDING REQUIRED:", data);
+				} else if (status === "ONBOARDING_REQUIRED") {
+					console.log("🟡 DNPAY ONBOARDING REQUIRED:", {
+						onboardingToken: data.data?.onboardingToken || data.onboardingToken,
+						email: data.data?.email || data.email
+					});
 					// Trigger callback để hiển thị popup chọn ví
 					onOnboardingRequired?.({
-						onboardingToken: data.onboardingToken,
-						email: data.email
+						onboardingToken: data.data?.onboardingToken || data.onboardingToken,
+						email: data.data?.email || data.email
 					});
 				} else {
 					console.log("❓ DNPAY UNKNOWN RESPONSE:", data);

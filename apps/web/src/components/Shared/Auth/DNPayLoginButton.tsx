@@ -87,7 +87,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const handleClick = () => {
 		setIsLoading(true);
 		openDNPayLogin();
-		// Popup Metamask chỉ xuất hiện khi nhận ONBOARDING_REQUIRED từ API
 	};
 
 	useEffect(() => {
