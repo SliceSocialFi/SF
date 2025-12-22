@@ -21,6 +21,7 @@ interface UseDNPaySSOOptions {
 		user?: {
 			id?: string;
 			email?: string;
+			walletAddress?: string;
 		};
 		status?: string;
 	}) => void;
@@ -156,43 +157,48 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		}
 	}, []);
 
-	const verifyDNPayToken = useCallback(() => {
+	const verifyDNPayToken = useCallback(async () => {
 		const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 		let logged = false;
-		fetch(`${PAYMENT_API_URL}api/auth/dnpay/verify`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({ dnpayAccessToken: accessToken })
-		})
-			.then(res => res.json())
-			.then(data => {
-				if (logged) return;
-				logged = true;
-				const status = data.data?.status || data.status;
-				if (status === "LOGIN_SUCCESS") {
-					// Trả về thông tin user qua callback onSuccess
-					onSuccess?.({
-						access_token: accessToken,
-						user: {
-							id: data.data?.user?.id,
-							email: data.data?.user?.email
-						},
-						status: "LOGIN_SUCCESS"
-					});
-				} else if (status === "ONBOARDING_REQUIRED") {
-					onOnboardingRequired?.({
-						onboardingToken: data.data?.onboardingToken || data.onboardingToken,
-						email: data.data?.email || data.email
-					});
-				}
-			})
-			.catch(err => {
-				if (logged) return;
-				logged = true;
-				console.error("DNPAY VERIFY ERROR:", err);
+		try {
+			const response = await fetch(`${PAYMENT_API_URL}api/auth/dnpay/verify`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ dnpayAccessToken: accessToken })
 			});
+			const data = await response.json();
+			
+			if (logged) return;
+			logged = true;
+			
+			const status = data.data?.status || data.status;
+			if (status === "LOGIN_SUCCESS") {
+				// id chính là wallet address
+				const walletAddress = data.data?.user?.id;
+				
+				// Trả về thông tin user qua callback onSuccess
+				onSuccess?.({
+					access_token: accessToken,
+					user: {
+						id: walletAddress,
+						email: data.data?.user?.email,
+						walletAddress: walletAddress
+					},
+					status: "LOGIN_SUCCESS"
+				});
+			} else if (status === "ONBOARDING_REQUIRED") {
+				onOnboardingRequired?.({
+					onboardingToken: data.data?.onboardingToken || data.onboardingToken,
+					email: data.data?.email || data.email
+				});
+			}
+		} catch (err) {
+			if (logged) return;
+			logged = true;
+			console.error("DNPAY VERIFY ERROR:", err);
+		}
 	}, [onOnboardingRequired, onSuccess]);
 
 	// Listen for messages from popup
