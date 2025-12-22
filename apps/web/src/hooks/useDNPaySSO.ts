@@ -187,11 +187,10 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Listen for messages from popup
 	useEffect(() => {
 		window.addEventListener("message", handleMessage);
-		// return () => {
-		// 	window.removeEventListener("message", handleMessage);
-		// 	cleanup();
-		// };
-	}, [handleMessage, cleanup]);
+		return () => {
+			window.removeEventListener("message", handleMessage);
+		};
+	}, [handleMessage]);
 
 	return {
 		openDNPayLogin,

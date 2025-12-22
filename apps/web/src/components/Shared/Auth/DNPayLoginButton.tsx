@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 import { toast } from "sonner";
 import { useConnect } from "wagmi";
@@ -17,13 +17,20 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	} | null>(null);
 
 	const { connectAsync, connectors } = useConnect();
-
+	const verifyCalledRef = useRef(false);
+	const onboardingHandledRef = useRef(false);
+	const walletErrorHandledRef = useRef(false);
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
 		setIsLoading(false);
 		onSuccess?.(data);
 		setIsSuccess(true);
-		verifyDNPayToken();
+		
+		// Chỉ gọi verifyDNPayToken một lần duy nhất
+		if (!verifyCalledRef.current) {
+			verifyCalledRef.current = true;
+			verifyDNPayToken();
+		}
 	};
 
 	const handleError = (error: string) => {
@@ -32,22 +39,20 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 
-	let onboardingHandled = false;
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-		if (onboardingHandled) return;
-		onboardingHandled = true;
+		if (onboardingHandledRef.current) return;
+		onboardingHandledRef.current = true;
 		setOnboardingData(data);
 		await handleConnectWallet(data.onboardingToken);
 	};
 
-	let walletErrorHandled = false;
 	const handleConnectWallet = async (onboardingToken: string) => {
 		try {
 			const injectedConnector = connectors.find(c => c.id === "injected");
         
 			if (!injectedConnector) {
-				if (!walletErrorHandled) {
-					walletErrorHandled = true;
+				if (!walletErrorHandledRef.current) {
+					walletErrorHandledRef.current = true;
 					toast.error("No wallet found. Please install MetaMask.");
 				}
 				return;
@@ -59,8 +64,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			const response = await linkWallet(onboardingToken, walletAddress);
 			console.log("🔗 Link wallet response:", response);
 		} catch (err) {
-			if (!walletErrorHandled) {
-				walletErrorHandled = true;
+			if (!walletErrorHandledRef.current) {
+				walletErrorHandledRef.current = true;
 				toast.error("Failed to connect wallet");
 			}
 			console.error("Failed to connect wallet:", err);
@@ -75,6 +80,11 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleClick = () => {
+		// Reset các cờ khi user click lại
+		verifyCalledRef.current = false;
+		onboardingHandledRef.current = false;
+		walletErrorHandledRef.current = false;
+		
 		setIsLoading(true);
 		openDNPayLogin();
 	};
