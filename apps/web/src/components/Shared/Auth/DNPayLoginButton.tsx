@@ -32,28 +32,38 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 
+	let onboardingHandled = false;
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
+		if (onboardingHandled) return;
+		onboardingHandled = true;
 		setOnboardingData(data);
 		await handleConnectWallet(data.onboardingToken);
 	};
 
+	let walletErrorHandled = false;
 	const handleConnectWallet = async (onboardingToken: string) => {
 		try {
 			const injectedConnector = connectors.find(c => c.id === "injected");
-			
+        
 			if (!injectedConnector) {
-				toast.error("No wallet found. Please install MetaMask.");
+				if (!walletErrorHandled) {
+					walletErrorHandled = true;
+					toast.error("No wallet found. Please install MetaMask.");
+				}
 				return;
 			}
 
 			const result = await connectAsync({ connector: injectedConnector });
 			const walletAddress = result.accounts[0];
-			
+        
 			const response = await linkWallet(onboardingToken, walletAddress);
 			console.log("🔗 Link wallet response:", response);
 		} catch (err) {
+			if (!walletErrorHandled) {
+				walletErrorHandled = true;
+				toast.error("Failed to connect wallet");
+			}
 			console.error("Failed to connect wallet:", err);
-			toast.error("Failed to connect wallet");
 		}
 	};
 
