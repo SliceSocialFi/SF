@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 import { toast } from "sonner";
+import { useConnect } from "wagmi";
 
 interface DNPayLoginButtonProps {
 	onSuccess?: (data: { code?: string; token?: string; access_token?: string }) => void;
@@ -9,15 +10,19 @@ interface DNPayLoginButtonProps {
 
 const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) => {
 	const [isLoading, setIsLoading] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+	const [isSuccess, setIsSuccess] = useState(false);
+	const [onboardingData, setOnboardingData] = useState<{
+		onboardingToken: string;
+		email: string;
+	} | null>(null);
+
+	const { connectAsync, connectors } = useConnect();
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
 		setIsLoading(false);
-		
-		// Call the success callback with full data
 		onSuccess?.(data);
-        setIsSuccess(true);
-        verifyDNPayToken();
+		setIsSuccess(true);
+		verifyDNPayToken();
 	};
 
 	const handleError = (error: string) => {
@@ -25,9 +30,39 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		console.error("DNPAY SSO Error:", error);
 	};
 
-	const { openDNPayLogin, closeDNPayPopup, verifyDNPayToken } = useDNPaySSO({
+	const handleOnboardingRequired = (data: { onboardingToken: string; email: string }) => {
+		console.log("📋 Onboarding required, showing wallet selector...");
+		setOnboardingData(data);
+		// Tự động trigger popup chọn ví Metamask
+		handleConnectWallet(data.onboardingToken);
+	};
+
+	const handleConnectWallet = async (onboardingToken: string) => {
+		try {
+			// Tìm connector "injected" (Metamask/Browser wallet)
+			const injectedConnector = connectors.find(c => c.id === "injected");
+			if (!injectedConnector) {
+				toast.error("No wallet found. Please install MetaMask.");
+				return;
+			}
+
+			// Kết nối ví
+			const result = await connectAsync({ connector: injectedConnector });
+			const walletAddress = result.accounts[0];
+			console.log("💼 Wallet connected:", walletAddress);
+
+			// Gọi API link-wallet
+			await linkWallet(onboardingToken, walletAddress);
+		} catch (err) {
+			console.error("Failed to connect wallet:", err);
+			toast.error("Failed to connect wallet");
+		}
+	};
+
+	const { openDNPayLogin, closeDNPayPopup, verifyDNPayToken, linkWallet } = useDNPaySSO({
 		onSuccess: handleSuccess,
 		onError: handleError,
+		onOnboardingRequired: handleOnboardingRequired,
 	});
 
 	const handleClick = () => {
@@ -35,12 +70,12 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		openDNPayLogin();
 	};
 
-    useEffect(() => {
-        if (isSuccess) {
-            toast.success("DNPAY login successful!");
-            closeDNPayPopup();
-        }
-    }, [isSuccess]);
+	useEffect(() => {
+		if (isSuccess) {
+			toast.success("DNPAY login successful!");
+			closeDNPayPopup();
+		}
+	}, [isSuccess]);
 
 	return (
 		<button
