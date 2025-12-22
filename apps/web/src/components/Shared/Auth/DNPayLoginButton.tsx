@@ -6,6 +6,8 @@ import { useAccountsAvailableQuery, useChallengeMutation, useAuthenticateMutatio
 import { signIn } from "@/store/persisted/useAuthStore";
 import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
+import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
+import { useSignupStore } from "./Signup";
 
 interface DNPayLoginButtonProps {
 	onSuccess?: (data: { code?: string; token?: string; access_token?: string; user?: { id?: string; email?: string; walletAddress?: string }; status?: string }) => void;
@@ -24,6 +26,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const { signMessageAsync } = useSignMessage();
 	const [loadChallenge] = useChallengeMutation();
 	const [authenticate] = useAuthenticateMutation();
+	const { setShowAuthModal } = useAuthModalStore();
+	const { setScreen } = useSignupStore();
 	const verifyCalledRef = useRef(false);
 	const onboardingHandledRef = useRef(false);
 	const walletErrorHandledRef = useRef(false);
@@ -58,7 +62,16 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					const firstAccount = result.data.accountsAvailable.items[0].account;
 					await authenticateWithLens(firstAccount.address, data.user.walletAddress);
 				} else {
-					toast.error("No Lens account found for this wallet. Please create an account first.");
+					// Không có Lens account, mở modal signup
+					console.log("⚠️ No Lens account found, opening signup modal...");
+					// Connect wallet trước khi mở signup modal
+					const injectedConnector = connectors.find(c => c.id === "injected");
+					if (injectedConnector) {
+						await connectAsync({ connector: injectedConnector });
+					}
+					// Mở signup modal
+					setScreen("choose");
+					setShowAuthModal(true, "signup");
 				}
 			} catch (err) {
 				console.error("Failed to authenticate with Lens:", err);
