@@ -18,11 +18,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	const { connectAsync, connectors } = useConnect();
 
+
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
 		setIsLoading(false);
 		onSuccess?.(data);
 		setIsSuccess(true);
-		verifyDNPayToken();
+		// Chỉ verifyDNPayToken nếu muốn kiểm tra trạng thái ONBOARDING_REQUIRED
+		// verifyDNPayToken();
 	};
 
 	const handleError = (error: string) => {
@@ -30,32 +32,44 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		console.error("DNPAY SSO Error:", error);
 	};
 
-	const handleOnboardingRequired = (data: { onboardingToken: string; email: string }) => {
-		console.log("📋 Onboarding required, showing wallet selector...");
+
+	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
+		console.log("📋 Onboarding required, connecting wallet...");
 		setOnboardingData(data);
-		// Tự động trigger popup chọn ví Metamask
-		handleConnectWallet(data.onboardingToken);
+		// Chỉ khi ONBOARDING_REQUIRED mới trigger popup chọn ví Metamask
+		await handleConnectWallet(data.onboardingToken);
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
 		try {
+			console.log("🔍 Available connectors:", connectors.map(c => c.id));
+			
 			// Tìm connector "injected" (Metamask/Browser wallet)
 			const injectedConnector = connectors.find(c => c.id === "injected");
+			
 			if (!injectedConnector) {
+				console.error("❌ No injected connector found");
 				toast.error("No wallet found. Please install MetaMask.");
 				return;
 			}
 
-			// Kết nối ví
+			console.log("🔗 Connecting to wallet...");
+			
+			// Kết nối ví - popup Metamask sẽ xuất hiện ở đây
 			const result = await connectAsync({ connector: injectedConnector });
 			const walletAddress = result.accounts[0];
+			
 			console.log("💼 Wallet connected:", walletAddress);
+			console.log("📤 Calling link-wallet API with:", { onboardingToken, walletAddress });
 
 			// Gọi API link-wallet
-			await linkWallet(onboardingToken, walletAddress);
+			const response = await linkWallet(onboardingToken, walletAddress);
+			console.log("✅ Link wallet response:", response);
+			
+			toast.success("Wallet linked successfully!");
 		} catch (err) {
-			console.error("Failed to connect wallet:", err);
-			toast.error("Failed to connect wallet");
+			console.error("❌ Failed to connect wallet:", err);
+			toast.error("Failed to connect wallet. Please try again.");
 		}
 	};
 
@@ -65,9 +79,11 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		onOnboardingRequired: handleOnboardingRequired,
 	});
 
+
 	const handleClick = () => {
 		setIsLoading(true);
 		openDNPayLogin();
+		// Chỉ trigger popup chọn ví khi ONBOARDING_REQUIRED
 	};
 
 	useEffect(() => {
