@@ -23,8 +23,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		setIsLoading(false);
 		onSuccess?.(data);
 		setIsSuccess(true);
-		// Chỉ verifyDNPayToken nếu muốn kiểm tra trạng thái ONBOARDING_REQUIRED
-		// verifyDNPayToken();
+		// Gọi verifyDNPayToken để kiểm tra trạng thái ONBOARDING_REQUIRED
+		verifyDNPayToken();
 	};
 
 	const handleError = (error: string) => {
