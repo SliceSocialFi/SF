@@ -20,13 +20,9 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleSuccess = (data: { code?: string; token?: string; access_token?: string }) => {
-		console.log("✅ handleSuccess called with data:", data);
 		setIsLoading(false);
 		onSuccess?.(data);
 		setIsSuccess(true);
-		
-		// Gọi verifyDNPayToken để kiểm tra trạng thái ONBOARDING_REQUIRED
-		console.log("📞 Calling verifyDNPayToken...");
 		verifyDNPayToken();
 	};
 
@@ -37,43 +33,27 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-		console.log("📋 handleOnboardingRequired called with data:", data);
-		console.log("🔔 About to connect wallet...");
 		setOnboardingData(data);
-		// Chỉ khi ONBOARDING_REQUIRED mới trigger popup chọn ví Metamask
 		await handleConnectWallet(data.onboardingToken);
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
 		try {
-			console.log("🔍 Available connectors:", connectors.map(c => c.id));
-			
-			// Tìm connector "injected" (Metamask/Browser wallet)
 			const injectedConnector = connectors.find(c => c.id === "injected");
 			
 			if (!injectedConnector) {
-				console.error("❌ No injected connector found");
 				toast.error("No wallet found. Please install MetaMask.");
 				return;
 			}
 
-			console.log("🔗 Connecting to wallet...");
-			
-			// Kết nối ví - popup Metamask sẽ xuất hiện ở đây
 			const result = await connectAsync({ connector: injectedConnector });
 			const walletAddress = result.accounts[0];
 			
-			console.log("💼 Wallet connected:", walletAddress);
-			console.log("📤 Calling link-wallet API with:", { onboardingToken, walletAddress });
-
-			// Gọi API link-wallet
 			const response = await linkWallet(onboardingToken, walletAddress);
-			console.log("✅ Link wallet response:", response);
-			
-			toast.success("Wallet linked successfully!");
+			console.log("🔗 Link wallet response:", response);
 		} catch (err) {
-			console.error("❌ Failed to connect wallet:", err);
-			toast.error("Failed to connect wallet. Please try again.");
+			console.error("Failed to connect wallet:", err);
+			toast.error("Failed to connect wallet");
 		}
 	};
 
@@ -91,7 +71,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	useEffect(() => {
 		if (isSuccess) {
-			toast.success("DNPAY login successful!");
 			closeDNPayPopup();
 		}
 	}, [isSuccess]);
