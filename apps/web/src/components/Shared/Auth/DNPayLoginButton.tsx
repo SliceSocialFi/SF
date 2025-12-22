@@ -35,14 +35,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	// Query to get accounts by wallet address
 	const { data: accountsData, refetch: refetchAccounts } = useAccountsAvailableQuery({
-		skip: !walletAddress,
-		variables: {
-			accountsAvailableRequest: {
-				hiddenFilter: ManagedAccountsVisibility.NoneHidden,
-				managedBy: walletAddress // Use the wallet address from DNPAY
-			},
-			lastLoggedInAccountRequest: { address: walletAddress }
-		}
+		skip: true, // Always skip auto-fetch, we'll manually refetch when needed
+		fetchPolicy: "network-only" // Always fetch from network, don't use cache
 	});
 
 	const handleSuccess = async (data: { code?: string; token?: string; access_token?: string; user?: { id?: string; email?: string; walletAddress?: string }; status?: string }) => {
@@ -53,11 +47,21 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		// Nếu là LOGIN_SUCCESS, authenticate với Lens Protocol
 		if (data.status === "LOGIN_SUCCESS" && data.user?.walletAddress) {
 			console.log("🔐 DNPAY Login success, authenticating with Lens Protocol...");
+			console.log("📍 Wallet address:", data.user.walletAddress);
 			setWalletAddress(data.user.walletAddress);
 			
 			try {
-				// Fetch accounts and auto-login with the first account
-				const result = await refetchAccounts();
+				// Fetch accounts with explicit wallet address
+				console.log("🔍 Fetching Lens accounts for wallet:", data.user.walletAddress);
+				const result = await refetchAccounts({
+					accountsAvailableRequest: {
+						hiddenFilter: ManagedAccountsVisibility.NoneHidden,
+						managedBy: data.user.walletAddress
+					},
+					lastLoggedInAccountRequest: { address: data.user.walletAddress }
+				});
+				
+				console.log("📊 Accounts found:", result.data?.accountsAvailable?.items?.length || 0);
 				if (result.data?.accountsAvailable?.items?.length > 0) {
 					const firstAccount = result.data.accountsAvailable.items[0].account;
 					await authenticateWithLens(firstAccount.address, data.user.walletAddress);
