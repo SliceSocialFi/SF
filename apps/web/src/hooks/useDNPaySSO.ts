@@ -14,7 +14,16 @@ interface DNPayAuthResponse {
 }
 
 interface UseDNPaySSOOptions {
-	onSuccess?: (data: { code?: string; token?: string; access_token?: string }) => void;
+	onSuccess?: (data: {
+		code?: string;
+		token?: string;
+		access_token?: string;
+		user?: {
+			id?: string;
+			email?: string;
+		};
+		status?: string;
+	}) => void;
 	onError?: (error: string) => void;
 	onOnboardingRequired?: (data: { onboardingToken: string; email: string }) => void;
 }
@@ -67,7 +76,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			const accessToken = localStorage.getItem("dnpayAccessToken");
+			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 			if (accessToken) {
 				onSuccess?.({ access_token: accessToken });
 				cleanup();
@@ -120,14 +129,14 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		}
 	}, [generateState]);
 
-    const closeDNPayPopup = useCallback(() => {
-        const accessToken = localStorage.getItem("dnpayAccessToken");
-        // Has access token, close popup
-        if (accessToken && popupRef.current && !popupRef.current.closed) {
-            popupRef.current.close();
-            cleanup();
-        }
-    }, []);
+	const closeDNPayPopup = useCallback(() => {
+		const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+		// Has access token, close popup
+		if (accessToken && popupRef.current && !popupRef.current.closed) {
+			popupRef.current.close();
+			cleanup();
+		}
+	}, []);
 
 	const linkWallet = useCallback(async (onboardingToken: string, walletAddress: string) => {
 		try {
@@ -148,11 +157,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	}, []);
 
 	const verifyDNPayToken = useCallback(() => {
-		const accessToken = localStorage.getItem("dnpayAccessToken");
-
-		// Đảm bảo chỉ log 1 lần mỗi lần gọi hàm
+		const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 		let logged = false;
-
 		fetch(`${PAYMENT_API_URL}api/auth/dnpay/verify`, {
 			method: "POST",
 			headers: {
@@ -164,13 +170,18 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			.then(data => {
 				if (logged) return;
 				logged = true;
-				
 				const status = data.data?.status || data.status;
-				
 				if (status === "LOGIN_SUCCESS") {
-					console.log("✅ DNPAY LOGIN SUCCESS");
+					// Trả về thông tin user qua callback onSuccess
+					onSuccess?.({
+						access_token: accessToken,
+						user: {
+							id: data.data?.user?.id,
+							email: data.data?.user?.email
+						},
+						status: "LOGIN_SUCCESS"
+					});
 				} else if (status === "ONBOARDING_REQUIRED") {
-					console.log("🟡 DNPAY ONBOARDING REQUIRED");
 					onOnboardingRequired?.({
 						onboardingToken: data.data?.onboardingToken || data.onboardingToken,
 						email: data.data?.email || data.email
@@ -182,7 +193,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				logged = true;
 				console.error("DNPAY VERIFY ERROR:", err);
 			});
-	}, [onOnboardingRequired]);
+	}, [onOnboardingRequired, onSuccess]);
 
 	// Listen for messages from popup
 	useEffect(() => {
