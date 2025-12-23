@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 import { toast } from "sonner";
-import { useConnect, useSignMessage } from "wagmi";
+import { useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { useAccountsAvailableQuery, useChallengeMutation, useAuthenticateMutation, ManagedAccountsVisibility, type ChallengeRequest } from "@slice/indexer";
 import { signIn } from "@/store/persisted/useAuthStore";
 import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
@@ -15,6 +15,7 @@ interface DNPayLoginButtonProps {
 }
 
 const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) => {
+		const { disconnect } = useDisconnect();
 	const [isLoading, setIsLoading] = useState(false);
 	const [isSuccess, setIsSuccess] = useState(false);
 	const [onboardingData, setOnboardingData] = useState<{
@@ -61,18 +62,19 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				       if (!injectedConnector) throw new Error("No wallet connector found");
 				       const connectResult = await connectAsync({ connector: injectedConnector });
 				       const connectedAddress = connectResult.accounts[0];
-				       if (connectedAddress.toLowerCase() !== data.user.walletAddress.toLowerCase()) {
-					       // Không khớp, trả về modal chọn phương thức đăng nhập và toast cảnh báo
-					       setShowAccountModal(false);
-					       setLensAccounts([]);
-					       setScreen("choose");
-					       setShowAuthModal(true, "login");
-					       toast.error(
-						       `Vui lòng đăng nhập đúng địa chỉ ví: ${data.user.walletAddress}`,
-						       { duration: 12000 }
-					       );
-					       return;
-				       }
+					       if (connectedAddress.toLowerCase() !== data.user.walletAddress.toLowerCase()) {
+						       // Không khớp, trả về modal chọn phương thức đăng nhập và toast cảnh báo
+						       setShowAccountModal(false);
+						       setLensAccounts([]);
+						       disconnect?.();
+						       setScreen("choose");
+						       setShowAuthModal(true, "login");
+						       toast.error(
+							       `Vui lòng đăng nhập đúng địa chỉ ví: ${data.user.walletAddress}`,
+							       { duration: 12000 }
+						       );
+						       return;
+					       }
 
 				       // Fetch accounts with explicit wallet address
 				       console.log("🔍 Fetching Lens accounts for wallet:", data.user.walletAddress);
