@@ -1,4 +1,5 @@
 import React from "react";
+import { Card, Image } from "@/components/Shared/UI";
 
 interface DNPayOnboardingModalProps {
   open: boolean;
@@ -10,24 +11,80 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Bạn đã có ví DNPAY chưa?</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+      <div className="bg-white dark:bg-[#121212] rounded-xl p-0 max-w-md w-full mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
+        {/* Header: Success + Close */}
+        <div className="flex items-center justify-between px-6 pt-3 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-white text-base">Success</span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 text-xl button-animated rounded-full w-9 h-9 flex items-center justify-center">✕</button>
         </div>
-        <div className="flex flex-col gap-4">
-          <button
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-base font-medium"
+        {/* Divider */}
+        <div className="border-t border-gray-100 dark:border-gray-800 flex" />
+        {/* DNPAY Logo + Title */}
+        <div className="flex flex-col items-center px-6 pt-6 pb-6">
+          <img
+            src="/dnpay-logo-darkmode.png"
+            alt="DNPAY Logo"
+            className="w-14 h-14 mb-6 dark:block hidden"
+            draggable={false}
+          />
+          <img
+            src="/dnpay-logo-lightmode.png"
+            alt="DNPAY Logo"
+            className="w-14 h-14 mb-2 dark:hidden block"
+            draggable={false}
+          />
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white text-center">Cần liên kết ví để có thể tiếp tục</h2>
+        </div>
+        {/* Options */}
+        <div className="flex flex-col gap-4 px-6 pb-6">
+          {/* Option 1: Đã có ví */}
+          <Card
+            className="cursor-pointer transition-all hover:shadow-lg px-5 py-4 button-animated flex items-center gap-4"
+            forceRounded
             onClick={onHasWallet}
           >
-            Tôi đã có ví
-          </button>
-          <button
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-base font-medium cursor-not-allowed"
-            disabled
+            <div className="flex-shrink-0">
+              <Image
+                alt="MetaMask"
+                className="size-9"
+                src="/metamask-logo.png"
+              />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-base">Đã có ví</h4>
+              <p className="text-gray-500 text-sm dark:text-gray-400">Liên kết với ví MetaMask của bạn</p>
+            </div>
+            <div className="flex-shrink-0">
+              <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+            </div>
+          </Card>
+          {/* Option 2: Chưa có ví */}
+          <Card
+            className="cursor-pointer transition-all px-5 py-4 button-animated flex items-center gap-4"
+            forceRounded
+            onClick={e => e.preventDefault()}
           >
-            Tôi chưa có ví (sắp ra mắt)
-          </button>
+            <div className="flex-shrink-0">
+              <Image
+                alt="Web3Auth"
+                className="size-9"
+                src="/web3auth.png"
+              />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-base">Chưa có ví</h4>
+              <p className="text-gray-500 text-sm dark:text-gray-400">Tạo ví điện tử</p>
+            </div>
+            <div className="flex-shrink-0">
+              <svg className="size-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

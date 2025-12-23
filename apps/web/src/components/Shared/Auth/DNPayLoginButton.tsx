@@ -248,19 +248,19 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		}
 	}, [isSuccess]);
 
-		       return (
-			       <>
-				       {/* Modal xác nhận có ví */}
-				       <DNPayOnboardingModal
-					       open={showOnboardingModal}
-					       onClose={() => setShowOnboardingModal(false)}
-					       onHasWallet={async () => {
-						       setShowOnboardingModal(false);
-						       if (onboardingData) {
-							       await handleConnectWallet(onboardingData.onboardingToken);
-						       }
-					       }}
-				       />
+			       return (
+				       <>
+					       {/* Luôn hiển thị modal xác nhận có ví để chỉnh sửa UI */}
+					       <DNPayOnboardingModal
+						       open={true}
+						       onClose={() => setShowOnboardingModal(false)}
+						       onHasWallet={async () => {
+							       setShowOnboardingModal(false);
+							       if (onboardingData) {
+								       await handleConnectWallet(onboardingData.onboardingToken);
+							       }
+						       }}
+					       />
 
 			       {showAccountModal && lensAccounts.length > 1 && (
 				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
