@@ -248,11 +248,11 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		}
 	}, [isSuccess]);
 
-			       return (
+		       return (
 				       <>
-					       {/* Luôn hiển thị modal xác nhận có ví để chỉnh sửa UI */}
+					       {/* Modal xác nhận có ví */}
 					       <DNPayOnboardingModal
-						       open={true}
+						       open={showOnboardingModal}
 						       onClose={() => setShowOnboardingModal(false)}
 						       onHasWallet={async () => {
 							       setShowOnboardingModal(false);
