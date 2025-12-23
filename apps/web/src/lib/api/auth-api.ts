@@ -1,8 +1,37 @@
 import axios from "axios";
-import { web3auth } from "@/config/web3auth";
 import { createWalletClient, custom } from "viem";
-import { lens } from "viem/chains";
-import { PAYMENT_API_URL as API_BASE_URL } from "@slice/data/constants";
+import { web3auth } from "@/config/web3auth";
+import {
+    PAYMENT_API_URL as API_BASE_URL,
+    CHAIN
+} from "@slice/data/constants";
+
+const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
+    const res = await axios.post(
+        `${API_BASE_URL}/dnpay/verify-login`,
+        { dnpayAccessToken }
+    );
+    
+    const data = await res.data;
+    if (!data.success) throw new Error(data.message);
+
+    return data.data;
+}
+
+const linkWalletToDNPAY = async (onboardingToken: string, existingWalletAddress: string) => {
+    const res = await axios.post(
+        `${API_BASE_URL}/dnpay/link-embedded`,
+        {
+            onboardingToken,
+            existingWalletAddress
+        },
+    );
+    
+    const data = await res.data;
+    if (!data.success) throw new Error(data.message);
+
+    return data.data;
+}
 
 const mintWeb3AuthToken = async (onboardingToken: string) => {
     const res = await axios.post(
@@ -40,7 +69,7 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
 
     // Dùng Viem để lấy địa chỉ ví
     const walletClient = createWalletClient({
-        chain: lens,
+        chain: CHAIN,
         transport: custom(provider),
     });
 
@@ -64,6 +93,8 @@ const registerEmbeddedWallet = async (onboardingToken: string, newWalletAddress:
 }
 
 export const walletService = {
+    verifyDNPAYLogin,
+    linkWalletToDNPAY,
     mintWeb3AuthToken,
     connectWeb3Auth,
     registerEmbeddedWallet

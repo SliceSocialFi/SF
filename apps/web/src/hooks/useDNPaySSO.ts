@@ -1,8 +1,26 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
-import { PAYMENT_API_URL } from "@slice/data/constants";
 import { walletService } from "@/lib/api/auth-api";
+
+export const AuthStatus = {
+	LOGIN_SUCCESS: "LOGIN_SUCCESS",
+	ONBOARDING_REQUIRED: "ONBOARDING_REQUIRED"
+};
+
+export interface AuthLoginData {
+	code?: string;
+	token?: string;
+	dnpayAccessToken?: string;
+	web3AuthToken?: string;
+	user?: {
+		id?: string;
+		email?: string;
+		walletAddress?: string;
+		authProvider?: string;
+	};
+	status?: string;
+}
 
 interface DNPayAuthResponse {
 	code?: string;
@@ -14,26 +32,10 @@ interface DNPayAuthResponse {
 }
 
 interface UseDNPaySSOOptions {
-	onSuccess?: (data: {
-		code?: string;
-		token?: string;
-		access_token?: string;
-		user?: {
-			id?: string;
-			email?: string;
-			walletAddress?: string;
-		};
-		status?: string;
-	}) => void;
+	onSuccess?: (data: AuthLoginData) => void;
 	onError?: (error: string) => void;
 	onOnboardingRequired?: (data: { onboardingToken: string; email: string }) => void;
 }
-
-/**
- * Hook for handling DNPAY SSO authentication flow
- * Opens a popup window for DNPAY login similar to Google OAuth
- */
-
 
 export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	const popupRef = useRef<Window | null>(null);
@@ -58,39 +60,39 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 	}, []);
 
-	       // Handle OAuth callback message
-	       const handleMessage = useCallback(
-		       (event: MessageEvent) => {
-			       // Verify origin
-			       if (event.origin !== window.location.origin) {
-				       console.log("Message from different origin, ignoring:", event.origin);
-				       return;
-			       }
+	// Handle OAuth callback message
+	const handleMessage = useCallback(
+		(event: MessageEvent) => {
+			// Verify origin
+			if (event.origin !== window.location.origin) {
+				console.log("Message from different origin, ignoring:", event.origin);
+				return;
+			}
 
-			       const data = event.data as DNPayAuthResponse;
+			const data = event.data as DNPayAuthResponse;
 
-			       if (data.error) {
-				       const errorMessage = data.error_description || data.error;
-				       toast.error(`DNPAY login failed: ${errorMessage}`);
-				       onError?.(errorMessage);
-				       cleanup();
-				       return;
-			       }
+			if (data.error) {
+				const errorMessage = data.error_description || data.error;
+				toast.error(`DNPAY login failed: ${errorMessage}`);
+				onError?.(errorMessage);
+				cleanup();
+				return;
+			}
 
-			       const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
-			       if (accessToken) {
-				       // Clear all localStorage except dnpayAccessToken
-				       Object.keys(localStorage).forEach((key) => {
-					       if (key !== "dnpayAccessToken") {
-						       localStorage.removeItem(key);
-					       }
-				       });
-				       onSuccess?.({ access_token: accessToken });
-				       cleanup();
-			       }
-		       },
-		       [onSuccess, onError, cleanup]
-	       );
+			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+			if (accessToken) {
+				// Clear all localStorage except dnpayAccessToken
+				Object.keys(localStorage).forEach((key) => {
+					if (key !== "dnpayAccessToken") {
+						localStorage.removeItem(key);
+					}
+				});
+				onSuccess?.({ dnpayAccessToken: accessToken });
+				cleanup();
+			}
+		},
+		[onSuccess, onError, cleanup]
+	);
 
 	// Check popup status
 	const checkPopupClosed = useCallback(() => {
@@ -106,7 +108,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			sessionStorage.setItem("dnpay_oauth_state", state);
 
 			// Build URL manually without encoding
-			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
+			const authUrl =
+				`${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
 
 			// Open popup window (similar to Google login)
 			const width = 500;
@@ -144,14 +147,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 
 	const linkWallet = useCallback(async (onboardingToken: string, walletAddress: string) => {
 		try {
-			const response = await fetch(`${PAYMENT_API_URL}api/auth/dnpay/link-wallet`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({ onboardingToken, walletAddress })
-			});
-			const data = await response.json();
+			const data = await walletService.linkWalletToDNPAY(onboardingToken, walletAddress);
 			console.log("🔗 DNPAY LINK WALLET RESPONSE:", data);
 			return data;
 		} catch (err) {
@@ -161,37 +157,36 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	}, []);
 
 	const verifyDNPayToken = useCallback(async () => {
-		const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 		let logged = false;
 		try {
-			const response = await fetch(`${PAYMENT_API_URL}api/auth/dnpay/verify`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({ dnpayAccessToken: accessToken })
-			});
-			const data = await response.json();
+			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+			if (!accessToken) {
+				throw new Error("No DNPAY access token found");
+			}
+
+			const data = await walletService.verifyDNPAYLogin(accessToken);
 			
 			if (logged) return;
 			logged = true;
 			
 			const status = data.data?.status || data.status;
-			if (status === "LOGIN_SUCCESS") {
+			if (status === AuthStatus.LOGIN_SUCCESS) {
 				// id chính là wallet address
 				const walletAddress = data.data?.user?.id;
 				
 				// Trả về thông tin user qua callback onSuccess
 				onSuccess?.({
-					access_token: accessToken,
+					dnpayAccessToken: accessToken,
+					web3AuthToken: data.data?.web3AuthToken,
 					user: {
 						id: walletAddress,
 						email: data.data?.user?.email,
-						walletAddress: walletAddress
+						walletAddress: walletAddress,
+						authProvider: data.data?.user?.authProvider
 					},
-					status: "LOGIN_SUCCESS"
+					status: AuthStatus.LOGIN_SUCCESS
 				});
-			} else if (status === "ONBOARDING_REQUIRED") {
+			} else if (status === AuthStatus.ONBOARDING_REQUIRED) {
 				onOnboardingRequired?.({
 					onboardingToken: data.data?.onboardingToken || data.onboardingToken,
 					email: data.data?.email || data.email
@@ -220,7 +215,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		cleanup
 	};
 };
-// Xóa accessToken cũ mỗi lần load lại trang
+
 if (typeof window !== "undefined") {
 	localStorage.removeItem("dnpayAccessToken");
 	// Clear all localStorage except dnpayAccessToken on page load
