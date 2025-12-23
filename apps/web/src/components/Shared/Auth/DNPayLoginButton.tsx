@@ -113,7 +113,21 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				return;
 			}
 
-			await connectAsync({ connector: injectedConnector });
+			const connectResult = await connectAsync({ connector: injectedConnector });
+			const connectedAddress = connectResult.accounts[0];
+			
+			// Verify that the connected wallet matches the DNPAY wallet
+			console.log("🔍 Verifying wallet addresses:");
+			console.log("  DNPAY wallet:", walletAddress.toLowerCase());
+			console.log("  Connected wallet:", connectedAddress.toLowerCase());
+			
+			if (connectedAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+				toast.error(`Please switch to the correct account in MetaMask: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`);
+				console.error("❌ Wallet address mismatch!");
+				return;
+			}
+			
+			console.log("✅ Wallet addresses match, proceeding with authentication...");
 			const signature = await signMessageAsync({ message: challenge.data.challenge.text });
 
 			// Authenticate
@@ -130,9 +144,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			} else {
 				toast.error(ERRORS.SomethingWentWrong);
 			}
-		} catch (err) {
+		} catch (err: any) {
 			console.error("Lens authentication error:", err);
-			toast.error("Failed to authenticate with Lens Protocol");
+			if (err?.message?.includes("User rejected")) {
+				toast.error("Please approve the signature request in MetaMask");
+			} else {
+				toast.error("Failed to authenticate with Lens Protocol");
+			}
 		}
 	};
 
