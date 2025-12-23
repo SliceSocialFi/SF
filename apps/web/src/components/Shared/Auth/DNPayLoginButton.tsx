@@ -32,6 +32,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const onboardingHandledRef = useRef(false);
 	const walletErrorHandledRef = useRef(false);
 	const [walletAddress, setWalletAddress] = useState<string | null>(null);
+	const [lensAccounts, setLensAccounts] = useState<any[]>([]);
 
 	// Query to get accounts by wallet address
 	const { data: accountsData, refetch: refetchAccounts } = useAccountsAvailableQuery({
@@ -64,10 +65,16 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					lastLoggedInAccountRequest: { address: data.user.walletAddress }
 				});
 				
-				console.log("📊 Accounts found:", result.data?.accountsAvailable?.items?.length || 0);
-				if (result.data?.accountsAvailable?.items?.length > 0) {
-					const firstAccount = result.data.accountsAvailable.items[0].account;
+				const accounts = result.data?.accountsAvailable?.items || [];
+				console.log("📊 Accounts found:", accounts.length);
+				
+				if (accounts.length === 1) {
+					// Chỉ có 1 account, tự động đăng nhập
+					const firstAccount = accounts[0].account;
 					await authenticateWithLens(firstAccount.address, data.user.walletAddress);
+				} else if (accounts.length > 1) {
+					// Có nhiều account, lưu vào state và hiển thị UI chọn account
+					setLensAccounts(accounts.map((a: any) => a.account));
 				} else {
 					// Không có Lens account, mở modal signup
 					console.log("⚠️ No Lens account found, opening signup modal...");
@@ -82,7 +89,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				}
 			} catch (err) {
 				console.error("Failed to authenticate with Lens:", err);
-				toast.error("Failed to authenticate with Lens Protocol");
 			}
 		} else if (!data.status) {
 			// Chỉ gọi verifyDNPayToken một lần duy nhất nếu chưa có status
@@ -218,6 +224,37 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			closeDNPayPopup();
 		}
 	}, [isSuccess]);
+
+	// Nếu có nhiều Lens accounts, hiển thị UI chọn account
+	if (lensAccounts.length > 1) {
+		return (
+			<div className="space-y-3">
+				<div className="text-sm font-medium mb-2">Select a Lens account to login:</div>
+				{lensAccounts.map((account) => (
+					<div
+						key={account.address}
+						className="flex items-center justify-between space-x-2 border border-gray-200 dark:border-gray-700 rounded-xl p-3"
+					>
+						<div className="flex items-center space-x-2">
+							<div className="text-sm font-medium">@{account.username?.localName || account.address.slice(0, 8)}</div>
+						</div>
+						<button
+							className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
+							disabled={isLoading}
+							onClick={async () => {
+								setIsLoading(true);
+								await authenticateWithLens(account.address, walletAddress!);
+								setIsLoading(false);
+							}}
+							type="button"
+						>
+							Login
+						</button>
+					</div>
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<button
