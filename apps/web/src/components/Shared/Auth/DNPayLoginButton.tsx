@@ -40,12 +40,15 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	});
 
 	const handleSuccess = async (data: { code?: string; token?: string; access_token?: string; user?: { id?: string; email?: string; walletAddress?: string }; status?: string }) => {
-		setIsLoading(false);
-		onSuccess?.(data);
-		setIsSuccess(true);
-		
-		// Nếu là LOGIN_SUCCESS, authenticate với Lens Protocol
-		if (data.status === "LOGIN_SUCCESS" && data.user?.walletAddress) {
+		       setIsLoading(false);
+		       // Clear all localStorage (including dnpayAccessToken) after verify success
+		       if (data.status === "LOGIN_SUCCESS") {
+			       localStorage.clear();
+		       }
+		       onSuccess?.(data);
+		       setIsSuccess(true);
+		       // Nếu là LOGIN_SUCCESS, authenticate với Lens Protocol
+		       if (data.status === "LOGIN_SUCCESS" && data.user?.walletAddress) {
 			console.log("🔐 DNPAY Login success, authenticating with Lens Protocol...");
 			console.log("📍 Wallet address:", data.user.walletAddress);
 			setWalletAddress(data.user.walletAddress);

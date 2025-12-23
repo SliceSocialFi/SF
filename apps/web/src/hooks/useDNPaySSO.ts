@@ -58,33 +58,39 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 	}, []);
 
-	// Handle OAuth callback message
-	const handleMessage = useCallback(
-		(event: MessageEvent) => {
-			// Verify origin
-			if (event.origin !== window.location.origin) {
-				console.log("Message from different origin, ignoring:", event.origin);
-				return;
-			}
+	       // Handle OAuth callback message
+	       const handleMessage = useCallback(
+		       (event: MessageEvent) => {
+			       // Verify origin
+			       if (event.origin !== window.location.origin) {
+				       console.log("Message from different origin, ignoring:", event.origin);
+				       return;
+			       }
 
-			const data = event.data as DNPayAuthResponse;
+			       const data = event.data as DNPayAuthResponse;
 
-			if (data.error) {
-				const errorMessage = data.error_description || data.error;
-				toast.error(`DNPAY login failed: ${errorMessage}`);
-				onError?.(errorMessage);
-				cleanup();
-				return;
-			}
+			       if (data.error) {
+				       const errorMessage = data.error_description || data.error;
+				       toast.error(`DNPAY login failed: ${errorMessage}`);
+				       onError?.(errorMessage);
+				       cleanup();
+				       return;
+			       }
 
-			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
-			if (accessToken) {
-				onSuccess?.({ access_token: accessToken });
-				cleanup();
-			}
-		},
-		[onSuccess, onError, cleanup]
-	);
+			       const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+			       if (accessToken) {
+				       // Clear all localStorage except dnpayAccessToken
+				       Object.keys(localStorage).forEach((key) => {
+					       if (key !== "dnpayAccessToken") {
+						       localStorage.removeItem(key);
+					       }
+				       });
+				       onSuccess?.({ access_token: accessToken });
+				       cleanup();
+			       }
+		       },
+		       [onSuccess, onError, cleanup]
+	       );
 
 	// Check popup status
 	const checkPopupClosed = useCallback(() => {
@@ -220,4 +226,10 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 // Xóa accessToken cũ mỗi lần load lại trang
 if (typeof window !== "undefined") {
 	localStorage.removeItem("dnpayAccessToken");
+	// Clear all localStorage except dnpayAccessToken on page load
+	Object.keys(localStorage).forEach((key) => {
+	       if (key !== "dnpayAccessToken") {
+		       localStorage.removeItem(key);
+	       }
+	});
 }
