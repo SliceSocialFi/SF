@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
-import { au } from "react-router/dist/development/routeModules-DnUHijGz";
 import { PAYMENT_API_URL } from "@slice/data/constants";
+import { walletService } from "@/lib/api/auth-api";
 
 interface DNPayAuthResponse {
 	code?: string;
@@ -105,9 +105,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			const state = generateState();
 			sessionStorage.setItem("dnpay_oauth_state", state);
 
-			// Use app's own callback URL
-			const redirectUri = `http://localhost:5173`;
-
 			// Build URL manually without encoding
 			const authUrl = `${DNPAY_AUTH_URL}?client_id=${DNPAY_CLIENT_ID}&redirect_uri=https://dev-slice-dnpay-miniapp.vercel.app`;
 
@@ -195,10 +192,58 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 					status: "LOGIN_SUCCESS"
 				});
 			} else if (status === "ONBOARDING_REQUIRED") {
-				onOnboardingRequired?.({
-					onboardingToken: data.data?.onboardingToken || data.onboardingToken,
-					email: data.data?.email || data.email
-				});
+				// onOnboardingRequired?.({
+				// 	onboardingToken: data.data?.onboardingToken || data.onboardingToken,
+				// 	email: data.data?.email || data.email
+				// });
+
+
+				// ============================================================
+				// 🧪 TEST AUTO-FLOW: EMBEDDED WALLET
+				// ============================================================
+				console.group("🚀 [TEST MODE] Starting Embedded Wallet Flow");
+				
+				try {
+					// 1. Lấy onboardingToken từ API verify trước đó
+					const onboardingToken = data.data?.onboardingToken || data.onboardingToken;
+					if (!onboardingToken) throw new Error("Missing onboardingToken");
+
+					console.log("Step 1: Minting Web3Auth Token...");
+					// Gọi API mint token riêng cho Web3Auth
+					const web3AuthToken = await walletService.mintWeb3AuthToken(onboardingToken);
+					console.log("✅ Minted Web3Auth Token:", web3AuthToken);
+
+					console.log("Step 2: Connecting Web3Auth (Please allow Popup)...");
+					// Khởi tạo ví MPC. LƯU Ý: Trình duyệt có thể chặn Popup ở bước này
+					const { address } = await walletService.connectWeb3Auth(web3AuthToken);
+					console.log("✅ Wallet Created:", address);
+
+					console.log("Step 3: Registering Wallet to Backend...");
+					// Gửi địa chỉ ví mới về backend để tạo user
+					const registerResult = await walletService.registerEmbeddedWallet(onboardingToken, address);
+					console.log("✅ Registration Success:", registerResult);
+
+					// 4. Giả lập đăng nhập thành công sau khi tạo ví
+					alert(`TEST THÀNH CÔNG! Ví mới: ${address}`);
+					
+					// Gọi onSuccess để App chuyển vào màn hình chính
+					onSuccess?.({
+						access_token: registerResult.accessToken, // Token session mới từ backend
+						user: {
+							id: address,
+							email: data.data?.email || data.email,
+							walletAddress: address
+						},
+						status: "LOGIN_SUCCESS"
+					});
+
+				} catch (testError) {
+					console.error("❌ TEST FAILED:", testError);
+					alert("Test thất bại! Hãy mở Console (F12) để xem lỗi chi tiết.");
+				} finally {
+					console.groupEnd();
+				}
+				// ============================================================
 			}
 		} catch (err) {
 			if (logged) return;
