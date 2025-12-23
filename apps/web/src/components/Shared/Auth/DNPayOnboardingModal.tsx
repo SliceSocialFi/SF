@@ -35,7 +35,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
             className="w-14 h-14 mb-2 dark:hidden block"
             draggable={false}
           />
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white text-center">Cần liên kết ví để có thể tiếp tục</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white text-center">Wallet linking required to continue</h2>
         </div>
         {/* Options */}
         <div className="flex flex-col gap-4 px-6 pb-6">
@@ -53,8 +53,8 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
               />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-base">Đã có ví</h4>
-              <p className="text-gray-500 text-sm dark:text-gray-400">Liên kết với ví MetaMask của bạn</p>
+              <h4 className="font-semibold text-base">Already have a wallet</h4>
+              <p className="text-gray-500 text-sm dark:text-gray-400">Link your MetaMask wallet</p>
             </div>
             <div className="flex-shrink-0">
               <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,8 +76,8 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
               />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-base">Chưa có ví</h4>
-              <p className="text-gray-500 text-sm dark:text-gray-400">Tạo ví điện tử</p>
+              <h4 className="font-semibold text-base">No wallet yet?</h4>
+              <p className="text-gray-500 text-sm dark:text-gray-400">Create a crypto wallet</p>
             </div>
             <div className="flex-shrink-0">
               <svg className="size-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
