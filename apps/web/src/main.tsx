@@ -1,3 +1,6 @@
+// Polyfills MUST be imported first
+import "./polyfills";
+
 import "./styles/theme-vars.css";
 
 import "./font.css";
