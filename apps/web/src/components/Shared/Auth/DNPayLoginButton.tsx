@@ -267,7 +267,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			       {/* Modal xác nhận có ví */}
 			       <DNPayOnboardingModal
 				       open={showOnboardingModal}
-			       onClose={() => {
+			    	   onClose={() => {
 				       setShowOnboardingModal(false);
 				       setIsOnboardingLoading(false);
 				       setOnboardingData(null);
@@ -275,7 +275,10 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			       onHasWallet={async () => {
 				       setShowOnboardingModal(false);
 				       setIsOnboardingLoading(false);
-				       }}
+					   if (onboardingData) {
+						       await handleConnectWallet(onboardingData.onboardingToken);
+					    }
+				    }}
 			       />
 
 			       {showAccountModal && lensAccounts.length > 1 && (
