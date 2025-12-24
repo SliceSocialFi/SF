@@ -39,7 +39,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const [loadChallenge] = useChallengeMutation();
 	const [authenticate] = useAuthenticateMutation();
 	const { setShowAuthModal } = useAuthModalStore();
-	const { setScreen } = useSignupStore();
+	const { setScreen, setEmbeddedWallet } = useSignupStore();
 	const verifyCalledRef = useRef(false);
 	const onboardingHandledRef = useRef(false);
 	const walletErrorHandledRef = useRef(false);
@@ -229,6 +229,10 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				// Kiểm tra xem có phải user mới không (chưa có Lens Account)
 				if (result.isNewUser) {
 					// User mới cần tạo Lens profile
+					// Lưu embedded wallet info vào store để ChooseUsername có thể sử dụng
+					if (result.walletAddress && result.provider) {
+						setEmbeddedWallet(result.walletAddress, result.provider);
+					}
 					toast.info("Please create a Lens profile to continue");
 					setShowAuthModal(true);
 					setScreen("choose");

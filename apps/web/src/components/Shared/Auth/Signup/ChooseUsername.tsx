@@ -5,7 +5,7 @@ import {
   FaceSmileIcon,
 } from "@heroicons/react/24/outline";
 import { account as accountMetadata } from "@lens-protocol/metadata";
-import { SLICE_APP, IS_MAINNET } from "@slice/data/constants";
+import { SLICE_APP, IS_MAINNET, CHAIN } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
 import { Regex } from "@slice/data/regex";
 import {
@@ -17,6 +17,7 @@ import {
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useSignMessage } from "wagmi";
+import { createWalletClient, custom } from "viem";
 import { z } from "zod";
 import AuthMessage from "@/components/Shared/Auth/AuthMessage";
 import { Button, Form, Input, useZodForm } from "@/components/Shared/UI";
@@ -51,10 +52,17 @@ const ChooseUsername = () => {
     setScreen,
     setTransactionHash,
     setOnboardingToken,
+    embeddedWalletAddress,
+    embeddedWalletProvider,
   } = useSignupStore();
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { address } = useAccount();
+  const { address: wagmiAddress } = useAccount();
+  
+  // Sử dụng embedded wallet address nếu có, nếu không dùng wagmi address
+  const address = embeddedWalletAddress || wagmiAddress;
+  const isEmbeddedWallet = Boolean(embeddedWalletAddress && embeddedWalletProvider);
+  
   const handleWrongNetwork = useHandleWrongNetwork();
   const handleTransactionLifecycle = useTransactionLifecycle();
   const form = useZodForm({ mode: "onChange", schema: ValidationSchema });
@@ -112,7 +120,11 @@ const ChooseUsername = () => {
   }: z.infer<typeof ValidationSchema>) => {
     try {
       setIsSubmitting(true);
-      await handleWrongNetwork();
+      
+      // Chỉ kiểm tra network với wagmi wallet, không cần với embedded wallet
+      if (!isEmbeddedWallet) {
+        await handleWrongNetwork();
+      }
 
       const challenge = await loadChallenge({
         variables: {
@@ -129,10 +141,24 @@ const ChooseUsername = () => {
         return toast.error(ERRORS.SomethingWentWrong);
       }
 
-      // Get signature
-      const signature = await signMessageAsync({
-        message: challenge?.data?.challenge?.text,
-      });
+      // Get signature - sử dụng embedded wallet hoặc wagmi
+      let signature: string;
+      if (isEmbeddedWallet) {
+        // Ký bằng embedded wallet provider
+        const walletClient = createWalletClient({
+          chain: CHAIN,
+          transport: custom(embeddedWalletProvider),
+        });
+        signature = await walletClient.signMessage({
+          account: address as `0x${string}`,
+          message: challenge?.data?.challenge?.text,
+        });
+      } else {
+        // Ký bằng wagmi
+        signature = await signMessageAsync({
+          message: challenge?.data?.challenge?.text,
+        });
+      }
 
       // Auth account
       const auth = await authenticate({
