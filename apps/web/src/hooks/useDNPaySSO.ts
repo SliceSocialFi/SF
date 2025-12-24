@@ -175,10 +175,10 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			if (logged) return;
 			logged = true;
 			
-			const status = data.data?.status || data.status;
+			const status = data.status;
 			if (status === AuthStatus.LOGIN_SUCCESS) {
 				// id chính là wallet address
-				const walletAddress = data.data?.user?.id;
+				const walletAddress = data.user.id;
 				
 				// Trả về thông tin user qua callback onSuccess
 				console.log("DNPAY LOGIN SUCCESS:", data);
