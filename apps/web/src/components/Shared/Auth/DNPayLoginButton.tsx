@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 import DNPayOnboardingModal from "./DNPayOnboardingModal";
-import { Spinner } from "@/components/Shared/UI";
+import Spinner from "../UI/Spinner";
 import { toast } from "sonner";
 import { useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { useAccountsAvailableQuery, useChallengeMutation, useAuthenticateMutation, ManagedAccountsVisibility, type ChallengeRequest } from "@slice/indexer";
@@ -20,12 +20,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
        const { disconnect } = useDisconnect();
        const [isLoading, setIsLoading] = useState(false);
        const [isSuccess, setIsSuccess] = useState(false);
-	       const [onboardingData, setOnboardingData] = useState<{
-		       onboardingToken: string;
-		       email: string;
-	       } | null>(null);
-	       const [showOnboardingModal, setShowOnboardingModal] = useState(false);
-	       const [isOnboardingLoading, setIsOnboardingLoading] = useState(false);
+			       const [onboardingData, setOnboardingData] = useState<{
+				       onboardingToken: string;
+				       email: string;
+				       status?: string;
+			       } | null>(null);
+			       const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+			       const [onboardingSpinner, setOnboardingSpinner] = useState(false);
 
 	const { connectAsync, connectors } = useConnect();
 	const { signMessageAsync } = useSignMessage();
@@ -195,40 +196,37 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-		if (onboardingHandledRef.current) return;
-		onboardingHandledRef.current = true;
-		setIsOnboardingLoading(true);
-		setTimeout(() => {
-			setOnboardingData(data);
-			setIsOnboardingLoading(false);
-			setShowOnboardingModal(true);
-		}, 600);
+			   if (onboardingHandledRef.current) return;
+			   onboardingHandledRef.current = true;
+			   setOnboardingData({ ...data, status: "ONBOARDING_REQUIRED" });
+			   setShowOnboardingModal(true);
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
-		try {
-			const injectedConnector = connectors.find(c => c.id === "injected");
-        
-			if (!injectedConnector) {
-				if (!walletErrorHandledRef.current) {
-					walletErrorHandledRef.current = true;
-					toast.error("No wallet found. Please install MetaMask.");
-				}
-				return;
-			}
-
-			const result = await connectAsync({ connector: injectedConnector });
-			const walletAddress = result.accounts[0];
-        
-			const response = await linkWallet(onboardingToken, walletAddress);
-			console.log("🔗 Link wallet response:", response);
-		} catch (err) {
-			if (!walletErrorHandledRef.current) {
-				walletErrorHandledRef.current = true;
-				toast.error("Failed to connect wallet");
-			}
-			console.error("Failed to connect wallet:", err);
-		}
+		       setOnboardingSpinner(true);
+		       try {
+			       const injectedConnector = connectors.find(c => c.id === "injected");
+			       if (!injectedConnector) {
+				       if (!walletErrorHandledRef.current) {
+					       walletErrorHandledRef.current = true;
+					       toast.error("No wallet found. Please install MetaMask.");
+				       }
+				       setOnboardingSpinner(false);
+				       return;
+			       }
+			       const result = await connectAsync({ connector: injectedConnector });
+			       const walletAddress = result.accounts[0];
+			       const response = await linkWallet(onboardingToken, walletAddress);
+			       console.log("🔗 Link wallet response:", response);
+		       } catch (err) {
+			       if (!walletErrorHandledRef.current) {
+				       walletErrorHandledRef.current = true;
+				       toast.error("Failed to connect wallet");
+			       }
+			       console.error("Failed to connect wallet:", err);
+		       } finally {
+			       setOnboardingSpinner(false);
+		       }
 	};
 
 	const { openDNPayLogin, closeDNPayPopup, verifyDNPayToken, linkWallet } = useDNPaySSO({
@@ -243,9 +241,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		onboardingHandledRef.current = false;
 		walletErrorHandledRef.current = false;
 		setShowOnboardingModal(false);
-		setIsOnboardingLoading(false);
 		setOnboardingData(null);
-		
 		setIsLoading(true);
 		openDNPayLogin();
 	};
@@ -257,29 +253,28 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	}, [isSuccess]);
 
 	       return (
-		       <>
-			       {/* Spinner overlay khi chờ modal onboarding */}
-			       {isOnboardingLoading && (
-				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-					       <Spinner size="md" />
-				       </div>
-			       )}
-			       {/* Modal xác nhận có ví */}
-			       <DNPayOnboardingModal
-				       open={showOnboardingModal}
-			    	   onClose={() => {
-				       setShowOnboardingModal(false);
-				       setIsOnboardingLoading(false);
-				       setOnboardingData(null);
-			       }}
-			       onHasWallet={async () => {
-				       setShowOnboardingModal(false);
-				       setIsOnboardingLoading(false);
-					   if (onboardingData) {
-						       await handleConnectWallet(onboardingData.onboardingToken);
-					    }
-				    }}
-			       />
+					       <>
+						       {/* Modal xác nhận có ví - chỉ hiển thị khi có status */}
+						       {showOnboardingModal && onboardingData?.status && (
+							       <>
+								       <DNPayOnboardingModal
+									       open={true}
+									       onClose={() => setShowOnboardingModal(false)}
+									       onHasWallet={async () => {
+										       setShowOnboardingModal(false);
+										       setOnboardingSpinner(true);
+										       if (onboardingData) {
+											       await handleConnectWallet(onboardingData.onboardingToken);
+										       }
+									       }}
+								       />
+								       {onboardingSpinner && (
+									       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+										       <Spinner size="md" />
+									       </div>
+								       )}
+							       </>
+						       )}
 
 			       {showAccountModal && lensAccounts.length > 1 && (
 				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
