@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDNPaySSO } from "@/hooks/useDNPaySSO";
 import DNPayOnboardingModal from "./DNPayOnboardingModal";
+import { Spinner } from "@/components/Shared/UI";
 import { toast } from "sonner";
 import { useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { useAccountsAvailableQuery, useChallengeMutation, useAuthenticateMutation, ManagedAccountsVisibility, type ChallengeRequest } from "@slice/indexer";
@@ -19,11 +20,12 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
        const { disconnect } = useDisconnect();
        const [isLoading, setIsLoading] = useState(false);
        const [isSuccess, setIsSuccess] = useState(false);
-       const [onboardingData, setOnboardingData] = useState<{
-	       onboardingToken: string;
-	       email: string;
-       } | null>(null);
-       const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+	       const [onboardingData, setOnboardingData] = useState<{
+		       onboardingToken: string;
+		       email: string;
+	       } | null>(null);
+	       const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+	       const [isOnboardingLoading, setIsOnboardingLoading] = useState(false);
 
 	const { connectAsync, connectors } = useConnect();
 	const { signMessageAsync } = useSignMessage();
@@ -192,11 +194,15 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 
-	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-			   if (onboardingHandledRef.current) return;
-			   onboardingHandledRef.current = true;
-			   setOnboardingData(data);
-			   setShowOnboardingModal(true);
+	       const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
+		       if (onboardingHandledRef.current) return;
+		       onboardingHandledRef.current = true;
+		       setIsOnboardingLoading(true);
+		       setTimeout(() => {
+			       setOnboardingData(data);
+			       setIsOnboardingLoading(false);
+			       setShowOnboardingModal(true);
+		       }, 600); // Giả lập loading, có thể thay bằng await nếu có API thực
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
@@ -248,19 +254,25 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		}
 	}, [isSuccess]);
 
-		       return (
-				       <>
-					       {/* Modal xác nhận có ví */}
-					       <DNPayOnboardingModal
-						       open={showOnboardingModal}
-						       onClose={() => setShowOnboardingModal(false)}
-						       onHasWallet={async () => {
-							       setShowOnboardingModal(false);
-							       if (onboardingData) {
-								       await handleConnectWallet(onboardingData.onboardingToken);
-							       }
-						       }}
-					       />
+	       return (
+		       <>
+			       {/* Spinner overlay khi chờ modal onboarding */}
+			       {isOnboardingLoading && (
+				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+					       <Spinner size="md" />
+				       </div>
+			       )}
+			       {/* Modal xác nhận có ví */}
+			       <DNPayOnboardingModal
+				       open={showOnboardingModal}
+				       onClose={() => setShowOnboardingModal(false)}
+				       onHasWallet={async () => {
+					       setShowOnboardingModal(false);
+					       if (onboardingData) {
+						       await handleConnectWallet(onboardingData.onboardingToken);
+					       }
+				       }}
+			       />
 
 			       {showAccountModal && lensAccounts.length > 1 && (
 				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
