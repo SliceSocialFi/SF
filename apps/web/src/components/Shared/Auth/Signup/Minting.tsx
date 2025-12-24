@@ -9,6 +9,7 @@ const Minting = () => {
   useAccountQuery({
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
+      console.log("Account minting completed:", data);
       if (data.account) {
         setAccountAddress(data.account.address);
         setScreen("success");
