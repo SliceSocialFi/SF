@@ -1,11 +1,7 @@
 import axios from "axios";
 import { createWalletClient, custom } from "viem";
-import { web3auth, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth";
-import {
-    PAYMENT_API_URL as API_BASE_URL,
-    CHAIN,
-    WEB3AUTH_CLIENT_ID
-} from "@slice/data/constants";
+import { web3auth } from "@/config/web3auth";
+import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
     const res = await axios.post(
@@ -51,7 +47,8 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
 
     console.log("Web3Auth Instance Status:", web3authInstance.status);
     if (web3authInstance.status === "not_ready") {
-        await web3authInstance.initModal();
+        // Web3Auth Modal v10.x uses init() instead of initModal()
+        await web3authInstance.init();
     }
     
     console.log("Web3Auth Instance After Init:", web3authInstance);
@@ -66,13 +63,6 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
             id_token: web3AuthToken,
             verifierIdField: "sub",
             domain: "https://slice.socialfi",
-        },
-        loginConfig: {
-            jwt: {
-                verifier: WEB3AUTH_CONNECTION_NAME,
-                typeOfLogin: "jwt",
-                clientId: WEB3AUTH_CLIENT_ID,
-            },
         },
     });
 
