@@ -24,14 +24,14 @@ interface DNPayLoginButtonProps {
 }
 
 const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) => {
-       const { disconnect } = useDisconnect();
-       const [isLoading, setIsLoading] = useState(false);
-       const [isSuccess, setIsSuccess] = useState(false);
-       const [onboardingData, setOnboardingData] = useState<{
-	       onboardingToken: string;
-	       email: string;
-       } | null>(null);
-       const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+	const { disconnect } = useDisconnect();
+	const [isLoading, setIsLoading] = useState(false);
+	const [isSuccess, setIsSuccess] = useState(false);
+	const [onboardingData, setOnboardingData] = useState<{
+		onboardingToken: string;
+		email: string;
+	} | null>(null);
+	const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
 	const { connectAsync, connectors } = useConnect();
 	const { signMessageAsync } = useSignMessage();
@@ -121,9 +121,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					setLensAccounts(accounts.map((a: any) => a.account));
 					setShowAccountModal(true);
 				} else {
-					// Không có Lens account, mở modal signup
-					console.log("⚠️ No Lens account found, opening signup modal...");
-					// Connect wallet trước khi mở signup modal
+					console.log("No Lens account found, opening signup modal...");
 					if (injectedConnector) {
 						await connectAsync({ connector: injectedConnector });
 					}
