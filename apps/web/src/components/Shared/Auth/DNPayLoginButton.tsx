@@ -222,17 +222,28 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		try {
 			const result = await createEmbeddedWallet(onboardingData.onboardingToken);
 
-			if (result.success && result.lensTokens) {
-				// Save Lens tokens
-				signIn({
-					accessToken: result.lensTokens.accessToken,
-					refreshToken: result.lensTokens.refreshToken
-				});
-
-				// Close modal and redirect
+			if (result.success) {
+				// Close modal
 				setShowOnboardingModal(false);
-				toast.success("Embedded wallet created and logged in successfully!");
-				window.location.href = "/";
+
+				// Kiểm tra xem có phải user mới không (chưa có Lens Account)
+				if (result.isNewUser) {
+					// User mới cần tạo Lens profile
+					toast.info("Please create a Lens profile to continue");
+					setShowAuthModal(true);
+					setScreen("choose");
+					return;
+				}
+
+				// User đã có Lens Account → đăng nhập thành công
+				if (result.lensTokens) {
+					signIn({
+						accessToken: result.lensTokens.accessToken,
+						refreshToken: result.lensTokens.refreshToken
+					});
+					toast.success("Embedded wallet created and logged in successfully!");
+					window.location.href = "/";
+				}
 			} else {
 				toast.error("Failed to create embedded wallet");
 			}

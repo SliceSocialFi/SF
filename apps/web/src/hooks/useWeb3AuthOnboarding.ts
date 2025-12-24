@@ -10,6 +10,8 @@ interface OnboardingResult {
         accessToken: string;
         refreshToken: string;
     };
+    isNewUser?: boolean;
+    provider?: any;
 }
 
 export const useWeb3AuthOnboarding = () => {
@@ -37,16 +39,32 @@ export const useWeb3AuthOnboarding = () => {
             await walletService.registerEmbeddedWallet(onboardingToken, address);
             toast.success("Wallet registered successfully!");
 
-            toast.info("Authenticating with Lens Protocol...");
-            const lensTokens = await web3AuthLogin(provider, address);
-            if (!lensTokens) {
+            toast.info("Checking Lens Protocol account...");
+            const lensResult = await web3AuthLogin(provider, address);
+            
+            // Nếu là user mới (chưa có Lens Account)
+            if (lensResult?.isNewUser) {
+                toast.info("Please create a Lens profile to continue");
+                return {
+                    success: true,
+                    walletAddress: address,
+                    isNewUser: true,
+                    provider
+                };
+            }
+
+            if (!lensResult || !lensResult.accessToken) {
                 throw new Error("Failed to authenticate with Lens Protocol");
             }
 
             return {
                 success: true,
                 walletAddress: address,
-                lensTokens
+                lensTokens: {
+                    accessToken: lensResult.accessToken,
+                    refreshToken: lensResult.refreshToken
+                },
+                isNewUser: false
             };
         } catch (error: any) {
             console.error("Embedded Wallet Onboarding Error:", error);
