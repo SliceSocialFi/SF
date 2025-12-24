@@ -40,7 +40,7 @@ export const useWeb3AuthLogin = () => {
             // Nếu chưa có account → user mới, cần tạo profile
             if (accounts.length === 0) {
                 console.log("No Lens account found - new user needs to create profile");
-                toast.info("Bạn cần tạo profile Lens để tiếp tục");
+                toast.info("You need to create a Lens profile to continue");
                 return {
                     accessToken: "",
                     refreshToken: "",

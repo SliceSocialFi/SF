@@ -223,11 +223,9 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			const result = await createEmbeddedWallet(onboardingData.onboardingToken);
 
 			if (result.success) {
-				// Close modal
 				setShowOnboardingModal(false);
-
-				// Kiểm tra xem có phải user mới không (chưa có Lens Account)
 				if (result.isNewUser) {
+					console.log("Wallet Address:", result.walletAddress);
 					// User mới cần tạo Lens profile
 					// Lưu embedded wallet info vào store để ChooseUsername có thể sử dụng
 					if (result.walletAddress && result.provider) {
