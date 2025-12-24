@@ -184,19 +184,19 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				console.log("DNPAY LOGIN SUCCESS:", data);
 				onSuccess?.({
 					dnpayAccessToken: accessToken,
-					web3AuthToken: data.data?.web3AuthToken,
+					web3AuthToken: data.web3AuthToken,
 					user: {
 						id: walletAddress,
-						email: data.data?.user?.email,
+						email: data.user.email,
 						walletAddress: walletAddress,
-						authProvider: data.data?.user?.authProvider
+						authProvider: data.user.authProvider
 					},
 					status: AuthStatus.LOGIN_SUCCESS
 				});
 			} else if (status === AuthStatus.ONBOARDING_REQUIRED) {
 				onOnboardingRequired?.({
-					onboardingToken: data.data?.onboardingToken || data.onboardingToken,
-					email: data.data?.email || data.email
+					onboardingToken: data.onboardingToken,
+					email: data.email
 				});
 			}
 		} catch (err) {
