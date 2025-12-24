@@ -49,10 +49,14 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	const handleSuccess = async (data: { code?: string; token?: string; access_token?: string; user?: { id?: string; email?: string; walletAddress?: string }; status?: string }) => {
 		       setIsLoading(false);
-		       // Clear all localStorage (including dnpayAccessToken) after verify success
-		       if (data.status === "LOGIN_SUCCESS") {
-			       localStorage.clear();
-		       }
+			       // Clear all localStorage except sf_theme_palette after verify success
+			       if (data.status === "LOGIN_SUCCESS") {
+				       const theme = localStorage.getItem("sf_theme_palette");
+				       localStorage.clear();
+				       if (theme !== null) {
+					       localStorage.setItem("sf_theme_palette", theme);
+				       }
+			       }
 		       onSuccess?.(data);
 		       setIsSuccess(true);
 		       // Nếu là LOGIN_SUCCESS, authenticate với Lens Protocol
@@ -203,7 +207,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
-		       setOnboardingSpinner(true);
 		       try {
 			       const injectedConnector = connectors.find(c => c.id === "injected");
 			       if (!injectedConnector) {
@@ -211,7 +214,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					       walletErrorHandledRef.current = true;
 					       toast.error("No wallet found. Please install MetaMask.");
 				       }
-				       setOnboardingSpinner(false);
 				       return;
 			       }
 			       const result = await connectAsync({ connector: injectedConnector });
@@ -224,8 +226,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				       toast.error("Failed to connect wallet");
 			       }
 			       console.error("Failed to connect wallet:", err);
-		       } finally {
-			       setOnboardingSpinner(false);
 		       }
 	};
 
@@ -244,6 +244,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		setOnboardingData(null);
 		setIsLoading(true);
 		openDNPayLogin();
+		setOnboardingSpinner(true);
 	};
 
 	useEffect(() => {
@@ -254,17 +255,17 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	       return (
 					       <>
-						       {/* Modal xác nhận có ví - chỉ hiển thị khi có status */}
+						       {/* Modal xác nhận có ví */}
 						       {showOnboardingModal && onboardingData?.status && (
-							       <>
+							       <>	
 								       <DNPayOnboardingModal
 									       open={true}
 									       onClose={() => setShowOnboardingModal(false)}
 									       onHasWallet={async () => {
 										       setShowOnboardingModal(false);
-										       setOnboardingSpinner(true);
 										       if (onboardingData) {
 											       await handleConnectWallet(onboardingData.onboardingToken);
+												   setOnboardingSpinner(false);
 										       }
 									       }}
 								       />
