@@ -181,6 +181,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				const walletAddress = data.data?.user?.id;
 				
 				// Trả về thông tin user qua callback onSuccess
+				console.log("DNPAY LOGIN SUCCESS:", data);
 				onSuccess?.({
 					dnpayAccessToken: accessToken,
 					web3AuthToken: data.data?.web3AuthToken,

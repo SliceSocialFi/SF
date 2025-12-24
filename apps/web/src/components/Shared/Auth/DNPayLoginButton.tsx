@@ -137,6 +137,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				verifyCalledRef.current = true;
 				verifyDNPayToken();
 			}
+		} else {
+			toast.error("DNPAY login failed. Please try again.");
 		}
 	};
 

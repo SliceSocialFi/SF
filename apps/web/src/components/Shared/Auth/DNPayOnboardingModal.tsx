@@ -93,9 +93,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
               {isCreatingWallet ? (
                 <div className="size-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
               ) : (
-                <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                </svg>
+                <Spinner size="md" />
               )}
             </div>
           </Card>
