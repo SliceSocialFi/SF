@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useDNPaySSO, AuthStatus, AuthLoginData } from "@/hooks/useDNPaySSO";
+import { useDNPaySSO, AuthStatus, AuthLoginData, AuthProvider } from "@/hooks/useDNPaySSO";
 import { useWeb3AuthOnboarding } from "@/hooks/useWeb3AuthOnboarding";
 import { useEmbeddedWalletLogin } from "@/hooks/useEmbeddedWalletLogin";
 import DNPayOnboardingModal from "./DNPayOnboardingModal";
@@ -46,33 +46,30 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	const [lensAccounts, setLensAccounts] = useState<any[]>([]);
 	const [showAccountModal, setShowAccountModal] = useState(false);
 	
-	// Web3Auth hooks
 	const { createEmbeddedWallet, isLoading: isCreatingWallet } = useWeb3AuthOnboarding();
 	const { loginWithEmbeddedWallet } = useEmbeddedWalletLogin();
 
-	// Query to get accounts by wallet address
-	const { data: accountsData, refetch: refetchAccounts } = useAccountsAvailableQuery({
-		skip: true, // Always skip auto-fetch, we'll manually refetch when needed
-		fetchPolicy: "network-only" // Always fetch from network, don't use cache
+	const { refetch: refetchAccounts } = useAccountsAvailableQuery({
+		skip: true,
+		fetchPolicy: "network-only"
 	});
 
 	const handleSuccess = async (data: AuthLoginData) => {
 		setIsLoading(false);
-		// Clear all localStorage (including dnpayAccessToken) after verify success
 		if (data.status === AuthStatus.LOGIN_SUCCESS) {
 			localStorage.clear();
 		}
+
 		onSuccess?.(data);
 		setIsSuccess(true);
-		// Nếu là LOGIN_SUCCESS, authenticate với Lens Protocol
+
 		if (data.status === AuthStatus.LOGIN_SUCCESS && data.user?.walletAddress) {
-			console.log("🔐 DNPAY Login success, authenticating with Lens Protocol...");
-			console.log("📍 Auth Provider:", data.user.authProvider);
+			console.log("DNPAY Login success, authenticating with Lens Protocol...");
+			console.log("Auth Provider:", data.user.authProvider);
 			setWalletAddress(data.user.walletAddress);
 
-			// Check if user has embedded wallet
-			if (data.user.authProvider === "DNPAY_EMBEDDED" && data.web3AuthToken) {
-				console.log("🔑 Embedded wallet detected, using Web3Auth login...");
+			if (data.user.authProvider === AuthProvider.DNPAY_EMBEDDED && data.web3AuthToken) {
+				console.log("Embedded wallet detected, using Web3Auth login...");
 				try {
 					await loginWithEmbeddedWallet(
 						data.user.walletAddress,
@@ -85,29 +82,27 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				return;
 			}
 
-			// External wallet flow (MetaMask)
-			// So khớp ví DNPAY với ví Metamask hiện tại
 			try {
 				const injectedConnector = connectors.find(c => c.id === "injected");
 				if (!injectedConnector) throw new Error("No wallet connector found");
+
 				const connectResult = await connectAsync({ connector: injectedConnector });
 				const connectedAddress = connectResult.accounts[0];
-					if (connectedAddress.toLowerCase() !== data.user.walletAddress.toLowerCase()) {
-						// Không khớp, trả về modal chọn phương thức đăng nhập và toast cảnh báo
-						setShowAccountModal(false);
-						setLensAccounts([]);
-						disconnect?.();
-						setScreen("choose");
-						setShowAuthModal(true, "login");
-						toast.error(
-							`Vui lòng đăng nhập đúng địa chỉ ví: ${data.user.walletAddress}`,
-							{ duration: 12000 }
-						);
-						return;
-					}
+				if (connectedAddress.toLowerCase() !== data.user.walletAddress.toLowerCase()) {
+					setShowAccountModal(false);
+					setLensAccounts([]);
+					disconnect?.();
+					setScreen("choose");
+					setShowAuthModal(true, "login");
+					toast.error(
+						`Please switch to the correct account in MetaMask: ${data.user.walletAddress.slice(0, 6)}...${data.user.walletAddress.slice(-4)}`,
+						{ duration: 12000 }
+					);
+					return;
+				}
 
 				// Fetch accounts with explicit wallet address
-				console.log("🔍 Fetching Lens accounts for wallet:", data.user.walletAddress);
+				console.log("Fetching Lens accounts for wallet:", data.user.walletAddress);
 				const result = await refetchAccounts({
 					accountsAvailableRequest: {
 						hiddenFilter: ManagedAccountsVisibility.NoneHidden,
@@ -117,14 +112,12 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				});
 
 				const accounts = result.data?.accountsAvailable?.items || [];
-				console.log("📊 Accounts found:", accounts.length);
+				console.log("Accounts found:", accounts.length);
 
 				if (accounts.length === 1) {
-					// Chỉ có 1 account, tự động đăng nhập
 					const firstAccount = accounts[0].account;
 					await authenticateWithLens(firstAccount.address, data.user.walletAddress);
 				} else if (accounts.length > 1) {
-					// Có nhiều account, lưu vào state và hiển thị UI chọn account
 					setLensAccounts(accounts.map((a: any) => a.account));
 					setShowAccountModal(true);
 				} else {
@@ -134,7 +127,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					if (injectedConnector) {
 						await connectAsync({ connector: injectedConnector });
 					}
-					// Mở signup modal
 					setScreen("choose");
 					setShowAuthModal(true, "signup");
 				}
@@ -142,7 +134,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				console.error("Failed to authenticate with Lens:", err);
 			}
 		} else if (!data.status) {
-			// Chỉ gọi verifyDNPayToken một lần duy nhất nếu chưa có status
 			if (!verifyCalledRef.current) {
 				verifyCalledRef.current = true;
 				verifyDNPayToken();
@@ -177,17 +168,17 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			const connectedAddress = connectResult.accounts[0];
 			
 			// Verify that the connected wallet matches the DNPAY wallet
-			console.log("🔍 Verifying wallet addresses:");
+			console.log("Verifying wallet addresses:");
 			console.log("  DNPAY wallet:", walletAddress.toLowerCase());
 			console.log("  Connected wallet:", connectedAddress.toLowerCase());
 			
 			if (connectedAddress.toLowerCase() !== walletAddress.toLowerCase()) {
 				toast.error(`Please switch to the correct account in MetaMask: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`);
-				console.error("❌ Wallet address mismatch!");
+				console.error("Wallet address mismatch!");
 				return;
 			}
 			
-			console.log("✅ Wallet addresses match, proceeding with authentication...");
+			console.log("Wallet addresses match, proceeding with authentication...");
 			const signature = await signMessageAsync({ message: challenge.data.challenge.text });
 
 			// Authenticate

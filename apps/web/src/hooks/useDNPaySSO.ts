@@ -3,6 +3,12 @@ import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
 import { walletService } from "@/lib/api/auth-api";
 
+export const AuthProvider = {
+	WALLET: 'WALLET',
+	DNPAY_LINKED: 'DNPAY_LINKED',
+	DNPAY_EMBEDDED: 'DNPAY_EMBEDDED',
+};
+
 export const AuthStatus = {
 	LOGIN_SUCCESS: "LOGIN_SUCCESS",
 	ONBOARDING_REQUIRED: "ONBOARDING_REQUIRED"
