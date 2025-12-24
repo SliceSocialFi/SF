@@ -5,6 +5,7 @@ import { SignupMessage } from "@/components/Shared/Auth/Signup/ChooseUsername";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import AuthMessage from "./AuthMessage";
 import Signup from "./Signup";
+import { useSignupStore } from "./Signup";
 
 const NotConnected = ({ isLogin }: { isLogin?: boolean }) => (
   <AuthMessage
@@ -17,17 +18,21 @@ const Auth = () => {
   const { authModalType } = useAuthModalStore();
   const [hasAccounts, setHasAccounts] = useState(true);
   const { isConnected } = useAccount();
+  const { embeddedWalletAddress } = useSignupStore();
+  
+  // Consider connected if wagmi is connected OR embedded wallet is available
+  const hasWalletConnection = isConnected || Boolean(embeddedWalletAddress);
 
   return (
     <div className="m-5">
       {authModalType === "signup" ? (
         <div className="space-y-5">
-          {!isConnected && <NotConnected />}
+          {!hasWalletConnection && <NotConnected />}
           <Signup />
         </div>
       ) : (
         <div className="space-y-5">
-          {isConnected ? (
+          {hasWalletConnection ? (
             hasAccounts ? (
               <AuthMessage
                 description="Slice uses this signature to verify that you're the owner of this address."
