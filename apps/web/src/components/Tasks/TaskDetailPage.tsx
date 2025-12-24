@@ -379,7 +379,7 @@ const TaskDetailPage = () => {
                   Resources
                 </H5>
                 <div className="flex flex-col gap-4 text-gray-600 text-sm leading-relaxed dark:text-gray-300">
-                  {taskData.resources.map((resource, index) => (
+                  {taskData.resources.map((resource: any, index: number) => (
                     <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-2 last:border-b-0">
                       <div className="font-semibold flex items-center gap-2">
                         {(resource as { label: string }).label}

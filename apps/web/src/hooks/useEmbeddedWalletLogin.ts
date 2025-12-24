@@ -1,0 +1,61 @@
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { walletService } from '@/lib/api/auth-api';
+import { useWeb3AuthLogin } from './useWeb3AuthLogin';
+import { signIn } from "@/store/persisted/useAuthStore";
+
+interface EmbeddedWalletLoginResult {
+    success: boolean;
+    lensTokens?: {
+        accessToken: string;
+        refreshToken: string;
+    };
+}
+
+export const useEmbeddedWalletLogin = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const { login: web3AuthLogin } = useWeb3AuthLogin();
+
+    const loginWithEmbeddedWallet = async (
+        walletAddress: string,
+        web3AuthToken: string
+    ) => {
+        setIsLoading(true);
+        try {
+            toast.info("Connecting to your embedded wallet...");
+
+            const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
+            if (address.toLowerCase() !== walletAddress.toLowerCase()) {
+                throw new Error("Wallet address mismatch");
+            }
+
+            toast.success("Embedded wallet connected!");
+
+            toast.info("Authenticating with Lens Protocol...");
+            const lensTokens = await web3AuthLogin(provider, address);
+
+            if (!lensTokens) {
+                toast.error("Failed to authenticate with embedded wallet");
+                throw new Error("Failed to authenticate with Lens Protocol");
+            }
+
+            // Save Lens tokens
+            signIn({
+                accessToken: lensTokens.accessToken,
+                refreshToken: lensTokens.refreshToken
+            });
+            toast.success("Logged in successfully!");
+            window.location.href = "/";
+        } catch (error: any) {
+            console.error("Embedded Wallet Login Error:", error);
+            toast.error(error.message || "Failed to login with embedded wallet");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return {
+        loginWithEmbeddedWallet,
+        isLoading
+    };
+};

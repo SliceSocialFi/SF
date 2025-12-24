@@ -5,9 +5,18 @@ interface DNPayOnboardingModalProps {
   open: boolean;
   onClose: () => void;
   onHasWallet: () => void;
+  onCreateWallet: () => void;
+  isCreatingWallet?: boolean;
 }
 
-const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClose, onHasWallet }) => {
+const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ 
+  open, 
+  onClose, 
+  onHasWallet,
+  onCreateWallet,
+  isCreatingWallet = false
+}) => {
+  if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-white dark:bg-[#121212] rounded-xl p-0 max-w-md w-full mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
@@ -65,7 +74,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
           <Card
             className="cursor-pointer transition-all px-5 py-4 button-animated flex items-center gap-4"
             forceRounded
-            onClick={e => e.preventDefault()}
+            onClick={onCreateWallet}
           >
             <div className="flex-shrink-0">
               <Image
@@ -76,12 +85,18 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClo
             </div>
             <div className="flex-1">
               <h4 className="font-semibold text-base">No wallet yet?</h4>
-              <p className="text-gray-500 text-sm dark:text-gray-400">Create a crypto wallet</p>
+              <p className="text-gray-500 text-sm dark:text-gray-400">
+                {isCreatingWallet ? "Creating wallet..." : "Create a crypto wallet"}
+              </p>
             </div>
             <div className="flex-shrink-0">
-              <svg className="size-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
+              {isCreatingWallet ? (
+                <div className="size-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+              ) : (
+                <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+              )}
             </div>
           </Card>
         </div>
