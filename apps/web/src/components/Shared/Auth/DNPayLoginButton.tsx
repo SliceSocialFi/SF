@@ -194,15 +194,15 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 
-	       const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
-		       if (onboardingHandledRef.current) return;
-		       onboardingHandledRef.current = true;
-		       setIsOnboardingLoading(true);
-		       setTimeout(() => {
-			       setOnboardingData(data);
-			       setIsOnboardingLoading(false);
-			       setShowOnboardingModal(true);
-		       }, 600); // Giả lập loading, có thể thay bằng await nếu có API thực
+	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
+		if (onboardingHandledRef.current) return;
+		onboardingHandledRef.current = true;
+		setIsOnboardingLoading(true);
+		setTimeout(() => {
+			setOnboardingData(data);
+			setIsOnboardingLoading(false);
+			setShowOnboardingModal(true);
+		}, 600);
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
@@ -239,10 +239,12 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 
 	const handleClick = () => {
-		// Reset các cờ khi user click lại
 		verifyCalledRef.current = false;
 		onboardingHandledRef.current = false;
 		walletErrorHandledRef.current = false;
+		setShowOnboardingModal(false);
+		setIsOnboardingLoading(false);
+		setOnboardingData(null);
 		
 		setIsLoading(true);
 		openDNPayLogin();
@@ -265,12 +267,14 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			       {/* Modal xác nhận có ví */}
 			       <DNPayOnboardingModal
 				       open={showOnboardingModal}
-				       onClose={() => setShowOnboardingModal(false)}
-				       onHasWallet={async () => {
-					       setShowOnboardingModal(false);
-					       if (onboardingData) {
-						       await handleConnectWallet(onboardingData.onboardingToken);
-					       }
+			       onClose={() => {
+				       setShowOnboardingModal(false);
+				       setIsOnboardingLoading(false);
+				       setOnboardingData(null);
+			       }}
+			       onHasWallet={async () => {
+				       setShowOnboardingModal(false);
+				       setIsOnboardingLoading(false);
 				       }}
 			       />
 
