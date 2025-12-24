@@ -278,9 +278,9 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		setShowOnboardingModal(false);
 		setOnboardingData(null);
 		setIsLoading(true);
-		setOnboardingSpinner(true);
+		// setOnboardingSpinner(true);
 		openDNPayLogin();
-		setOnboardingSpinner(false);
+		// setOnboardingSpinner(false);
 	};
 
 	useEffect(() => {
