@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createWalletClient, custom } from "viem";
-import { web3auth, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth";
+import { web3auth } from "@/config/web3auth";
 import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
@@ -47,7 +47,6 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
 
     console.log("Web3Auth Instance Status:", web3authInstance.status);
     if (web3authInstance.status === "not_ready") {
-        // Web3Auth NoModal v10.x uses init()
         await web3authInstance.init();
     }
     
@@ -56,13 +55,14 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
         await web3authInstance.logout();
     }
 
-    // Web3Auth NoModal v10.x API - connect with JWT token using authConnectionId
+    // Web3Auth NoModal v9.x API - connect với JWT token
+    // Sử dụng WALLET_ADAPTERS.AUTH và loginProvider: "jwt" 
     const provider = await web3authInstance.connectTo("auth", {
-        authConnection: "custom",
-        authConnectionId: WEB3AUTH_CONNECTION_NAME,
-        idToken: web3AuthToken,
+        loginProvider: "jwt",
         extraLoginOptions: {
+            id_token: web3AuthToken,
             verifierIdField: "sub",
+            domain: window.location.origin,
         },
     });
 
