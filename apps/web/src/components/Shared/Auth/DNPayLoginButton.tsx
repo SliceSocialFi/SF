@@ -139,7 +139,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				verifyDNPayToken();
 			}
 		} else {
-			toast.error("DNPAY login failed. Please try again.");
+			console.log("DNPAY login failed. Please try again.");
 		}
 	};
 
@@ -213,6 +213,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 	const handleOnboardingRequired = async (data: { onboardingToken: string; email: string }) => {
+		console.log("DNPAY Onboarding Required Data:", data);
+		console.log("onboardingHandledRef.current:", onboardingHandledRef.current);
 		if (onboardingHandledRef.current) return;
 		onboardingHandledRef.current = true;
 		setOnboardingData(data);
@@ -220,10 +222,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 	const handleCreateEmbeddedWallet = async () => {
+		console.log("handleCreateEmbeddedWallet with onboardingData:", onboardingData);
+
 		if (!onboardingData) return;
 
 		try {
 			const result = await createEmbeddedWallet(onboardingData.onboardingToken);
+			console.log("Embedded wallet creation result:", result);
 
 			if (result.success) {
 				setShowOnboardingModal(false);
@@ -250,6 +255,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					window.location.href = "/";
 				}
 			} else {
+				console.log("Failed to create embedded wallet:", result);
 				toast.error("Failed to create embedded wallet");
 			}
 		} catch (error) {
@@ -259,26 +265,26 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	};
 
 	const handleConnectWallet = async (onboardingToken: string) => {
-		       try {
-			       const injectedConnector = connectors.find(c => c.id === "injected");
-			       if (!injectedConnector) {
-				       if (!walletErrorHandledRef.current) {
-					       walletErrorHandledRef.current = true;
-					       toast.error("No wallet found. Please install MetaMask.");
-				       }
-				       return;
-			       }
-			       const result = await connectAsync({ connector: injectedConnector });
-			       const walletAddress = result.accounts[0];
-			       const response = await linkWallet(onboardingToken, walletAddress);
-			       console.log("🔗 Link wallet response:", response);
-		       } catch (err) {
-			       if (!walletErrorHandledRef.current) {
-				       walletErrorHandledRef.current = true;
-				       toast.error("Failed to connect wallet");
-			       }
-			       console.error("Failed to connect wallet:", err);
-		       }
+		try {
+			const injectedConnector = connectors.find(c => c.id === "injected");
+			if (!injectedConnector) {
+				if (!walletErrorHandledRef.current) {
+					walletErrorHandledRef.current = true;
+					toast.error("No wallet found. Please install MetaMask.");
+				}
+				return;
+			}
+			const result = await connectAsync({ connector: injectedConnector });
+			const walletAddress = result.accounts[0];
+			const response = await linkWallet(onboardingToken, walletAddress);
+			console.log("🔗 Link wallet response:", response);
+		} catch (err) {
+			if (!walletErrorHandledRef.current) {
+				walletErrorHandledRef.current = true;
+				toast.error("Failed to connect wallet");
+			}
+			console.error("Failed to connect wallet:", err);
+		}
 	};
 
 	const { openDNPayLogin, closeDNPayPopup, verifyDNPayToken, linkWallet } = useDNPaySSO({

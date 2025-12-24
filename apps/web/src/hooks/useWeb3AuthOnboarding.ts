@@ -24,6 +24,7 @@ export const useWeb3AuthOnboarding = () => {
             toast.info("Creating your embedded wallet...");
 
             const web3AuthToken = await walletService.mintWeb3AuthToken(onboardingToken);
+            console.log("Minted Web3Auth Token:", web3AuthToken);
             if (!web3AuthToken) {
                 throw new Error("Failed to mint Web3Auth token");
             }

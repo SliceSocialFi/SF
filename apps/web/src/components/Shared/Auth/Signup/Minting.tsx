@@ -6,6 +6,9 @@ const Minting = () => {
   const { chosenUsername, setAccountAddress, setScreen, transactionHash } =
     useSignupStore();
 
+  console.log("Minting component - chosenUsername:", chosenUsername);
+  console.log("Minting component - transactionHash:", transactionHash);
+
   useAccountQuery({
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
