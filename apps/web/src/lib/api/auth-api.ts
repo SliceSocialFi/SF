@@ -49,10 +49,12 @@ const mintWeb3AuthToken = async (onboardingToken: string) => {
 const connectWeb3Auth = async (web3AuthToken: string) => {
     const web3authInstance = web3auth as any;
 
+    console.log("Web3Auth Instance Status:", web3authInstance.status);
     if (web3authInstance.status === "not_ready") {
         await web3authInstance.initModal();
     }
     
+    console.log("Web3Auth Instance After Init:", web3authInstance);
     if (web3authInstance.connected) {
         await web3authInstance.logout();
     }
@@ -74,7 +76,10 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
         },
     });
 
-    if (!provider) throw new Error("Web3Auth provider not found");
+    if (!provider) {
+        console.log("Web3Auth provider not found");
+        throw new Error("Web3Auth provider not found");
+    }
 
     // Dùng Viem để lấy địa chỉ ví
     const walletClient = createWalletClient({
@@ -83,6 +88,8 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
     });
 
     const [address] = await walletClient.getAddresses();
+    console.log("Web3Auth Connected Address:", address);
+
     return { address, provider };
 }
 
