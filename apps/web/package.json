@@ -29,6 +29,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.90.1",
     "@uidotdev/usehooks": "^2.4.1",
+    "@web3auth/auth-adapter": "^9.7.0",
     "@web3auth/base": "^9.7.0",
     "@web3auth/ethereum-provider": "^9.7.0",
     "@web3auth/modal": "^10.10.0",

@@ -23,11 +23,7 @@ const web3auth = new Web3Auth({
   clientId: WEB3AUTH_CLIENT_ID,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider: privateKeyProvider as any,
-  // Configure login settings directly in constructor for v10.x
   authBuildEnv: "testing",
-  uiConfig: {
-    loginMethodsOrder: ["jwt"],
-  },
 });
 
 export { web3auth, WEB3AUTH_CONNECTION_NAME };

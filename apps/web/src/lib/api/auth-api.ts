@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createWalletClient, custom } from "viem";
-import { web3auth } from "@/config/web3auth";
+import { web3auth, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth";
 import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
@@ -56,13 +56,13 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
         await web3authInstance.logout();
     }
 
-    // Web3Auth Modal v10.x API - use "auth" adapter with JWT
+    // Web3Auth Modal v10.x API - use authConnectionId for custom JWT verifier
     const provider = await web3authInstance.connectTo("auth", {
-        loginProvider: "jwt",
+        authConnection: "custom",
+        authConnectionId: WEB3AUTH_CONNECTION_NAME,
         extraLoginOptions: {
             id_token: web3AuthToken,
             verifierIdField: "sub",
-            domain: "https://slice.socialfi",
         },
     });
 
