@@ -19,7 +19,6 @@ const Minting = () => {
       }
     },
     pollInterval: 1500,
-    skip: !transactionHash,
     variables: { request: { username: { localName: chosenUsername } } }
   });
 
