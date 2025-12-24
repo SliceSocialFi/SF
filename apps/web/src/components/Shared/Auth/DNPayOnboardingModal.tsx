@@ -8,14 +8,6 @@ interface DNPayOnboardingModalProps {
 }
 
 const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ open, onClose, onHasWallet }) => {
-  if (!open) {
-    // Show spinner overlay while waiting for modal to appear
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-        <Spinner size="md" />
-      </div>
-    );
-  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-white dark:bg-[#121212] rounded-xl p-0 max-w-md w-full mx-4 shadow-xl" onClick={e => e.stopPropagation()}>
