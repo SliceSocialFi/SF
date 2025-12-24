@@ -56,6 +56,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	});
 
 	const handleSuccess = async (data: AuthLoginData) => {
+		console.log("DNPAY SSO Success Data:", data);
 		setIsLoading(false);
 		if (data.status === AuthStatus.LOGIN_SUCCESS) {
 			localStorage.clear();
