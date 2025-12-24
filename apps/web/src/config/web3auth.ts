@@ -1,5 +1,6 @@
-import { Web3Auth } from "@web3auth/modal";
+import { Web3AuthNoModal } from "@web3auth/no-modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
+import { AuthAdapter } from "@web3auth/auth-adapter";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { WEB3AUTH_CLIENT_ID, CHAIN, WEB3AUTH_CONNECTION_NAME } from "@slice/data/constants";
 
@@ -18,12 +19,27 @@ const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
 });
 
-// Khởi tạo Web3Auth Instance (v10.x API)
-const web3auth = new Web3Auth({
+// Auth Adapter với JWT config cho custom verifier
+const authAdapter = new AuthAdapter({
+  adapterSettings: {
+    uxMode: "popup",
+    loginConfig: {
+      jwt: {
+        verifier: WEB3AUTH_CONNECTION_NAME,
+        typeOfLogin: "jwt",
+        clientId: WEB3AUTH_CLIENT_ID,
+      },
+    },
+  },
+  privateKeyProvider: privateKeyProvider as any,
+});
+
+// Khởi tạo Web3Auth NoModal Instance (v10.x API) - dùng cho JWT login
+const web3auth = new Web3AuthNoModal({
   clientId: WEB3AUTH_CLIENT_ID,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   privateKeyProvider: privateKeyProvider as any,
-  authBuildEnv: "testing",
+  connectors: [authAdapter as any],
 });
 
-export { web3auth, WEB3AUTH_CONNECTION_NAME };
+export { web3auth, WEB3AUTH_CONNECTION_NAME, chainConfig };
