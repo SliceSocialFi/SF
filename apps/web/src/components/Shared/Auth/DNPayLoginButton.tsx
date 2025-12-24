@@ -255,7 +255,13 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 	}, [isSuccess]);
 
 	       return (
+				
 					       <>
+								{onboardingSpinner && (
+									<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+										<Spinner size="md" />
+									</div>
+								)}
 						       {/* Modal xác nhận có ví */}
 						       {showOnboardingModal && onboardingData?.status && (
 							       <>	
@@ -270,11 +276,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 										       }
 									       }}
 								       />
-								       {onboardingSpinner && (
-									       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-										       <Spinner size="md" />
-									       </div>
-								       )}
+								       
 							       </>
 						       )}
 
