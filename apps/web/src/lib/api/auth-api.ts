@@ -9,7 +9,7 @@ import {
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
     const res = await axios.post(
-        `${API_BASE_URL}/dnpay/verify-login`,
+        `${API_BASE_URL}api/auth/dnpay/verify`,
         { dnpayAccessToken }
     );
     
@@ -21,7 +21,7 @@ const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
 
 const linkWalletToDNPAY = async (onboardingToken: string, existingWalletAddress: string) => {
     const res = await axios.post(
-        `${API_BASE_URL}/dnpay/link-embedded`,
+        `${API_BASE_URL}api/auth/dnpay/link-embedded`,
         {
             onboardingToken,
             existingWalletAddress
@@ -36,7 +36,7 @@ const linkWalletToDNPAY = async (onboardingToken: string, existingWalletAddress:
 
 const mintWeb3AuthToken = async (onboardingToken: string) => {
     const res = await axios.post(
-        `${API_BASE_URL}/dnpay/mint-web3-auth-token`,
+        `${API_BASE_URL}api/auth/dnpay/mint-web3-auth-token`,
         { onboardingToken }
     );
     
@@ -88,7 +88,7 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
 
 const registerEmbeddedWallet = async (onboardingToken: string, newWalletAddress: string) => {
     const res = await axios.post(
-        `${API_BASE_URL}/dnpay/register-embedded`,
+        `${API_BASE_URL}api/auth/dnpay/register-embedded`,
         {
             onboardingToken,
             newWalletAddress
