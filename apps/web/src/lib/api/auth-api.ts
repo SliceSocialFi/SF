@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createWalletClient, custom } from "viem";
-import { web3auth } from "@/config/web3auth";
+import { web3auth, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth";
 import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
@@ -56,11 +56,12 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
         await web3authInstance.logout();
     }
 
-    // Web3Auth NoModal v10.x API - connect with JWT token
+    // Web3Auth NoModal v10.x API - connect with JWT token using authConnectionId
     const provider = await web3authInstance.connectTo("auth", {
-        loginProvider: "jwt",
+        authConnection: "custom",
+        authConnectionId: WEB3AUTH_CONNECTION_NAME,
+        idToken: web3AuthToken,
         extraLoginOptions: {
-            id_token: web3AuthToken,
             verifierIdField: "sub",
         },
     });
