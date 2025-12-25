@@ -3,6 +3,8 @@ import { toast } from 'sonner';
 import { walletService } from '@/lib/api/auth-api';
 import { useWeb3AuthLogin } from './useWeb3AuthLogin';
 import { signIn } from "@/store/persisted/useAuthStore";
+import { useSignupStore } from "@/components/Shared/Auth/Signup";
+import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 
 interface EmbeddedWalletLoginResult {
     success: boolean;
@@ -15,6 +17,8 @@ interface EmbeddedWalletLoginResult {
 export const useEmbeddedWalletLogin = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login: web3AuthLogin } = useWeb3AuthLogin();
+    const { setScreen, setEmbeddedWallet } = useSignupStore();
+    const { setShowAuthModal } = useAuthModalStore();
 
     const loginWithEmbeddedWallet = async (
         walletAddress: string,
@@ -34,9 +38,22 @@ export const useEmbeddedWalletLogin = () => {
             toast.info("Authenticating with Lens Protocol...");
             const lensTokens = await web3AuthLogin(provider, address);
 
+            console.log("Lens Tokens:", lensTokens);
+
             if (!lensTokens) {
                 toast.error("Failed to authenticate with embedded wallet");
                 throw new Error("Failed to authenticate with Lens Protocol");
+            }
+
+            if (lensTokens?.isNewUser) {
+                toast.info("Please create a Lens profile to continue");
+                console.log("New user detected, wallet address:", address);
+                if (address && provider) {
+                    setEmbeddedWallet(address, provider);
+                }
+                setScreen("choose");
+                setShowAuthModal(true, "signup");
+                return;
             }
 
             // Save Lens tokens
