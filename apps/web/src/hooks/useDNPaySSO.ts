@@ -223,16 +223,16 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	};
 };
 
-if (typeof window !== "undefined") {
-	localStorage.removeItem("dnpayAccessToken");
-	// Clear all localStorage except dnpayAccessToken
-	const theme = localStorage.getItem("sf_theme_palette");
-	Object.keys(localStorage).forEach((key) => {
-		if (key !== "dnpayAccessToken" && key !== "sf_theme_palette") {
-			 localStorage.removeItem(key);
-		}
-	});
-	if (theme !== null) {
-		localStorage.setItem("sf_theme_palette", theme);
-	}
-}
+// if (typeof window !== "undefined") {
+// 	localStorage.removeItem("dnpayAccessToken");
+// 	// Clear all localStorage except dnpayAccessToken
+// 	const theme = localStorage.getItem("sf_theme_palette");
+// 	Object.keys(localStorage).forEach((key) => {
+// 		if (key !== "dnpayAccessToken" && key !== "sf_theme_palette") {
+// 			 localStorage.removeItem(key);
+// 		}
+// 	});
+// 	if (theme !== null) {
+// 		localStorage.setItem("sf_theme_palette", theme);
+// 	}
+// }
