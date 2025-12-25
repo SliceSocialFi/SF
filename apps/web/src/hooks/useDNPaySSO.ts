@@ -215,6 +215,11 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Listen for messages from popup
 	useEffect(() => {
 		window.addEventListener("message", handleMessage);
+		const token = localStorage.getItem("dnpayAccessToken");
+		console.log("DNPAY access token on effect mount:", token);
+		if (token) {
+			onSuccess?.({ dnpayAccessToken: token });
+		}
 		return () => {
 			window.removeEventListener("message", handleMessage);
 		};
