@@ -30,6 +30,7 @@ export const useWeb3AuthOnboarding = () => {
             }
 
             const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
+            console.log("Connected Embedded Wallet:", address);
             if (!provider || !address) {
                 throw new Error("Failed to create embedded wallet");
             }
