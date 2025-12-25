@@ -219,7 +219,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		onboardingHandledRef.current = true;
 		setOnboardingData(data);
 		setShowOnboardingModal(true);
-		setIsLoading(false);
 	};
 
 	const handleCreateEmbeddedWallet = async () => {
@@ -322,18 +321,19 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 			       )}
 
 			       {/* Modal xác nhận có ví */}
-			       <DNPayOnboardingModal
-				       open={showOnboardingModal}
-				       onClose={() => setShowOnboardingModal(false)}
-				       onHasWallet={async () => {
-					       setShowOnboardingModal(false);
-					       if (onboardingData) {
-						       await handleConnectWallet(onboardingData.onboardingToken);
-					       }
-				       }}
-				       onCreateWallet={handleCreateEmbeddedWallet}
-				       isCreatingWallet={isCreatingWallet}
-			       />
+				<DNPayOnboardingModal
+					open={showOnboardingModal}
+					onClose={() => setShowOnboardingModal(false)}
+					onHasWallet={async () => {
+						setShowOnboardingModal(false);
+						if (onboardingData) {
+							await handleConnectWallet(onboardingData.onboardingToken);
+						}
+					}}
+					onCreateWallet={handleCreateEmbeddedWallet}
+					isCreatingWallet={isCreatingWallet}
+					onAfterOpen={() => setIsLoading(false)}
+				/>
 
 			       {showAccountModal && lensAccounts.length > 1 && (
 				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>

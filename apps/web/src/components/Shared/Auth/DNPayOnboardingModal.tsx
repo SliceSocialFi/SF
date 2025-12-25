@@ -7,15 +7,22 @@ interface DNPayOnboardingModalProps {
   onHasWallet: () => void;
   onCreateWallet: () => void;
   isCreatingWallet?: boolean;
+  onAfterOpen?: () => void;
 }
 
 const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({ 
-  open, 
-  onClose, 
+  open,
+  onClose,
   onHasWallet,
   onCreateWallet,
-  isCreatingWallet = false
+  isCreatingWallet = false,
+  onAfterOpen
 }) => {
+  React.useEffect(() => {
+    if (open && onAfterOpen) {
+      onAfterOpen();
+    }
+  }, [open, onAfterOpen]);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
@@ -49,7 +56,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
         <div className="flex flex-col gap-4 px-6 pb-6">
           {/* Option 1: Đã có ví */}
           <Card
-            className="cursor-pointer transition-all hover:shadow-lg px-5 py-4 button-animated flex items-center gap-4"
+            className="cursor-pointer transition-all hover:shadow-lg px-5 py-2 button-animated flex items-center gap-4"
             forceRounded
             onClick={onHasWallet}
           >
@@ -65,14 +72,18 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
               <p className="text-gray-500 text-sm dark:text-gray-400">Link your MetaMask wallet</p>
             </div>
             <div className="flex-shrink-0">
-              <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-              </svg>
+              {isCreatingWallet ? (
+                <Spinner size="md" />
+              ) : (
+                <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
+              )}
             </div>
           </Card>
           {/* Option 2: Chưa có ví */}
           <Card
-            className="cursor-pointer transition-all px-5 py-4 button-animated flex items-center gap-4"
+            className="cursor-pointer transition-all px-5 py-2 button-animated flex items-center gap-4"
             forceRounded
             onClick={onCreateWallet}
           >
@@ -91,9 +102,11 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
             </div>
             <div className="flex-shrink-0">
               {isCreatingWallet ? (
-                <div className="size-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-              ) : (
                 <Spinner size="md" />
+              ) : (
+                <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                </svg>
               )}
             </div>
           </Card>
