@@ -56,7 +56,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
         <div className="flex flex-col gap-4 px-6 pb-6">
           {/* Option 1: Đã có ví */}
           <Card
-            className="cursor-pointer transition-all hover:shadow-lg px-5 py-2 button-animated flex items-center gap-4"
+            className="cursor-pointer transition-all hover:shadow-lg px-5 py-3 button-animated flex items-center gap-4"
             forceRounded
             onClick={onHasWallet}
           >
@@ -83,7 +83,7 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
           </Card>
           {/* Option 2: Chưa có ví */}
           <Card
-            className="cursor-pointer transition-all px-5 py-2 button-animated flex items-center gap-4"
+            className="cursor-pointer transition-all px-5 py-3 button-animated flex items-center gap-4"
             forceRounded
             onClick={onCreateWallet}
           >
