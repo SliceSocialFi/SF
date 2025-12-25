@@ -219,6 +219,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		onboardingHandledRef.current = true;
 		setOnboardingData(data);
 		setShowOnboardingModal(true);
+		setIsLoading(false);
 	};
 
 	const handleCreateEmbeddedWallet = async () => {
@@ -311,107 +312,114 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		}
 	}, [isSuccess]);
 
-	return (
-		<>
-			{/* Modal xác nhận có ví */}
-			<DNPayOnboardingModal
-				open={showOnboardingModal}
-				onClose={() => setShowOnboardingModal(false)}
-				onHasWallet={async () => {
-					setShowOnboardingModal(false);
-					if (onboardingData) {
-						await handleConnectWallet(onboardingData.onboardingToken);
-					}
-				}}
-				onCreateWallet={handleCreateEmbeddedWallet}
-				isCreatingWallet={isCreatingWallet}
-			/>
+	       return (
+		       <>
+			       {/* Global spinner overlay */}
+			       {isLoading && (
+				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+					       <Spinner size="md" />
+				       </div>
+			       )}
 
-			{showAccountModal && lensAccounts.length > 1 && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
-					<div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
-						<div className="flex items-center justify-between mb-4">
-							<h2 className="text-xl font-bold">Login</h2>
-							<button onClick={() => setShowAccountModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
-						</div>
-						<p className="text-sm mb-4">Please sign the message.</p>
-						<p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Slice uses this signature to verify that you're the owner of this address.</p>
-										
-						<div className="space-y-3 mb-4">
-							{lensAccounts.map((account) => (
-								<div
-									key={account.address}
-									className="flex items-center justify-between space-x-3 border border-gray-200 dark:border-gray-700 rounded-xl p-3"
-								>
-									<div className="flex items-center space-x-3">
-										<img 
-											src={account.metadata?.picture || "/default-avatar.png"} 
-											alt={account.username?.localName || account.address}
-											className="w-10 h-10 rounded-full"
-										/>
-										<div>
-											<div className="font-medium text-sm">
-												{account.username?.localName || account.address.slice(0, 8)}
-											</div>
-											<div className="text-xs text-gray-500">
-												@{account.username?.localName || account.address.slice(0, 8)}
-											</div>
-										</div>
-									</div>
-									<button
-										className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-sm font-medium disabled:opacity-50"
-										disabled={isLoading}
-										onClick={async () => {
-											setIsLoading(true);
-											await authenticateWithLens(account.address, walletAddress!);
-											setIsLoading(false);
-											setShowAccountModal(false);
-										}}
-										type="button"
-									>
-										Login
-									</button>
-								</div>
-							))}
-						</div>
-										
-						<button 
-							className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
-							onClick={() => setShowAccountModal(false)}
-						>
-							<span>🔑</span>
-							<span>Change wallet</span>
-						</button>
-					</div>
-				</div>
-			)}
-				
-			<button
-				className={className}
-				disabled={isLoading}
-				onClick={handleClick}
-				type="button"
-			>
-				<span>Continue with DNPAY</span>
-				<img 
-					src="/dnpay-logo-darkmode.png" 
-					alt="DNPAY" 
-					className="size-6 m-0 dark:block hidden"
-					draggable={false}
-					height={24}
-					width={24}
-				/>
-				<img 
-					src="/dnpay-logo-lightmode.png" 
-					alt="DNPAY" 
-					className="size-6 m-0 dark:hidden block"
-					draggable={false}
-					height={24}
-					width={24}
-				/>
-			</button>
-		</>
-	);
+			       {/* Modal xác nhận có ví */}
+			       <DNPayOnboardingModal
+				       open={showOnboardingModal}
+				       onClose={() => setShowOnboardingModal(false)}
+				       onHasWallet={async () => {
+					       setShowOnboardingModal(false);
+					       if (onboardingData) {
+						       await handleConnectWallet(onboardingData.onboardingToken);
+					       }
+				       }}
+				       onCreateWallet={handleCreateEmbeddedWallet}
+				       isCreatingWallet={isCreatingWallet}
+			       />
+
+			       {showAccountModal && lensAccounts.length > 1 && (
+				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
+					       <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+						       <div className="flex items-center justify-between mb-4">
+							       <h2 className="text-xl font-bold">Login</h2>
+							       <button onClick={() => setShowAccountModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+						       </div>
+						       <p className="text-sm mb-4">Please sign the message.</p>
+						       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Slice uses this signature to verify that you're the owner of this address.</p>
+                                               
+						       <div className="space-y-3 mb-4">
+							       {lensAccounts.map((account) => (
+								       <div
+									       key={account.address}
+									       className="flex items-center justify-between space-x-3 border border-gray-200 dark:border-gray-700 rounded-xl p-3"
+								       >
+									       <div className="flex items-center space-x-3">
+										       <img 
+											       src={account.metadata?.picture || "/default-avatar.png"} 
+											       alt={account.username?.localName || account.address}
+											       className="w-10 h-10 rounded-full"
+										       />
+										       <div>
+											       <div className="font-medium text-sm">
+												       {account.username?.localName || account.address.slice(0, 8)}
+											       </div>
+											       <div className="text-xs text-gray-500">
+												       @{account.username?.localName || account.address.slice(0, 8)}
+											       </div>
+										       </div>
+									       </div>
+									       <button
+										       className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-sm font-medium disabled:opacity-50"
+										       disabled={isLoading}
+										       onClick={async () => {
+											       setIsLoading(true);
+											       await authenticateWithLens(account.address, walletAddress!);
+											       setIsLoading(false);
+											       setShowAccountModal(false);
+										       }}
+										       type="button"
+									       >
+										       Login
+									       </button>
+								       </div>
+							       ))}
+						       </div>
+                                               
+						       <button 
+							       className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:bg-gray-200"
+							       onClick={() => setShowAccountModal(false)}
+						       >
+							       <span>🔑</span>
+							       <span>Change wallet</span>
+						       </button>
+					       </div>
+				       </div>
+			       )}
+                       
+			       <button
+				       className={className}
+				       disabled={isLoading}
+				       onClick={handleClick}
+				       type="button"
+			       >
+				       <span>Continue with DNPAY</span>
+				       <img 
+					       src="/dnpay-logo-darkmode.png" 
+					       alt="DNPAY" 
+					       className="size-6 m-0 dark:block hidden"
+					       draggable={false}
+					       height={24}
+					       width={24}
+				       />
+				       <img 
+					       src="/dnpay-logo-lightmode.png" 
+					       alt="DNPAY" 
+					       className="size-6 m-0 dark:hidden block"
+					       draggable={false}
+					       height={24}
+					       width={24}
+				       />
+			       </button>
+		       </>
+	       );
 };
 
 export default DNPayLoginButton;

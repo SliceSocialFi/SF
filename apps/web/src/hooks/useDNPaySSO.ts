@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
 import { walletService } from "@/lib/api/auth-api";
+import { set } from "zod";
 
 export const AuthProvider = {
 	WALLET: 'WALLET',
@@ -46,6 +47,7 @@ interface UseDNPaySSOOptions {
 export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	const popupRef = useRef<Window | null>(null);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const { onSuccess, onError, onOnboardingRequired } = options;
 
@@ -109,6 +111,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 
 	// Open DNPAY SSO popup
 	const openDNPayLogin = useCallback(() => {
+		setIsLoading(true);
 		try {
 			const state = generateState();
 			sessionStorage.setItem("dnpay_oauth_state", state);
