@@ -71,6 +71,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Handle OAuth callback message
 	const handleMessage = useCallback(
 		(event: MessageEvent) => {
+			console.log("Received message event:", event);
 			// Verify origin
 			if (event.origin !== window.location.origin) {
 				console.log("Message from different origin, ignoring:", event.origin);
