@@ -71,10 +71,19 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Handle OAuth callback message
 	const handleMessage = useCallback(
 		(event: MessageEvent) => {
-			console.log("Received message event:", event);
-			// Verify origin
-			if (event.origin !== window.location.origin) {
-				console.log("Message from different origin, ignoring:", event.origin);
+			console.log("🔔 Received message event:", event);
+			console.log("🔔 Event origin:", event.origin);
+			console.log("🔔 Window origin:", window.location.origin);
+			console.log("🔔 Event data:", event.data);
+			
+			// Verify origin - accept from same origin or DNPAY miniapp
+			const allowedOrigins = [
+				window.location.origin,
+				"https://dev-slice-dnpay-miniapp.vercel.app"
+			];
+			
+			if (!allowedOrigins.includes(event.origin)) {
+				console.log("❌ Message from different origin, ignoring:", event.origin);
 				return;
 			}
 
@@ -88,29 +97,63 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+			// Lấy accessToken từ event.data hoặc localStorage
+			let accessToken = data.access_token || localStorage.getItem("dnpayAccessToken") || undefined;
+			
 			console.log("📩 Received message from DNPAY popup:", data);
-			console.log("🔐 Current DNPAY access token:", accessToken);
+			console.log("🔐 Access token from message:", data.access_token);
+			console.log("🔐 Access token from localStorage:", localStorage.getItem("dnpayAccessToken"));
+			
 			if (accessToken) {
+				// Save to localStorage if from message
+				if (data.access_token) {
+					console.log("💾 Saving access token to localStorage");
+					localStorage.setItem("dnpayAccessToken", data.access_token);
+				}
+				
 				// Clear all localStorage except dnpayAccessToken
 				Object.keys(localStorage).forEach((key) => {
 					if (key !== "dnpayAccessToken") {
 						localStorage.removeItem(key);
 					}
 				});
+				
+				console.log("✅ Calling onSuccess with token:", accessToken);
 				onSuccess?.({ dnpayAccessToken: accessToken });
 				cleanup();
+			} else {
+				console.log("⚠️ No access token found in message or localStorage");
 			}
 		},
 		[onSuccess, onError, cleanup]
 	);
 
-	// Check popup status
+	// Check popup status AND localStorage for token
 	const checkPopupClosed = useCallback(() => {
+		// Check if popup closed
 		if (popupRef.current?.closed) {
 			cleanup();
+			return;
 		}
-	}, [cleanup]);
+		
+		// Polling: Check localStorage for dnpayAccessToken while popup is open
+		const accessToken = localStorage.getItem("dnpayAccessToken");
+		if (accessToken && popupRef.current && !popupRef.current.closed) {
+			console.log("✅ Detected dnpayAccessToken in localStorage via polling:", accessToken);
+			console.log("🔄 Triggering onSuccess callback...");
+			
+			// Clear all localStorage except dnpayAccessToken
+			Object.keys(localStorage).forEach((key) => {
+				if (key !== "dnpayAccessToken") {
+					localStorage.removeItem(key);
+				}
+			});
+			
+			// Trigger success callback
+			onSuccess?.({ dnpayAccessToken: accessToken });
+			cleanup();
+		}
+	}, [cleanup, onSuccess]);
 
 	// Open DNPAY SSO popup
 	const openDNPayLogin = useCallback(() => {
@@ -140,7 +183,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			// Check if popup is closed periodically
+			// Check if popup is closed AND poll localStorage periodically (every 500ms)
+			console.log("🔄 Starting polling for popup status and localStorage token...");
 			intervalRef.current = setInterval(checkPopupClosed, 500);
 		} catch (error) {
 			toast.error("Failed to initialize DNPAY login");
