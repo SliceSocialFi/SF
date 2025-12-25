@@ -128,32 +128,12 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		[onSuccess, onError, cleanup]
 	);
 
-	// Check popup status AND localStorage for token
+	// Check popup status
 	const checkPopupClosed = useCallback(() => {
-		// Check if popup closed
 		if (popupRef.current?.closed) {
 			cleanup();
-			return;
 		}
-		
-		// Polling: Check localStorage for dnpayAccessToken while popup is open
-		const accessToken = localStorage.getItem("dnpayAccessToken");
-		if (accessToken && popupRef.current && !popupRef.current.closed) {
-			console.log("✅ Detected dnpayAccessToken in localStorage via polling:", accessToken);
-			console.log("🔄 Triggering onSuccess callback...");
-			
-			// Clear all localStorage except dnpayAccessToken
-			Object.keys(localStorage).forEach((key) => {
-				if (key !== "dnpayAccessToken") {
-					localStorage.removeItem(key);
-				}
-			});
-			
-			// Trigger success callback
-			onSuccess?.({ dnpayAccessToken: accessToken });
-			cleanup();
-		}
-	}, [cleanup, onSuccess]);
+	}, [cleanup]);
 
 	// Open DNPAY SSO popup
 	const openDNPayLogin = useCallback(() => {
@@ -183,8 +163,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			// Check if popup is closed AND poll localStorage periodically (every 500ms)
-			console.log("🔄 Starting polling for popup status and localStorage token...");
+			// Check if popup is closed periodically
 			intervalRef.current = setInterval(checkPopupClosed, 500);
 		} catch (error) {
 			toast.error("Failed to initialize DNPAY login");
