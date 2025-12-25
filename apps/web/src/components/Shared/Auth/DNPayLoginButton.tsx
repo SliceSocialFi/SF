@@ -302,6 +302,16 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		// setOnboardingSpinner(false);
 	};
 
+	if (isLoading) {
+		console.log("DNPAY login in progress...");
+		const dnpayAccessToken = localStorage.getItem("dnpayAccessToken");
+		console.log("Current dnpayAccessToken:", dnpayAccessToken);
+		if (dnpayAccessToken) {
+			console.log("DNPAY access token found in localStorage, verifying...");
+			verifyDNPayToken();
+		}
+	}
+
 	useEffect(() => {
 		if (isSuccess) {
 			closeDNPayPopup();
