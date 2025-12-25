@@ -55,14 +55,16 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
         await web3authInstance.logout();
     }
 
-    // Web3Auth NoModal v9.x API - connect với JWT token
-    // Sử dụng WALLET_ADAPTERS.AUTH và loginProvider: "jwt" 
+    // Web3Auth NoModal v9.x API - SFA (Single Factor Auth) với JWT token
+    // Sử dụng idToken trực tiếp để tránh popup loading "Constructing your key"
+    // Flow SFA chạy ngầm hoàn toàn mà không cần mở popup
     const provider = await web3authInstance.connectTo("auth", {
-        loginProvider: "jwt",
+        authConnection: "custom",
+        authConnectionId: "slice-backend-verifier",
+        idToken: web3AuthToken,
         extraLoginOptions: {
-            id_token: web3AuthToken,
             verifierIdField: "sub",
-            domain: window.location.origin,
+            isUserIdCaseSensitive: false,
         },
     });
 
