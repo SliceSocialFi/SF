@@ -90,11 +90,11 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 			if (accessToken) {
 				// Clear all localStorage except dnpayAccessToken
-				// Object.keys(localStorage).forEach((key) => {
-				// 	if (key !== "dnpayAccessToken") {
-				// 		localStorage.removeItem(key);
-				// 	}
-				// });
+				Object.keys(localStorage).forEach((key) => {
+					if (key !== "dnpayAccessToken") {
+						localStorage.removeItem(key);
+					}
+				});
 				onSuccess?.({ dnpayAccessToken: accessToken });
 				cleanup();
 			}
@@ -225,17 +225,3 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		cleanup
 	};
 };
-
-// if (typeof window !== "undefined") {
-// 	localStorage.removeItem("dnpayAccessToken");
-// 	// Clear all localStorage except dnpayAccessToken
-// 	const theme = localStorage.getItem("sf_theme_palette");
-// 	Object.keys(localStorage).forEach((key) => {
-// 		if (key !== "dnpayAccessToken" && key !== "sf_theme_palette") {
-// 			 localStorage.removeItem(key);
-// 		}
-// 	});
-// 	if (theme !== null) {
-// 		localStorage.setItem("sf_theme_palette", theme);
-// 	}
-// }
