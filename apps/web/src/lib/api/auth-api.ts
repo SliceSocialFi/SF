@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createWalletClient, custom } from "viem";
-import { web3auth } from "@/config/web3auth";
+import { web3authSfa, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth-sfa";
 import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
@@ -43,35 +43,38 @@ const mintWeb3AuthToken = async (onboardingToken: string) => {
 }
 
 const connectWeb3Auth = async (web3AuthToken: string) => {
-    const web3authInstance = web3auth as any;
+    const sfaInstance = web3authSfa as any;
 
-    console.log("Web3Auth Instance Status:", web3authInstance.status);
-    if (web3authInstance.status === "not_ready") {
-        await web3authInstance.init();
+    console.log("Web3Auth SFA Instance Status:", sfaInstance.status);
+    
+    // Khởi tạo SFA nếu chưa sẵn sàng
+    if (sfaInstance.status === "not_ready") {
+        await sfaInstance.init();
+        console.log("Web3Auth SFA Initialized");
     }
     
-    console.log("Web3Auth Instance After Init:", web3authInstance.status);
-    if (web3authInstance.connected) {
-        await web3authInstance.logout();
+    console.log("Web3Auth SFA Status After Init:", sfaInstance.status);
+    
+    // Disconnect nếu đã connected
+    if (sfaInstance.status === "connected") {
+        await sfaInstance.logout();
     }
 
-    // Web3Auth NoModal v9.x API - SFA (Single Factor Auth) với JWT token
-    // Sử dụng idToken trực tiếp để tránh popup loading "Constructing your key"
-    // Flow SFA chạy ngầm hoàn toàn mà không cần mở popup
-    const provider = await web3authInstance.connectTo("auth", {
-        authConnection: "custom",
-        authConnectionId: "slice-backend-verifier",
+    // Web3Auth SFA - Silent/Background key construction
+    // Không hiển thị popup "Constructing your key"
+    // Chỉ cần JWT token và verifier info
+    const provider = await sfaInstance.connect({
+        verifier: WEB3AUTH_CONNECTION_NAME, // "slice-backend-verifier"
+        verifierId: extractSubFromJwt(web3AuthToken), // sub claim từ JWT
         idToken: web3AuthToken,
-        extraLoginOptions: {
-            verifierIdField: "sub",
-            isUserIdCaseSensitive: false,
-        },
     });
 
     if (!provider) {
-        console.log("Web3Auth provider not found");
-        throw new Error("Web3Auth provider not found");
+        console.log("Web3Auth SFA provider not found");
+        throw new Error("Web3Auth SFA provider not found");
     }
+
+    console.log("Web3Auth SFA Connected Successfully");
 
     // Dùng Viem để lấy địa chỉ ví
     const walletClient = createWalletClient({
@@ -80,9 +83,24 @@ const connectWeb3Auth = async (web3AuthToken: string) => {
     });
 
     const [address] = await walletClient.getAddresses();
-    console.log("Web3Auth Connected Address:", address);
+    console.log("Web3Auth SFA Connected Address:", address);
 
     return { address, provider };
+}
+
+/**
+ * Extract 'sub' claim from JWT token
+ * JWT format: header.payload.signature (base64 encoded)
+ */
+const extractSubFromJwt = (token: string): string => {
+    try {
+        const payload = token.split('.')[1];
+        const decoded = JSON.parse(atob(payload));
+        return decoded.sub || decoded.email || decoded.user_id;
+    } catch (error) {
+        console.error("Failed to extract sub from JWT:", error);
+        throw new Error("Invalid JWT token format");
+    }
 }
 
 const registerEmbeddedWallet = async (onboardingToken: string, newWalletAddress: string) => {
