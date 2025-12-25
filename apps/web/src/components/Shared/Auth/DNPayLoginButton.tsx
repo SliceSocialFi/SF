@@ -302,6 +302,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		// setOnboardingSpinner(false);
 	};
 
+	console.log("DNPayLoginButton render - isLoading:", isLoading, "isSuccess:", isSuccess);
+
 	if (isLoading) {
 		console.log("DNPAY login in progress...");
 		const dnpayAccessToken = localStorage.getItem("dnpayAccessToken");
