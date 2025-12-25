@@ -88,6 +88,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			}
 
 			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
+			console.log("📩 Received message from DNPAY popup:", data);
+			console.log("🔐 Current DNPAY access token:", accessToken);
 			if (accessToken) {
 				// Clear all localStorage except dnpayAccessToken
 				Object.keys(localStorage).forEach((key) => {
