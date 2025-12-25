@@ -90,11 +90,11 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 			if (accessToken) {
 				// Clear all localStorage except dnpayAccessToken
-				Object.keys(localStorage).forEach((key) => {
-					if (key !== "dnpayAccessToken") {
-						localStorage.removeItem(key);
-					}
-				});
+				// Object.keys(localStorage).forEach((key) => {
+				// 	if (key !== "dnpayAccessToken") {
+				// 		localStorage.removeItem(key);
+				// 	}
+				// });
 				onSuccess?.({ dnpayAccessToken: accessToken });
 				cleanup();
 			}
