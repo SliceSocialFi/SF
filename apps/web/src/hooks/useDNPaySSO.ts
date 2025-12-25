@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { DNPAY_AUTH_URL, DNPAY_CLIENT_ID } from "@slice/data/constants";
 import { toast } from "sonner";
 import { walletService } from "@/lib/api/auth-api";
-import { set } from "zod";
 
 export const AuthProvider = {
 	WALLET: 'WALLET',
@@ -105,12 +104,18 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 		[onSuccess, onError, cleanup]
 	);
 
-	// Check popup status
+	// Check popup status and trigger verification when popup closes
 	const checkPopupClosed = useCallback(() => {
 		if (popupRef.current?.closed) {
+			// Popup đã đóng, kiểm tra token trong localStorage
+			const accessToken = localStorage.getItem("dnpayAccessToken");
+			if (accessToken) {
+				console.log("🔐 Popup closed, token found in localStorage, triggering onSuccess");
+				onSuccess?.({ dnpayAccessToken: accessToken });
+			}
 			cleanup();
 		}
-	}, [cleanup]);
+	}, [cleanup, onSuccess]);
 
 	// Open DNPAY SSO popup
 	const openDNPayLogin = useCallback(() => {
@@ -219,6 +224,22 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			window.removeEventListener("message", handleMessage);
 		};
 	}, [handleMessage]);
+
+	// Listen for storage changes (when token is saved from popup or other tabs)
+	useEffect(() => {
+		const handleStorageChange = (event: StorageEvent) => {
+			if (event.key === "dnpayAccessToken" && event.newValue) {
+				console.log("🔐 Storage event: dnpayAccessToken changed, triggering onSuccess");
+				onSuccess?.({ dnpayAccessToken: event.newValue });
+				cleanup();
+			}
+		};
+
+		window.addEventListener("storage", handleStorageChange);
+		return () => {
+			window.removeEventListener("storage", handleStorageChange);
+		};
+	}, [onSuccess, cleanup]);
 
 	return {
 		openDNPayLogin,
