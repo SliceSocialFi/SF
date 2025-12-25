@@ -256,11 +256,9 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				}
 			} else {
 				console.log("Failed to create embedded wallet:", result);
-				toast.error("Failed to create embedded wallet");
 			}
 		} catch (error) {
 			console.error("Error creating embedded wallet:", error);
-			toast.error("Failed to create embedded wallet");
 		}
 	};
 
@@ -313,27 +311,37 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 
 	       return (
 		       <>
-			       {/* Global spinner overlay */}
-			       {isLoading && (
-				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-					       <Spinner size="md" />
-				       </div>
-			       )}
+				       {/* Global spinner overlay */}
+					       {isLoading && (
+						       <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/60">
+							       <Spinner size="md" />
+								       <div className="mt-4 text-white text-base font-medium drop-shadow-lg select-none">
+									       {showOnboardingModal
+										       ? "Waiting for DNPAY verification..."
+										       : isLoading
+											       ? "Waiting for DNPAY authorization..."
+											       : "Waiting for DNPAY verification..."}
+								       </div>
+						       </div>
+					       )}
 
 			       {/* Modal xác nhận có ví */}
-				<DNPayOnboardingModal
-					open={showOnboardingModal}
-					onClose={() => setShowOnboardingModal(false)}
-					onHasWallet={async () => {
-						setShowOnboardingModal(false);
-						if (onboardingData) {
-							await handleConnectWallet(onboardingData.onboardingToken);
-						}
-					}}
-					onCreateWallet={handleCreateEmbeddedWallet}
-					isCreatingWallet={isCreatingWallet}
-					onAfterOpen={() => setIsLoading(false)}
-				/>
+				       <DNPayOnboardingModal
+					       open={showOnboardingModal}
+					       onClose={() => {
+						       setShowOnboardingModal(false);
+						       setIsLoading(false);
+					       }}
+					       onHasWallet={async () => {
+						       setShowOnboardingModal(false);
+						       setIsLoading(false);
+						       if (onboardingData) {
+							       await handleConnectWallet(onboardingData.onboardingToken);
+						       }
+					       }}
+					       onCreateWallet={handleCreateEmbeddedWallet}
+					       isCreatingWallet={isCreatingWallet}
+				       />
 
 			       {showAccountModal && lensAccounts.length > 1 && (
 				       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAccountModal(false)}>
