@@ -72,13 +72,9 @@ const DNPayOnboardingModal: React.FC<DNPayOnboardingModalProps> = ({
               <p className="text-gray-500 text-sm dark:text-gray-400">Link your MetaMask wallet</p>
             </div>
             <div className="flex-shrink-0">
-              {isCreatingWallet ? (
-                <Spinner size="md" />
-              ) : (
-                <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
-                </svg>
-              )}
+              <svg className="size-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+              </svg>
             </div>
           </Card>
           {/* Option 2: Chưa có ví */}
