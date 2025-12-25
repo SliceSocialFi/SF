@@ -21,13 +21,21 @@ const privateKeyProvider = new EthereumPrivateKeyProvider({
 });
 
 // Auth Adapter với cấu hình JWT verifier - v9.x API
+// Cấu hình cho SFA (Single Factor Auth) flow - không cần popup loading
 const authAdapter = new AuthAdapter({
   adapterSettings: {
     uxMode: "popup",
-    // Cấu hình login cho custom JWT verifier
+    // Cấu hình login cho custom JWT verifier (SFA)
     loginConfig: {
-      jwt: {
+      // Custom JWT verifier cho SFA flow
+      custom: {
         verifier: WEB3AUTH_CONNECTION_NAME, // "slice-backend-verifier"
+        typeOfLogin: "jwt",
+        clientId: WEB3AUTH_CLIENT_ID,
+      },
+      // Giữ lại cấu hình jwt cũ cho backward compatibility
+      jwt: {
+        verifier: WEB3AUTH_CONNECTION_NAME,
         typeOfLogin: "jwt",
         clientId: WEB3AUTH_CLIENT_ID,
       },
