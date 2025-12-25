@@ -71,19 +71,10 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	// Handle OAuth callback message
 	const handleMessage = useCallback(
 		(event: MessageEvent) => {
-			console.log("🔔 Received message event:", event);
-			console.log("🔔 Event origin:", event.origin);
-			console.log("🔔 Window origin:", window.location.origin);
-			console.log("🔔 Event data:", event.data);
-			
-			// Verify origin - accept from same origin or DNPAY miniapp
-			const allowedOrigins = [
-				window.location.origin,
-				"https://dev-slice-dnpay-miniapp.vercel.app"
-			];
-			
-			if (!allowedOrigins.includes(event.origin)) {
-				console.log("❌ Message from different origin, ignoring:", event.origin);
+			console.log("Received message event:", event);
+			// Verify origin
+			if (event.origin !== window.location.origin) {
+				console.log("Message from different origin, ignoring:", event.origin);
 				return;
 			}
 
@@ -97,32 +88,18 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 				return;
 			}
 
-			// Lấy accessToken từ event.data hoặc localStorage
-			let accessToken = data.access_token || localStorage.getItem("dnpayAccessToken") || undefined;
-			
+			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
 			console.log("📩 Received message from DNPAY popup:", data);
-			console.log("🔐 Access token from message:", data.access_token);
-			console.log("🔐 Access token from localStorage:", localStorage.getItem("dnpayAccessToken"));
-			
+			console.log("🔐 Current DNPAY access token:", accessToken);
 			if (accessToken) {
-				// Save to localStorage if from message
-				if (data.access_token) {
-					console.log("💾 Saving access token to localStorage");
-					localStorage.setItem("dnpayAccessToken", data.access_token);
-				}
-				
 				// Clear all localStorage except dnpayAccessToken
 				Object.keys(localStorage).forEach((key) => {
 					if (key !== "dnpayAccessToken") {
 						localStorage.removeItem(key);
 					}
 				});
-				
-				console.log("✅ Calling onSuccess with token:", accessToken);
 				onSuccess?.({ dnpayAccessToken: accessToken });
 				cleanup();
-			} else {
-				console.log("⚠️ No access token found in message or localStorage");
 			}
 		},
 		[onSuccess, onError, cleanup]
