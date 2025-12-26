@@ -72,8 +72,6 @@ export const useWeb3AuthOnboarding = () => {
             console.error("Embedded Wallet Onboarding Error:", error);
             toast.error(error.message || "Failed to create embedded wallet");
             return { success: false };
-        } finally {
-            setIsLoading(false);
         }
     };
 

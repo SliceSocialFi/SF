@@ -49,8 +49,6 @@ export const useEmbeddedWalletLogin = () => {
         } catch (error: any) {
             console.error("Embedded Wallet Login Error:", error);
             toast.error(error.message || "Failed to login with embedded wallet");
-        } finally {
-            setIsLoading(false);
         }
     };
 

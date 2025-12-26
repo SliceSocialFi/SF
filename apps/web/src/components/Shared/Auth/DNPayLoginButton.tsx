@@ -333,7 +333,6 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 					       }}
 					       onHasWallet={async () => {
 						       setShowOnboardingModal(false);
-						       setIsLoading(false);
 						       if (onboardingData) {
 							       await handleConnectWallet(onboardingData.onboardingToken);
 						       }
