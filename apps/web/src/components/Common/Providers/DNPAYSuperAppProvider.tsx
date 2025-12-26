@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { SUPER_APP_ORIGIN } from '@slice/data/constants';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { SUPER_APP_ORIGIN, DNPAY_EVENT_TYPE } from '@slice/data/constants';
 import { OrderData, PaymentData } from "@/types/payment-api";
 
 type CurrentOrderData = {
@@ -38,7 +38,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
         return;
       }
 
-      if (event.data?.type === 'START_EVENT') {
+      if (event.data?.type === DNPAY_EVENT_TYPE) {
         const { app_session_id, token: newToken } = event.data.data;
         console.log('Received API Key from Super App:', { app_session_id, token: newToken });
         setAppSessionId(app_session_id);
@@ -57,7 +57,7 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
     }
 
     iframe.contentWindow.postMessage(
-      { type: 'START_EVENT' },
+      { type: DNPAY_EVENT_TYPE },
       SUPER_APP_ORIGIN
     );
 

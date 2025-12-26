@@ -107,6 +107,7 @@ export const ERC20_TOKEN_ADDRESS =
     : TESTNET_CONTRACTS.defaultToken;
 
 export const SUPER_APP_ORIGIN = 'https://mvp.dnpay.ai';
+export const DNPAY_EVENT_TYPE = 'START_EVENT';
 
 export const WEB3AUTH_CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID || "YOUR_WEB3AUTH_CLIENT_ID";
 export const WEB3AUTH_CONNECTION_NAME = "slice-backend-verifier";
