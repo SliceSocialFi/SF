@@ -40,8 +40,6 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
     const [isProcessing, setIsProcessing] = useState(false);
     const [authData, setAuthData] = useState<AuthLoginData | null>(null);
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
-    const [embeddedProvider, setEmbeddedProvider] = useState<any>(null);
-    const [authProviderType, setAuthProviderType] = useState<string | null>(null);
     const processedRef = useRef(false);
 
     const { connectAsync, connectors } = useConnect();
@@ -89,18 +87,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
             }
 
             let signature: string;
-
-            console.log("🔍 Authentication details:", {
-                providerType,
-                hasProvider: !!provider,
-                expectedType: AuthProvider.DNPAY_EMBEDDED
-            });
-
-            // Nếu là embedded wallet, sử dụng provider đã có từ Web3Auth
             if (providerType === AuthProvider.DNPAY_EMBEDDED && provider) {
-                console.log("🔑 Signing with embedded wallet provider...");
-                
-                // Sử dụng Web3Auth provider để sign
                 const accounts = await provider.request({ 
                     method: "eth_accounts" 
                 });
@@ -113,12 +100,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     method: "personal_sign",
                     params: [challenge.data.challenge.text, accounts[0]]
                 });
-                
-                console.log("✅ Signed with embedded wallet");
-            } else {
-                // Linked wallet: Connect với injected connector (MetaMask)
-                console.log("🔑 Signing with linked wallet (MetaMask)...");
-                
+            } else {                
                 const injectedConnector = connectors.find(c => c.id === "injected");
                 if (!injectedConnector) {
                     throw new Error("Injected connector not found. Please install MetaMask.");
@@ -126,19 +108,14 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
 
                 const connectResult = await connectAsync({ connector: injectedConnector });
                 const connectedAddress = connectResult.accounts[0];
-
-                // Verify wallet match
                 if (connectedAddress.toLowerCase() !== walletAddress.toLowerCase()) {
                     disconnect();
                     throw new Error("Connected wallet does not match DNPAY wallet");
                 }
 
-                // Sign challenge
                 signature = await signMessageAsync({
                     message: challenge.data.challenge.text
                 });
-                
-                console.log("✅ Signed with linked wallet");
             }
 
             // Authenticate
@@ -169,40 +146,21 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
             const walletAddr = data.user.id;
             const authProvider = data.user.authProvider;
 
-            console.log("✅ DNPAY SuperApp Login Success:", { walletAddress: walletAddr, authProvider });
-
-            // Set wallet address và auth provider type
+            console.log("DNPAY SuperApp Login Success:", { walletAddress: walletAddr, authProvider });
             setWalletAddress(walletAddr);
-            setAuthProviderType(authProvider);
 
-            // Nếu là embedded wallet, tự động connect Web3Auth
             if (authProvider === AuthProvider.DNPAY_EMBEDDED && data.web3AuthToken) {
                 try {
                     const { address, provider } = await walletService.connectWeb3Auth(data.web3AuthToken);
-                    console.log("✅ Web3Auth Connected (SuperApp):", address);
-                    
-                    // ⚠️ QUAN TRỌNG: Sử dụng address từ Web3Auth, không phải từ backend
-                    // Backend có thể trả về address khác (ví dụ: address ban đầu khi đăng ký)
-                    // Nhưng Web3Auth provider sẽ tạo ra address mới từ private key
+                    console.log("Web3Auth Connected (SuperApp):", address);
+
                     const actualWalletAddress = address;
-                    
-                    console.log("🔍 Address comparison:", {
-                        backendAddress: walletAddr,
-                        web3AuthAddress: actualWalletAddress,
-                        matches: walletAddr.toLowerCase() === actualWalletAddress.toLowerCase()
-                    });
-                    
-                    // Update wallet address nếu khác
                     if (walletAddr.toLowerCase() !== actualWalletAddress.toLowerCase()) {
-                        console.warn("⚠️ Address mismatch! Using Web3Auth address:", actualWalletAddress);
+                        console.warn("Address mismatch! Using Web3Auth address:", actualWalletAddress);
                         setWalletAddress(actualWalletAddress);
                     }
                     
-                    // Lưu provider để sử dụng cho signing
-                    setEmbeddedProvider(provider);
                     setEmbeddedWallet(actualWalletAddress, provider);
-
-                    // Fetch Lens accounts với Web3Auth address (dùng lazy query)
                     const accountsResult = await fetchAccountsLazy({
                         variables: {
                             accountsAvailableRequest: {
@@ -212,14 +170,9 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                             lastLoggedInAccountRequest: { address: actualWalletAddress }
                         }
                     });
-                    const accounts = accountsResult.data?.accountsAvailable?.items || [];
 
+                    const accounts = accountsResult.data?.accountsAvailable?.items || [];
                     if (accounts.length === 0) {
-                        console.log("⚠️ No Lens account found. Opening signup to create profile...");
-                        
-                        // LOGIN_SUCCESS means wallet already exists (Web3Auth connected above)
-                        // User just needs to create Lens profile, NOT create a new wallet
-                        // Signal to handler: don't auto-create wallet, just open signup
                         toast.info("Welcome! Please create your Lens profile.");
                         onOnboardingRequired?.({
                             onboardingToken: "", // No token needed - not creating wallet
@@ -229,8 +182,6 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                         return;
                     }
 
-                    // Auto-select first account và authenticate
-                    // DÙNG actualWalletAddress từ Web3Auth, không dùng walletAddr từ backend
                     const firstAccount = accounts[0];
                     const accountAddress = firstAccount.account.address;
                     await authenticateWithLens(accountAddress, actualWalletAddress, provider, authProvider);
@@ -249,7 +200,6 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     setAuthData(successData);
                     onSuccess?.(successData);
                     
-                    // Redirect to home after successful login
                     toast.success("Login successful! Redirecting...");
                     setTimeout(() => {
                         window.location.href = "/";
@@ -295,7 +245,6 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     setAuthData(successData);
                     onSuccess?.(successData);
                     
-                    // Redirect to home after successful login
                     toast.success("Login successful! Redirecting...");
                     setTimeout(() => {
                         window.location.href = "/";
@@ -307,16 +256,13 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                 }
             }
         } else if (status === AuthStatus.ONBOARDING_REQUIRED) {
-            console.log("⚠️ DNPAY SuperApp Onboarding Required:", data);
-            
-            // Trong SuperApp, tự động tạo embedded wallet thay vì cho user chọn
             onOnboardingRequired?.({
                 onboardingToken: data.onboardingToken,
                 email: data.email,
                 shouldAutoCreate: true // Flag để biết là auto-create
             });
         } else {
-            console.warn("⚠️ DNPAY SuperApp Unknown Auth Status:", status);
+            console.warn("DNPAY SuperApp Unknown Auth Status:", status);
         }
     };
 
@@ -329,7 +275,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
         setIsProcessing(true);
 
         try {
-            console.log("🔐 Verifying DNPAY SuperApp Token...");
+            console.log("Verifying DNPAY SuperApp Token...");
             const data = await walletService.verifyDNPAYLogin(superAppToken);
             await handleVerifyResult(data);
         } catch (err: any) {
@@ -343,7 +289,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
 
     useEffect(() => {
         if (isReady && superAppToken && !currentAccount && !isProcessing && !processedRef.current) {
-            console.log("🚀 DNPAY SuperApp detected, starting auto-authentication...");
+            console.log("DNPAY SuperApp detected, starting auto-authentication...");
             verifySuperAppToken();
         }
     }, [isReady, superAppToken, currentAccount, isProcessing]);
