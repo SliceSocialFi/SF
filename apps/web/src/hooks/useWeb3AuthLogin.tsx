@@ -116,8 +116,6 @@ export const useWeb3AuthLogin = () => {
             console.error("Lens Login Error:", error);
             toast.error(error.message || "Đăng nhập thất bại");
             return null;
-        } finally {
-            setIsLoading(false);
         }
     };
 
