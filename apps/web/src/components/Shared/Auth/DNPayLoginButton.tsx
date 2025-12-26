@@ -59,6 +59,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		console.log("DNPAY SSO Success Data:", data);
 		if (data.status === AuthStatus.LOGIN_SUCCESS) {
 			localStorage.removeItem("dnpayAccessToken");
+			setIsLoading(false);
 		}
 
 		onSuccess?.(data);
@@ -131,14 +132,17 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 				}
 			} catch (err) {
 				console.error("Failed to authenticate with Lens:", err);
+				setIsLoading(false);
 			}
 		} else if (!data.status) {
+			// Chưa có status, cần verify token
 			if (!verifyCalledRef.current) {
 				verifyCalledRef.current = true;
 				verifyDNPayToken();
 			}
 		} else {
 			console.log("DNPAY login failed. Please try again.");
+			setIsLoading(false);
 		}
 	};
 
@@ -218,6 +222,7 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		onboardingHandledRef.current = true;
 		setOnboardingData(data);
 		setShowOnboardingModal(true);
+		// Don't set isLoading to false here since the onboarding modal will handle next steps
 	};
 
 	const handleCreateEmbeddedWallet = async () => {
@@ -302,11 +307,27 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 		// setOnboardingSpinner(false);
 	};
 
+	console.log("DNPayLoginButton render - isLoading:", isLoading, "isSuccess:", isSuccess);
+
+	// Use useEffect for verification instead of calling in render
+	useEffect(() => {
+		if (!isLoading) return;
+		
+		const dnpayAccessToken = localStorage.getItem("dnpayAccessToken");
+		console.log("DNPAY login in progress, checking token:", dnpayAccessToken);
+		
+		if (dnpayAccessToken && !verifyCalledRef.current) {
+			console.log("DNPAY access token found in localStorage, verifying...");
+			verifyCalledRef.current = true;
+			verifyDNPayToken();
+		}
+	}, [isLoading, verifyDNPayToken]);
+
 	useEffect(() => {
 		if (isSuccess) {
 			closeDNPayPopup();
 		}
-	}, [isSuccess]);
+	}, [isSuccess, closeDNPayPopup]);
 
 	       return (
 		       <>
