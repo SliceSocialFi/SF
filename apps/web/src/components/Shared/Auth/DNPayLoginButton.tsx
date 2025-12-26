@@ -369,8 +369,8 @@ const DNPayLoginButton = ({ onSuccess, className = "" }: DNPayLoginButtonProps) 
 							       <h2 className="text-xl font-bold">Login</h2>
 							       <button onClick={() => setShowAccountModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
 						       </div>
-						       <p className="text-sm mb-4">Please sign the message.</p>
-						       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Slice uses this signature to verify that you're the owner of this address.</p>
+						       <p className="text-sm mb-4">Please select Lens account to login.</p>
+						       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Slice has detected multiple Lens accounts associated with your wallet.</p>
                                                
 						       <div className="space-y-3 mb-4">
 							       {lensAccounts.map((account) => (
