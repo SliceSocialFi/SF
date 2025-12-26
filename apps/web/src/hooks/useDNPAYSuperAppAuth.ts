@@ -13,7 +13,8 @@ import {
     useAuthenticateMutation,
     useChallengeMutation,
     type ChallengeRequest,
-    ManagedAccountsVisibility
+    ManagedAccountsVisibility,
+    useAccountsAvailableLazyQuery
 } from "@slice/indexer";
 import { IS_MAINNET, SLICE_APP } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
@@ -60,6 +61,11 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
             },
             lastLoggedInAccountRequest: { address: walletAddress || "" }
         }
+    });
+
+    // Lazy query để fetch accounts với address cụ thể
+    const [fetchAccountsLazy] = useAccountsAvailableLazyQuery({
+        fetchPolicy: "network-only"
     });
 
     const { onSuccess, onError, onOnboardingRequired } = options;
@@ -175,12 +181,37 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     const { address, provider } = await walletService.connectWeb3Auth(data.web3AuthToken);
                     console.log("✅ Web3Auth Connected (SuperApp):", address);
                     
+                    // ⚠️ QUAN TRỌNG: Sử dụng address từ Web3Auth, không phải từ backend
+                    // Backend có thể trả về address khác (ví dụ: address ban đầu khi đăng ký)
+                    // Nhưng Web3Auth provider sẽ tạo ra address mới từ private key
+                    const actualWalletAddress = address;
+                    
+                    console.log("🔍 Address comparison:", {
+                        backendAddress: walletAddr,
+                        web3AuthAddress: actualWalletAddress,
+                        matches: walletAddr.toLowerCase() === actualWalletAddress.toLowerCase()
+                    });
+                    
+                    // Update wallet address nếu khác
+                    if (walletAddr.toLowerCase() !== actualWalletAddress.toLowerCase()) {
+                        console.warn("⚠️ Address mismatch! Using Web3Auth address:", actualWalletAddress);
+                        setWalletAddress(actualWalletAddress);
+                    }
+                    
                     // Lưu provider để sử dụng cho signing
                     setEmbeddedProvider(provider);
-                    setEmbeddedWallet(address, provider);
+                    setEmbeddedWallet(actualWalletAddress, provider);
 
-                    // Fetch Lens accounts với wallet address
-                    const accountsResult = await refetchAccounts();
+                    // Fetch Lens accounts với Web3Auth address (dùng lazy query)
+                    const accountsResult = await fetchAccountsLazy({
+                        variables: {
+                            accountsAvailableRequest: {
+                                hiddenFilter: ManagedAccountsVisibility.NoneHidden,
+                                managedBy: actualWalletAddress
+                            },
+                            lastLoggedInAccountRequest: { address: actualWalletAddress }
+                        }
+                    });
                     const accounts = accountsResult.data?.accountsAvailable?.items || [];
 
                     if (accounts.length === 0) {
@@ -194,17 +225,17 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     }
 
                     // Auto-select first account và authenticate
-                    // TRUYỀN PROVIDER TRỰC TIẾP thay vì dùng state
+                    // DÙNG actualWalletAddress từ Web3Auth, không dùng walletAddr từ backend
                     const firstAccount = accounts[0];
                     const accountAddress = firstAccount.account.address;
-                    await authenticateWithLens(accountAddress, walletAddr, provider, authProvider);
+                    await authenticateWithLens(accountAddress, actualWalletAddress, provider, authProvider);
 
                     const successData: AuthLoginData = {
                         status: AuthStatus.LOGIN_SUCCESS,
                         user: {
                             id: data.user.id,
                             email: data.user.email,
-                            walletAddress: walletAddr,
+                            walletAddress: actualWalletAddress, // Use Web3Auth address
                             authProvider
                         },
                         web3AuthToken: data.web3AuthToken
