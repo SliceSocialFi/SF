@@ -12,7 +12,8 @@ import {
     useAccountsAvailableQuery,
     useAuthenticateMutation,
     useChallengeMutation,
-    type ChallengeRequest
+    type ChallengeRequest,
+    ManagedAccountsVisibility
 } from "@slice/indexer";
 import { IS_MAINNET, SLICE_APP } from "@slice/data/constants";
 import { ERRORS } from "@slice/data/errors";
@@ -37,6 +38,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
     const { currentAccount } = useAccountStore();
     const [isProcessing, setIsProcessing] = useState(false);
     const [authData, setAuthData] = useState<AuthLoginData | null>(null);
+    const [walletAddress, setWalletAddress] = useState<string | null>(null);
     const processedRef = useRef(false);
 
     const { connectAsync, connectors } = useConnect();
@@ -47,8 +49,15 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
     const { setEmbeddedWallet } = useSignupStore();
 
     const { refetch: refetchAccounts } = useAccountsAvailableQuery({
-        skip: true,
-        fetchPolicy: "network-only"
+        skip: !walletAddress,
+        fetchPolicy: "network-only",
+        variables: {
+            accountsAvailableRequest: {
+                hiddenFilter: ManagedAccountsVisibility.NoneHidden,
+                managedBy: walletAddress || ""
+            },
+            lastLoggedInAccountRequest: { address: walletAddress || "" }
+        }
     });
 
     const { onSuccess, onError, onOnboardingRequired } = options;
@@ -111,69 +120,72 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
         const status = data.status;
 
         if (status === AuthStatus.LOGIN_SUCCESS) {
-        const walletAddress = data.user.id;
-        const authProvider = data.user.authProvider;
+            const walletAddr = data.user.id;
+            const authProvider = data.user.authProvider;
 
-        console.log("✅ DNPAY SuperApp Login Success:", { walletAddress, authProvider });
+            console.log("✅ DNPAY SuperApp Login Success:", { walletAddress: walletAddr, authProvider });
 
-        // Nếu là embedded wallet, tự động connect Web3Auth
-        if (authProvider === AuthProvider.DNPAY_EMBEDDED && data.web3AuthToken) {
+            // Set wallet address để trigger query
+            setWalletAddress(walletAddr);
+
+            // Nếu là embedded wallet, tự động connect Web3Auth
+            if (authProvider === AuthProvider.DNPAY_EMBEDDED && data.web3AuthToken) {
+                try {
+                    const { address, provider } = await walletService.connectWeb3Auth(data.web3AuthToken);
+                    console.log("✅ Web3Auth Connected (SuperApp):", address);
+                    setEmbeddedWallet(address, provider);
+                } catch (err) {
+                    console.error("Web3Auth connection error:", err);
+                    toast.error("Failed to connect embedded wallet");
+                    onError?.("Failed to connect embedded wallet");
+                    return;
+                }
+            }
+
+            // Fetch Lens accounts với wallet address
             try {
-                const { address, provider } = await walletService.connectWeb3Auth(data.web3AuthToken);
-                console.log("✅ Web3Auth Connected (SuperApp):", address);
-                setEmbeddedWallet(address, provider);
-            } catch (err) {
-                console.error("Web3Auth connection error:", err);
-                toast.error("Failed to connect embedded wallet");
-                onError?.("Failed to connect embedded wallet");
-                return;
+                const accountsResult = await refetchAccounts();
+                const accounts = accountsResult.data?.accountsAvailable?.items || [];
+
+                if (accounts.length === 0) {
+                    toast.info("No Lens account found. Please create one.");
+                    onOnboardingRequired?.({
+                        onboardingToken: data.onboardingToken || "",
+                        email: data.user.email || "",
+                        shouldAutoCreate: true
+                    });
+                    return;
+                }
+
+                // Auto-select first account và authenticate
+                const firstAccount = accounts[0];
+                const accountAddress = firstAccount.account.address;
+                await authenticateWithLens(accountAddress, walletAddr);
+
+                const successData: AuthLoginData = {
+                    status: AuthStatus.LOGIN_SUCCESS,
+                    user: {
+                        id: data.user.id,
+                        email: data.user.email,
+                        walletAddress: walletAddr,
+                        authProvider
+                    },
+                    web3AuthToken: data.web3AuthToken
+                };
+
+                setAuthData(successData);
+                onSuccess?.(successData);
+                
+                // Redirect to home after successful login
+                toast.success("Login successful! Redirecting...");
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 1000);
+            } catch (err: any) {
+                console.error("Lens authentication error:", err);
+                toast.error("Failed to authenticate with Lens Protocol");
+                onError?.(err.message || "Lens authentication failed");
             }
-        }
-
-        // Fetch Lens accounts
-        try {
-            const accountsResult = await refetchAccounts();
-            const accounts = accountsResult.data?.accountsAvailable?.items || [];
-
-            if (accounts.length === 0) {
-                toast.info("No Lens account found. Please create one.");
-                onOnboardingRequired?.({
-                    onboardingToken: data.onboardingToken || "",
-                    email: data.user.email || "",
-                    shouldAutoCreate: true
-                });
-                return;
-            }
-
-            // Auto-select first account và authenticate
-            const firstAccount = accounts[0];
-            const accountAddress = firstAccount.account.address;
-            await authenticateWithLens(accountAddress, walletAddress);
-
-            const successData: AuthLoginData = {
-                status: AuthStatus.LOGIN_SUCCESS,
-                user: {
-                    id: data.user.id,
-                    email: data.user.email,
-                    walletAddress,
-                    authProvider
-                },
-                web3AuthToken: data.web3AuthToken
-            };
-
-            setAuthData(successData);
-            onSuccess?.(successData);
-            
-            // Redirect to home after successful login
-            toast.success("Login successful! Redirecting...");
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1000);
-        } catch (err: any) {
-            console.error("Lens authentication error:", err);
-            toast.error("Failed to authenticate with Lens Protocol");
-            onError?.(err.message || "Lens authentication failed");
-        }
         } else if (status === AuthStatus.ONBOARDING_REQUIRED) {
             console.log("⚠️ DNPAY SuperApp Onboarding Required:", data);
             
