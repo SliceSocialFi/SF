@@ -39,6 +39,8 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
     const [isProcessing, setIsProcessing] = useState(false);
     const [authData, setAuthData] = useState<AuthLoginData | null>(null);
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
+    const [embeddedProvider, setEmbeddedProvider] = useState<any>(null);
+    const [authProviderType, setAuthProviderType] = useState<string | null>(null);
     const processedRef = useRef(false);
 
     const { connectAsync, connectors } = useConnect();
@@ -75,25 +77,52 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                 throw new Error("Failed to get challenge from Lens Protocol");
             }
 
-            // Connect wallet để sign message
-            const injectedConnector = connectors.find(c => c.id === "injected");
-            if (!injectedConnector) {
-                throw new Error("Injected connector not found");
+            let signature: string;
+
+            // Nếu là embedded wallet, sử dụng provider đã có từ Web3Auth
+            if (authProviderType === AuthProvider.DNPAY_EMBEDDED && embeddedProvider) {
+                console.log("🔑 Signing with embedded wallet provider...");
+                
+                // Sử dụng Web3Auth provider để sign
+                const accounts = await embeddedProvider.request({ 
+                    method: "eth_accounts" 
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    throw new Error("No accounts found in embedded wallet");
+                }
+
+                signature = await embeddedProvider.request({
+                    method: "personal_sign",
+                    params: [challenge.data.challenge.text, accounts[0]]
+                });
+                
+                console.log("✅ Signed with embedded wallet");
+            } else {
+                // Linked wallet: Connect với injected connector (MetaMask)
+                console.log("🔑 Signing with linked wallet (MetaMask)...");
+                
+                const injectedConnector = connectors.find(c => c.id === "injected");
+                if (!injectedConnector) {
+                    throw new Error("Injected connector not found. Please install MetaMask.");
+                }
+
+                const connectResult = await connectAsync({ connector: injectedConnector });
+                const connectedAddress = connectResult.accounts[0];
+
+                // Verify wallet match
+                if (connectedAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+                    disconnect();
+                    throw new Error("Connected wallet does not match DNPAY wallet");
+                }
+
+                // Sign challenge
+                signature = await signMessageAsync({
+                    message: challenge.data.challenge.text
+                });
+                
+                console.log("✅ Signed with linked wallet");
             }
-
-            const connectResult = await connectAsync({ connector: injectedConnector });
-            const connectedAddress = connectResult.accounts[0];
-
-            // Verify wallet match
-            if (connectedAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-                disconnect();
-                throw new Error("Connected wallet does not match DNPAY wallet");
-            }
-
-            // Sign challenge
-            const signature = await signMessageAsync({
-                message: challenge.data.challenge.text
-            });
 
             // Authenticate
             const authResult = await authenticate({
@@ -125,14 +154,18 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
 
             console.log("✅ DNPAY SuperApp Login Success:", { walletAddress: walletAddr, authProvider });
 
-            // Set wallet address để trigger query
+            // Set wallet address và auth provider type
             setWalletAddress(walletAddr);
+            setAuthProviderType(authProvider);
 
             // Nếu là embedded wallet, tự động connect Web3Auth
             if (authProvider === AuthProvider.DNPAY_EMBEDDED && data.web3AuthToken) {
                 try {
                     const { address, provider } = await walletService.connectWeb3Auth(data.web3AuthToken);
                     console.log("✅ Web3Auth Connected (SuperApp):", address);
+                    
+                    // Lưu provider để sử dụng cho signing
+                    setEmbeddedProvider(provider);
                     setEmbeddedWallet(address, provider);
                 } catch (err) {
                     console.error("Web3Auth connection error:", err);
