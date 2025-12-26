@@ -20,7 +20,7 @@ const linkWalletToDNPAY = async (onboardingToken: string, existingWalletAddress:
         `${API_BASE_URL}api/auth/dnpay/link-wallet`,
         {
             onboardingToken,
-            existingWalletAddress
+            walletAddress: existingWalletAddress
         },
     );
     
