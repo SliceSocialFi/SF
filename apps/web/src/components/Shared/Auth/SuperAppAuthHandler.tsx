@@ -50,9 +50,6 @@ const SuperAppAuthHandler = () => {
         onOnboardingRequired: handleOnboardingRequired
     });
 
-    /**
-     * Tự động tạo embedded wallet cho user mới trong SuperApp
-     */
     const handleAutoCreateWallet = async (data: {
         onboardingToken: string;
         email: string;
@@ -101,7 +98,7 @@ const SuperAppAuthHandler = () => {
     if (isProcessing || isCreating) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800">
+                <div className="rounded-lg bg-white p-8 shadow-xl dark:bg-[#121212]">
                     <div className="flex flex-col items-center space-y-4">
                         <Spinner className="h-8 w-8" />
                         <div className="text-center">
