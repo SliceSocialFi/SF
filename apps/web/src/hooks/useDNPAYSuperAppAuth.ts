@@ -215,11 +215,16 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     const accounts = accountsResult.data?.accountsAvailable?.items || [];
 
                     if (accounts.length === 0) {
-                        toast.info("No Lens account found. Please create one.");
+                        console.log("⚠️ No Lens account found. Opening signup to create profile...");
+                        
+                        // LOGIN_SUCCESS means wallet already exists (Web3Auth connected above)
+                        // User just needs to create Lens profile, NOT create a new wallet
+                        // Signal to handler: don't auto-create wallet, just open signup
+                        toast.info("Welcome! Please create your Lens profile.");
                         onOnboardingRequired?.({
-                            onboardingToken: data.onboardingToken || "",
+                            onboardingToken: "", // No token needed - not creating wallet
                             email: data.user.email || "",
-                            shouldAutoCreate: true
+                            shouldAutoCreate: false // Don't create wallet, just create Lens profile
                         });
                         return;
                     }
