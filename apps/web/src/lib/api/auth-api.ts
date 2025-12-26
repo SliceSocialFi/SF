@@ -17,7 +17,7 @@ const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
 
 const linkWalletToDNPAY = async (onboardingToken: string, existingWalletAddress: string) => {
     const res = await axios.post(
-        `${API_BASE_URL}api/auth/dnpay/link-embedded`,
+        `${API_BASE_URL}api/auth/dnpay/link-wallet`,
         {
             onboardingToken,
             existingWalletAddress

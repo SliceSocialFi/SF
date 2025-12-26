@@ -211,22 +211,28 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     return;
                 }
             } else {
-                // Linked wallet flow
+                // Linked wallet flow (MetaMask)
                 try {
+                    console.log("🔗 Linked wallet flow - checking Lens accounts...");
                     const accountsResult = await refetchAccounts();
                     const accounts = accountsResult.data?.accountsAvailable?.items || [];
 
                     if (accounts.length === 0) {
-                        toast.info("No Lens account found. Please create one.");
+                        console.log("No Lens account found for linked wallet");
+                        
+                        // User đã có MetaMask wallet, chỉ cần tạo Lens profile
+                        // shouldAutoCreate: false vì wallet đã tồn tại
+                        toast.info("No Lens account found. Please create your profile.");
                         onOnboardingRequired?.({
                             onboardingToken: data.onboardingToken || "",
                             email: data.user.email || "",
-                            shouldAutoCreate: true
+                            shouldAutoCreate: false
                         });
                         return;
                     }
 
                     // Auto-select first account và authenticate
+                    console.log("✅ Found Lens account, authenticating...");
                     const firstAccount = accounts[0];
                     const accountAddress = firstAccount.account.address;
                     await authenticateWithLens(accountAddress, walletAddr, null, authProvider);
@@ -256,10 +262,14 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                 }
             }
         } else if (status === AuthStatus.ONBOARDING_REQUIRED) {
+            console.log("DNPAY SuperApp Onboarding Required:", data);
+            
+            // User mới hoàn toàn, cần chọn phương thức tạo/liên kết ví
+            // shouldAutoCreate: true → Hiển thị modal để user chọn
             onOnboardingRequired?.({
                 onboardingToken: data.onboardingToken,
                 email: data.email,
-                shouldAutoCreate: true // Flag để biết là auto-create
+                shouldAutoCreate: true // Hiển thị modal cho user chọn phương thức
             });
         } else {
             console.warn("DNPAY SuperApp Unknown Auth Status:", status);
