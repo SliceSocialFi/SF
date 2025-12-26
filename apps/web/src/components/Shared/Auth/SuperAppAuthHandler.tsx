@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { useConnect } from "wagmi";
+import { useConnect, useDisconnect } from "wagmi";
 import { useDNPAYSuperAppAuth } from "@/hooks/useDNPAYSuperAppAuth";
 import { useWeb3AuthOnboarding } from "@/hooks/useWeb3AuthOnboarding";
 import { useSignupStore } from "./Signup";
@@ -23,6 +23,7 @@ const SuperAppAuthHandler = () => {
     const { setShowAuthModal } = useAuthModalStore();
     const { createEmbeddedWallet } = useWeb3AuthOnboarding();
     const { connectAsync, connectors } = useConnect();
+    const { disconnect } = useDisconnect();
 
     const handleSuccess = (data: AuthLoginData) => {
         console.log("SuperApp Auth Success:", data);
@@ -120,18 +121,32 @@ const SuperAppAuthHandler = () => {
                 throw new Error("MetaMask not found. Please install MetaMask extension.");
             }
 
+            // Kiểm tra nếu connector đã connected, disconnect trước
+            if (injectedConnector.status === "connected") {
+                console.log("Connector already connected, disconnecting first...");
+                await disconnect();
+                // Đợi một chút để đảm bảo disconnect hoàn tất
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             // Connect MetaMask
+            console.log("Connecting to MetaMask...");
             const result = await connectAsync({ connector: injectedConnector });
             const walletAddress = result.accounts[0];
             console.log("MetaMask connected:", walletAddress);
 
+            // Link wallet với DNPAY
+            console.log("Linking wallet to DNPAY...");
             await walletService.linkWalletToDNPAY(
                 onboardingData.onboardingToken,
                 walletAddress
             );
             
             toast.success("Wallet linked successfully!");
+            console.log("Wallet linked successfully");
 
+            // Mở signup modal để tạo Lens profile
+            toast.info("Please create your Lens profile to continue");
             setShowAuthModal(true, "signup");
             setScreen("choose");
         } catch (err: any) {
@@ -141,12 +156,20 @@ const SuperAppAuthHandler = () => {
                 toast.error("You rejected the connection request");
             } else if (err?.message?.includes("MetaMask not found")) {
                 toast.error("Please install MetaMask extension");
+            } else if (err?.message?.includes("Connector already connected")) {
+                // Nếu vẫn gặp lỗi connector đã connected, thử disconnect và retry
+                console.log("Still connected, force disconnect and retry...");
+                await disconnect();
+                toast.error("Connection conflict. Please try again.");
+                setShowOnboardingModal(true);
             } else {
                 toast.error(err.message || "Failed to connect wallet");
             }
             
-            // Hiển thị lại modal nếu có lỗi
-            setShowOnboardingModal(true);
+            // Hiển thị lại modal nếu có lỗi (trừ khi đã thành công một phần)
+            if (!err?.message?.includes("Wallet linked")) {
+                setShowOnboardingModal(true);
+            }
         } finally {
             setIsCreating(false);
         }
