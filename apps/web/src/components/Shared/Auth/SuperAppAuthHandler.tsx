@@ -38,8 +38,16 @@ const SuperAppAuthHandler = () => {
         console.log("⚠️ SuperApp Onboarding Required:", data);
         setOnboardingData(data);
 
-        // Trong SuperApp mode, tự động tạo embedded wallet
-        if (data.shouldAutoCreate) {
+        // If shouldAutoCreate = false → wallet already exists, just open signup
+        if (data.shouldAutoCreate === false) {
+            console.log("📝 Wallet exists. Opening signup modal to create Lens profile...");
+            setScreen("choose");
+            setShowAuthModal(true, "signup");
+            return;
+        }
+
+        // If shouldAutoCreate = true AND has token → create wallet then signup  
+        if (data.shouldAutoCreate && data.onboardingToken) {
             handleAutoCreateWallet(data);
         }
     };
