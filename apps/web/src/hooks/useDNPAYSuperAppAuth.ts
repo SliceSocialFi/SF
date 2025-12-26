@@ -256,10 +256,14 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                 }
             }
         } else if (status === AuthStatus.ONBOARDING_REQUIRED) {
+            console.log("DNPAY SuperApp Onboarding Required:", data);
+            
+            // User mới hoàn toàn, cần chọn phương thức tạo/liên kết ví
+            // shouldAutoCreate: true → Hiển thị modal để user chọn
             onOnboardingRequired?.({
                 onboardingToken: data.onboardingToken,
                 email: data.email,
-                shouldAutoCreate: true // Flag để biết là auto-create
+                shouldAutoCreate: true // Hiển thị modal cho user chọn phương thức
             });
         } else {
             console.warn("DNPAY SuperApp Unknown Auth Status:", status);
