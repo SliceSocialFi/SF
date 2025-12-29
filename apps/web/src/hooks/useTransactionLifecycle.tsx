@@ -30,61 +30,44 @@ const useTransactionLifecycle = () => {
 
   const reconnectEmbeddedWallet = async (): Promise<any> => {
     try {
-      // Verify SuperApp token để lấy web3AuthToken mới
       const web3AuthToken = await walletService.getWeb3AuthToken();
       const { address, provider } = await walletService.connectWeb3Auth(web3AuthToken);
-      
       if (!provider) {
         throw new Error("Failed to reconnect embedded wallet");
       }
 
-      console.log("✅ Embedded wallet reconnected:", address);
       setEmbeddedWallet(address, provider, web3AuthToken);
-      
       return provider;
     } catch (error: any) {
-      console.error("❌ Failed to reconnect embedded wallet:", error);
+      console.error("Failed to reconnect embedded wallet:", error);
       throw new Error("Failed to reconnect embedded wallet:" + error.message);
     }
   };
 
   // Tạo wallet client từ embedded provider hoặc dùng wagmi client
   const getWalletClient = async () => {
-    console.log("embeddedProvider:", embeddedProvider);
-    console.log("isEmbeddedWallet:", isEmbeddedWallet);
-    console.log("web3AuthToken:", web3AuthToken ? "Present" : "NULL");
-    console.log("currentAccount.owner:", currentAccount?.owner);
-
     if (isEmbeddedWallet) {
       let provider = embeddedProvider;
-      
-      // Nếu không có provider (sau khi reload page), thử reconnect
       if (!provider) {
-        console.log("⚠️ No provider in memory, attempting to reconnect...");
+        console.log("No provider in memory, attempting to reconnect...");
         provider = await reconnectEmbeddedWallet();
       }
       
       if (provider) {
-        console.log("🔑 Using embedded wallet provider for transaction");
+        console.log("Using embedded wallet provider for transaction");
         
         // Lấy accounts từ provider
         const accounts = await provider.request({ method: "eth_accounts" }) as string[];
         if (!accounts || accounts.length === 0) {
           throw new Error("No accounts found in embedded wallet");
         }
-
-        console.log("📍 Embedded wallet accounts:", accounts);
         
         const embeddedAddress = accounts[0] as `0x${string}`;
-        console.log("📍 Embedded wallet account:", embeddedAddress);
-        
-        // Kiểm tra xem embedded wallet có khớp với owner của Lens account không
         const lensOwner = currentAccount?.owner;
         if (lensOwner && embeddedAddress.toLowerCase() !== lensOwner.toLowerCase()) {
-          console.error("❌ Wallet mismatch!");
-          console.error("   Embedded wallet:", embeddedAddress);
-          console.error("   Lens account owner:", lensOwner);
-          throw new Error(`Wallet mismatch: Your embedded wallet (${embeddedAddress.slice(0, 8)}...) doesn't match the Lens account owner (${lensOwner.slice(0, 8)}...). Please login again.`);
+          throw new Error(
+            `Wallet mismatch: Your embedded wallet (${embeddedAddress.slice(0, 8)}...) doesn't match the Lens account owner (${lensOwner.slice(0, 8)}...). Please login again.`
+          );
         }
         
         return createWalletClient({
@@ -96,11 +79,10 @@ const useTransactionLifecycle = () => {
     }
     
     if (wagmiClient) {
-      console.log("🔑 Using wagmi wallet client for transaction");
       return wagmiClient;
     }
     
-    console.error("❌ No wallet client available");
+    console.error("No wallet client available");
     return null;
   };
 
@@ -116,20 +98,14 @@ const useTransactionLifecycle = () => {
       return;
     }
     
-    console.log("🚀 Starting sponsored transaction...");
     await handleWrongNetwork();
-    
     const client = await getWalletClient();
-    console.log("📝 Got wallet client:", client);
-    console.log("📝 Client account:", client?.account);
-    
     if (!client || !client.account) {
       throw new Error("No wallet client or account available");
     }
     
-    console.log("📤 Sending EIP712 transaction...");
+    console.log("Sending EIP712 transaction...");
     const txData = getTransactionData(transactionData.raw, { sponsored: true });
-    console.log("📋 Transaction data:", txData);
     
     try {
       const hash = await sendEip712Transaction(client as any, {
@@ -137,10 +113,9 @@ const useTransactionLifecycle = () => {
         chain: CHAIN,
         ...txData
       });
-      console.log("✅ Transaction hash:", hash);
       return onCompleted(hash);
     } catch (error) {
-      console.error("❌ sendEip712Transaction error:", error);
+      console.error("sendEip712Transaction error:", error);
       throw error;
     }
   };

@@ -26,7 +26,6 @@ const SuperAppAuthHandler = () => {
     const { disconnect } = useDisconnect();
 
     const handleSuccess = (data: AuthLoginData) => {
-        console.log("SuperApp Auth Success:", data);
         toast.success("Welcome back!");
         
         // Close auth modal nếu đang mở
@@ -113,7 +112,6 @@ const SuperAppAuthHandler = () => {
 
     const handleConnectExistingWallet = async () => {
         if (!onboardingData?.onboardingToken) {
-            toast.error("Missing onboarding token");
             return;
         }
 
@@ -122,9 +120,6 @@ const SuperAppAuthHandler = () => {
 
         const connectWallet = async (retryCount = 0): Promise<void> => {
             try {
-                console.log(`Connecting existing wallet (MetaMask)... Attempt ${retryCount + 1}`);
-                
-                // Tìm MetaMask connector
                 const injectedConnector = connectors.find(c => c.id === "injected");
                 if (!injectedConnector) {
                     throw new Error("MetaMask not found. Please install MetaMask extension.");
@@ -132,14 +127,10 @@ const SuperAppAuthHandler = () => {
 
                 // Kiểm tra nếu connector đã connected, disconnect trước
                 if (injectedConnector.status === "connected") {
-                    console.log("Connector already connected, disconnecting first...");
                     await disconnect();
-                    // Đợi một chút để đảm bảo disconnect hoàn tất
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
 
-                // Connect MetaMask
-                console.log("Connecting to MetaMask...");
                 const result = await connectAsync({ connector: injectedConnector });
                 const walletAddress = result.accounts[0];
                 console.log("MetaMask connected:", walletAddress);
@@ -150,27 +141,20 @@ const SuperAppAuthHandler = () => {
                     onboardingData.onboardingToken,
                     walletAddress
                 );
-                
-                toast.success("Wallet linked successfully!");
-                console.log("Wallet linked successfully");
 
                 // Mở signup modal để tạo Lens profile
-                toast.info("Please create your Lens profile to continue");
+                toast.info("Wallet linked successfully! Please create your Lens profile to continue");
                 setShowAuthModal(true, "signup");
                 setScreen("choose");
             } catch (err: any) {
                 console.error(`Failed to connect existing wallet (Attempt ${retryCount + 1}):`, err);
-                
-                // Xử lý lỗi "Connector already connected" với auto retry
                 if (err?.message?.includes("Connector already connected") && retryCount < 2) {
                     console.log(`Auto-retrying after disconnect... (${retryCount + 1}/2)`);
                     await disconnect();
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    // Recursive retry
                     return connectWallet(retryCount + 1);
                 }
-                
-                // Xử lý các lỗi khác
+
                 if (err?.message?.includes("User rejected")) {
                     toast.error("You rejected the connection request");
                 } else if (err?.message?.includes("MetaMask not found")) {
@@ -181,7 +165,6 @@ const SuperAppAuthHandler = () => {
                     toast.error(err.message || "Failed to connect wallet");
                 }
                 
-                // Hiển thị lại modal nếu có lỗi (trừ khi đã thành công một phần)
                 if (!err?.message?.includes("Wallet linked")) {
                     setShowOnboardingModal(true);
                 }

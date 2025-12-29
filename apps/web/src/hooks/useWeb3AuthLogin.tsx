@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { createWalletClient, custom } from 'viem';
-import { useChallengeMutation, useAuthenticateMutation, useAccountsAvailableLazyQuery, ManagedAccountsVisibility } from '@slice/indexer';
+import {
+    useChallengeMutation,
+    useAuthenticateMutation,
+    useAccountsAvailableLazyQuery,
+    ManagedAccountsVisibility
+} from '@slice/indexer';
 import { CHAIN, IS_MAINNET, SLICE_APP } from '@slice/data/constants';
 import { ERRORS } from '@slice/data/errors';
 

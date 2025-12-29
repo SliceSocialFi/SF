@@ -88,8 +88,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			}
 
 			const accessToken = localStorage.getItem("dnpayAccessToken") || undefined;
-			console.log("📩 Received message from DNPAY popup:", data);
-			console.log("🔐 Current DNPAY access token:", accessToken);
 			if (accessToken) {
 				// Clear all localStorage except dnpayAccessToken
 				Object.keys(localStorage).forEach((key) => {
@@ -165,10 +163,8 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	const linkWallet = useCallback(async (onboardingToken: string, walletAddress: string) => {
 		try {
 			const data = await walletService.linkWalletToDNPAY(onboardingToken, walletAddress);
-			console.log("🔗 DNPAY LINK WALLET RESPONSE:", data);
 			return data;
 		} catch (err) {
-			console.error("DNPAY LINK WALLET ERROR:", err);
 			throw err;
 		}
 	}, []);
@@ -188,11 +184,7 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 			
 			const status = data.status;
 			if (status === AuthStatus.LOGIN_SUCCESS) {
-				// id chính là wallet address
 				const walletAddress = data.user.id;
-				
-				// Trả về thông tin user qua callback onSuccess
-				console.log("DNPAY LOGIN SUCCESS:", data);
 				onSuccess?.({
 					dnpayAccessToken: accessToken,
 					web3AuthToken: data.web3AuthToken,
@@ -229,7 +221,6 @@ export const useDNPaySSO = (options: UseDNPaySSOOptions = {}) => {
 	useEffect(() => {
 		const handleStorageChange = (event: StorageEvent) => {
 			if (event.key === "dnpayAccessToken" && event.newValue) {
-				console.log("🔐 Storage event: dnpayAccessToken changed, triggering onSuccess");
 				onSuccess?.({ dnpayAccessToken: event.newValue });
 				cleanup();
 			}

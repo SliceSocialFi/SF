@@ -36,21 +36,13 @@ export const useWeb3AuthOnboarding = () => {
             if (!provider || !address) {
                 throw new Error("Failed to create embedded wallet");
             }
-
-            toast.success(`Wallet created: ${address.slice(0, 6)}...${address.slice(-4)}`);
             
-            // ✅ Lưu embedded wallet provider vào global store
-            console.log("💾 Saving embedded wallet to global store (Onboarding):", address);
             setGlobalEmbeddedWallet(address, provider, web3AuthToken);
 
-            toast.info("Registering your wallet...");
             await walletService.registerEmbeddedWallet(onboardingToken, address);
             toast.success("Wallet registered successfully!");
 
-            toast.info("Checking Lens Protocol account...");
             const lensResult = await web3AuthLogin(provider, address);
-            
-            // Nếu là user mới (chưa có Lens Account)
             if (lensResult?.isNewUser) {
                 toast.info("Please create a Lens profile to continue");
                 return {

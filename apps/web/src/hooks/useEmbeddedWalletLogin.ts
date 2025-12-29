@@ -7,13 +7,6 @@ import { useSignupStore } from "@/components/Shared/Auth/Signup";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 
-interface EmbeddedWalletLoginResult {
-    success: boolean;
-    lensTokens?: {
-        accessToken: string;
-        refreshToken: string;
-    };
-}
 
 export const useEmbeddedWalletLogin = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -26,38 +19,19 @@ export const useEmbeddedWalletLogin = () => {
         walletAddress: string,
         web3AuthToken: string
     ) => {
-        console.log("🚀 Starting embedded wallet login for:", walletAddress);
         setIsLoading(true);
         try {
             toast.info("Connecting to your embedded wallet...");
 
             const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
-            console.log("✅ Web3Auth connected. Address:", address);
-            console.log("✅ Provider:", provider ? "Present" : "NULL");
-            
             if (address.toLowerCase() !== walletAddress.toLowerCase()) {
                 throw new Error("Wallet address mismatch");
             }
 
-            toast.success("Embedded wallet connected!");
-            
-            // ✅ Lưu embedded wallet provider vào global store
-            console.log("💾 Saving embedded wallet to global store:", address);
-            console.log("📦 web3AuthToken:", web3AuthToken);
+            toast.success("Embedded wallet connected! Authenticating with Lens Protocol...");
             setGlobalEmbeddedWallet(address, provider, web3AuthToken);
             
-            // Verify store was updated
-            const storeState = useEmbeddedWalletStore.getState();
-            console.log("✅ Store state after save:", {
-                address: storeState.address,
-                hasProvider: !!storeState.provider,
-                hasToken: !!storeState.web3AuthToken,
-                isEmbeddedWallet: storeState.isEmbeddedWallet
-            });
-
-            toast.info("Authenticating with Lens Protocol...");
             const lensTokens = await web3AuthLogin(provider, address);
-
             console.log("Lens Tokens:", lensTokens);
 
             if (!lensTokens) {
@@ -76,22 +50,19 @@ export const useEmbeddedWalletLogin = () => {
                 return;
             }
 
-            // Save Lens tokens
             signIn({
                 accessToken: lensTokens.accessToken,
                 refreshToken: lensTokens.refreshToken
             });
+
             toast.success("Logged in successfully!");
-            
-            // Close auth modal
             setShowAuthModal(false);
             
-            // Reload page to complete login
             setTimeout(() => {
                 window.location.reload();
             }, 300);
         } catch (error: any) {
-            console.error("❌ Embedded Wallet Login Error:", error);
+            console.error("Embedded Wallet Login Error:", error);
             toast.error(error.message || "Failed to login with embedded wallet");
         } finally {
             setIsLoading(false);
