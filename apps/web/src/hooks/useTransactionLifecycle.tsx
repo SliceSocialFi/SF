@@ -72,6 +72,8 @@ const useTransactionLifecycle = () => {
         if (!accounts || accounts.length === 0) {
           throw new Error("No accounts found in embedded wallet");
         }
+
+        console.log("📍 Embedded wallet accounts:", accounts);
         
         const embeddedAddress = accounts[0] as `0x${string}`;
         console.log("📍 Embedded wallet account:", embeddedAddress);
