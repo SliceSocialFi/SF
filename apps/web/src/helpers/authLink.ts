@@ -5,8 +5,9 @@ import { isTokenExpiringSoon, refreshTokens } from "./tokenManager";
 const authLink = new ApolloLink((operation, forward) => {
   const { accessToken, refreshToken } = hydrateAuthTokens();
 
+  // Nếu không có token, chỉ cần skip header, KHÔNG gọi signOut()
+  // vì có thể đang trong quá trình login
   if (!accessToken || !refreshToken) {
-    signOut();
     return forward(operation);
   }
 

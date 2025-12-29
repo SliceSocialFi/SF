@@ -5,6 +5,7 @@ import type { JwtPayload } from "@slice/types/jwt";
 import { signIn, signOut } from "@/store/persisted/useAuthStore";
 
 let refreshPromise: Promise<string> | null = null;
+let isSigningOut = false; // Guard để tránh gọi signOut() nhiều lần
 const MAX_RETRIES = 5;
 
 const executeTokenRefresh = async (refreshToken: string): Promise<string> => {
@@ -38,7 +39,11 @@ const executeTokenRefresh = async (refreshToken: string): Promise<string> => {
       }
 
       if (refreshResult.__typename === "ForbiddenError") {
-        signOut();
+        // Chỉ gọi signOut() một lần duy nhất
+        if (!isSigningOut) {
+          isSigningOut = true;
+          signOut();
+        }
         throw new Error("Refresh token is invalid or expired");
       }
 
@@ -61,6 +66,11 @@ export const refreshTokens = (refreshToken: string): Promise<string> => {
   }
 
   return refreshPromise;
+};
+
+// Reset guard khi user login lại
+export const resetSignOutGuard = () => {
+  isSigningOut = false;
 };
 
 export const isTokenExpiringSoon = (accessToken: string | null): boolean => {
