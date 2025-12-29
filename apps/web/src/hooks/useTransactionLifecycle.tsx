@@ -11,6 +11,7 @@ import { sendEip712Transaction, sendTransaction } from "viem/zksync";
 import { useWalletClient } from "wagmi";
 import { CHAIN } from "@slice/data/constants";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
+import { walletService } from "@/lib/api/auth-api";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";
 
 type AnyTransactionRequestFragment =
@@ -22,20 +23,46 @@ type AnyTransactionRequestFragment =
 
 const useTransactionLifecycle = () => {
   const { data: wagmiClient } = useWalletClient();
-  const { provider: embeddedProvider, isEmbeddedWallet } = useEmbeddedWalletStore();
+  const { provider: embeddedProvider, isEmbeddedWallet, web3AuthToken, setEmbeddedWallet } = useEmbeddedWalletStore();
   const handleWrongNetwork = useHandleWrongNetwork();
 
   // Tạo wallet client từ embedded provider hoặc dùng wagmi client
-  const getWalletClient = () => {
+  const getWalletClient = async () => {
     console.log("embeddedProvider:", embeddedProvider);
     console.log("isEmbeddedWallet:", isEmbeddedWallet);
+    console.log("web3AuthToken:", web3AuthToken ? "Present" : "NULL");
 
-    if (isEmbeddedWallet && embeddedProvider) {
-      console.log("🔑 Using embedded wallet provider for transaction");
-      return createWalletClient({
-        chain: CHAIN,
-        transport: custom(embeddedProvider)
-      });
+    if (isEmbeddedWallet) {
+      // Nếu có provider sẵn, dùng luôn
+      if (embeddedProvider) {
+        console.log("🔑 Using cached embedded wallet provider for transaction");
+        return createWalletClient({
+          chain: CHAIN,
+          transport: custom(embeddedProvider)
+        });
+      }
+      
+      // Nếu không có provider nhưng có token, tái tạo provider
+      if (web3AuthToken) {
+        console.log("🔄 Reconnecting to Web3Auth...");
+        try {
+          const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
+          console.log("✅ Web3Auth reconnected:", address);
+          
+          // Lưu lại provider vào store
+          setEmbeddedWallet(address, provider, web3AuthToken);
+          
+          return createWalletClient({
+            chain: CHAIN,
+            transport: custom(provider)
+          });
+        } catch (error) {
+          console.error("❌ Failed to reconnect Web3Auth:", error);
+          throw new Error("Failed to reconnect embedded wallet. Please login again.");
+        }
+      }
+      
+      throw new Error("No embedded wallet provider or token available. Please login again.");
     }
     
     if (wagmiClient) {
@@ -60,7 +87,7 @@ const useTransactionLifecycle = () => {
     }
     await handleWrongNetwork();
     
-    const client = getWalletClient();
+    const client = await getWalletClient();
     if (!client || !client.account) {
       throw new Error("No wallet client or account available");
     }
@@ -87,7 +114,7 @@ const useTransactionLifecycle = () => {
     }
     await handleWrongNetwork();
     
-    const client = getWalletClient();
+    const client = await getWalletClient();
     if (!client || !client.account) {
       throw new Error("No wallet client or account available");
     }

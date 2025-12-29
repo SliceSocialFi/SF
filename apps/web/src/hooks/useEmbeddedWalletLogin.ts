@@ -26,11 +26,15 @@ export const useEmbeddedWalletLogin = () => {
         walletAddress: string,
         web3AuthToken: string
     ) => {
+        console.log("🚀 Starting embedded wallet login for:", walletAddress);
         setIsLoading(true);
         try {
             toast.info("Connecting to your embedded wallet...");
 
             const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
+            console.log("✅ Web3Auth connected. Address:", address);
+            console.log("✅ Provider:", provider ? "Present" : "NULL");
+            
             if (address.toLowerCase() !== walletAddress.toLowerCase()) {
                 throw new Error("Wallet address mismatch");
             }
@@ -39,7 +43,8 @@ export const useEmbeddedWalletLogin = () => {
             
             // ✅ Lưu embedded wallet provider vào global store
             console.log("💾 Saving embedded wallet to global store:", address);
-            setGlobalEmbeddedWallet(address, provider);
+            setGlobalEmbeddedWallet(address, provider, web3AuthToken);
+            console.log("✅ Provider saved to store successfully");
 
             toast.info("Authenticating with Lens Protocol...");
             const lensTokens = await web3AuthLogin(provider, address);
@@ -70,8 +75,10 @@ export const useEmbeddedWalletLogin = () => {
             toast.success("Logged in successfully!");
             window.location.href = "/";
         } catch (error: any) {
-            console.error("Embedded Wallet Login Error:", error);
+            console.error("❌ Embedded Wallet Login Error:", error);
             toast.error(error.message || "Failed to login with embedded wallet");
+        } finally {
+            setIsLoading(false);
         }
     };
 

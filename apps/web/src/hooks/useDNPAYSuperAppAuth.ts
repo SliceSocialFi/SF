@@ -164,7 +164,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     
                     // ✅ Lưu embedded wallet provider vào global store
                     console.log("💾 Saving embedded wallet to global store (SuperApp):", actualWalletAddress);
-                    setGlobalEmbeddedWallet(actualWalletAddress, provider);
+                    setGlobalEmbeddedWallet(actualWalletAddress, provider, data.web3AuthToken);
                     
                     setEmbeddedWallet(actualWalletAddress, provider);
                     const accountsResult = await fetchAccountsLazy({
