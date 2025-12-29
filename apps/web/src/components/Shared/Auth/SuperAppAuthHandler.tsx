@@ -112,64 +112,80 @@ const SuperAppAuthHandler = () => {
         setShowOnboardingModal(false);
         setIsCreating(true);
 
+        const connectWallet = async (retryCount = 0): Promise<void> => {
+            try {
+                console.log(`Connecting existing wallet (MetaMask)... Attempt ${retryCount + 1}`);
+                
+                // Tìm MetaMask connector
+                const injectedConnector = connectors.find(c => c.id === "injected");
+                if (!injectedConnector) {
+                    throw new Error("MetaMask not found. Please install MetaMask extension.");
+                }
+
+                // Kiểm tra nếu connector đã connected, disconnect trước
+                if (injectedConnector.status === "connected") {
+                    console.log("Connector already connected, disconnecting first...");
+                    await disconnect();
+                    // Đợi một chút để đảm bảo disconnect hoàn tất
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                // Connect MetaMask
+                console.log("Connecting to MetaMask...");
+                const result = await connectAsync({ connector: injectedConnector });
+                const walletAddress = result.accounts[0];
+                console.log("MetaMask connected:", walletAddress);
+
+                // Link wallet với DNPAY
+                console.log("Linking wallet to DNPAY...");
+                await walletService.linkWalletToDNPAY(
+                    onboardingData.onboardingToken,
+                    walletAddress
+                );
+                
+                toast.success("Wallet linked successfully!");
+                console.log("Wallet linked successfully");
+
+                // Mở signup modal để tạo Lens profile
+                toast.info("Please create your Lens profile to continue");
+                setShowAuthModal(true, "signup");
+                setScreen("choose");
+            } catch (err: any) {
+                console.error(`Failed to connect existing wallet (Attempt ${retryCount + 1}):`, err);
+                
+                // Xử lý lỗi "Connector already connected" với auto retry
+                if (err?.message?.includes("Connector already connected") && retryCount < 2) {
+                    console.log(`Auto-retrying after disconnect... (${retryCount + 1}/2)`);
+                    await disconnect();
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // Recursive retry
+                    return connectWallet(retryCount + 1);
+                }
+                
+                // Xử lý các lỗi khác
+                if (err?.message?.includes("User rejected")) {
+                    toast.error("You rejected the connection request");
+                } else if (err?.message?.includes("MetaMask not found")) {
+                    toast.error("Please install MetaMask extension");
+                } else if (err?.message?.includes("Connector already connected")) {
+                    toast.error("Connection conflict. Please try again.");
+                } else {
+                    toast.error(err.message || "Failed to connect wallet");
+                }
+                
+                // Hiển thị lại modal nếu có lỗi (trừ khi đã thành công một phần)
+                if (!err?.message?.includes("Wallet linked")) {
+                    setShowOnboardingModal(true);
+                }
+                
+                throw err; // Re-throw để finally block chạy
+            }
+        };
+
         try {
-            console.log("Connecting existing wallet (MetaMask)...");
-            
-            // Tìm MetaMask connector
-            const injectedConnector = connectors.find(c => c.id === "injected");
-            if (!injectedConnector) {
-                throw new Error("MetaMask not found. Please install MetaMask extension.");
-            }
-
-            // Kiểm tra nếu connector đã connected, disconnect trước
-            if (injectedConnector.status === "connected") {
-                console.log("Connector already connected, disconnecting first...");
-                await disconnect();
-                // Đợi một chút để đảm bảo disconnect hoàn tất
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            // Connect MetaMask
-            console.log("Connecting to MetaMask...");
-            const result = await connectAsync({ connector: injectedConnector });
-            const walletAddress = result.accounts[0];
-            console.log("MetaMask connected:", walletAddress);
-
-            // Link wallet với DNPAY
-            console.log("Linking wallet to DNPAY...");
-            await walletService.linkWalletToDNPAY(
-                onboardingData.onboardingToken,
-                walletAddress
-            );
-            
-            toast.success("Wallet linked successfully!");
-            console.log("Wallet linked successfully");
-
-            // Mở signup modal để tạo Lens profile
-            toast.info("Please create your Lens profile to continue");
-            setShowAuthModal(true, "signup");
-            setScreen("choose");
-        } catch (err: any) {
-            console.error("Failed to connect existing wallet:", err);
-            
-            if (err?.message?.includes("User rejected")) {
-                toast.error("You rejected the connection request");
-            } else if (err?.message?.includes("MetaMask not found")) {
-                toast.error("Please install MetaMask extension");
-            } else if (err?.message?.includes("Connector already connected")) {
-                // Nếu vẫn gặp lỗi connector đã connected, thử disconnect và retry
-                console.log("Still connected, force disconnect and retry...");
-                await disconnect();
-                toast.error("Connection conflict. Please try again.");
-                setShowOnboardingModal(true);
-            } else {
-                toast.error(err.message || "Failed to connect wallet");
-            }
-            
-            // Hiển thị lại modal nếu có lỗi (trừ khi đã thành công một phần)
-            if (!err?.message?.includes("Wallet linked")) {
-                setShowOnboardingModal(true);
-            }
+            await connectWallet();
+        } catch (err) {
+            // Error đã được xử lý trong connectWallet
         } finally {
             setIsCreating(false);
         }
