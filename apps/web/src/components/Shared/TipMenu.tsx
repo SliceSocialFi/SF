@@ -158,6 +158,12 @@ const TipMenu = ({ closePopover, post, account }: TipMenuProps) => {
       referrals: [{ address: SLICE_TREASURY, percent: 11 }]
     };
 
+    console.log("tipping:", tipping);
+    console.log("post:", post);
+    console.log("account:", account);
+    console.log("currentAccount:", currentAccount);
+    console.log("SLICE_TREASURY:", SLICE_TREASURY);
+
     if (post) {
       const variables = {
         request: { action: { tipping }, post: post.id }
