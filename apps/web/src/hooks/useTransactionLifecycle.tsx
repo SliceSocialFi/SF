@@ -13,6 +13,7 @@ import { CHAIN } from "@slice/data/constants";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 import { walletService } from "@/lib/api/auth-api";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";
+import { useAccountStore } from "@/store/persisted/useAccountStore";
 
 type AnyTransactionRequestFragment =
   | SelfFundedTransactionRequestFragment
@@ -24,6 +25,7 @@ type AnyTransactionRequestFragment =
 const useTransactionLifecycle = () => {
   const { data: wagmiClient } = useWalletClient();
   const { provider: embeddedProvider, isEmbeddedWallet, web3AuthToken, setEmbeddedWallet } = useEmbeddedWalletStore();
+  const { currentAccount } = useAccountStore();
   const handleWrongNetwork = useHandleWrongNetwork();
 
   const reconnectEmbeddedWallet = async (): Promise<any> => {
@@ -51,6 +53,7 @@ const useTransactionLifecycle = () => {
     console.log("embeddedProvider:", embeddedProvider);
     console.log("isEmbeddedWallet:", isEmbeddedWallet);
     console.log("web3AuthToken:", web3AuthToken ? "Present" : "NULL");
+    console.log("currentAccount.owner:", currentAccount?.owner);
 
     if (isEmbeddedWallet) {
       let provider = embeddedProvider;
@@ -70,11 +73,20 @@ const useTransactionLifecycle = () => {
           throw new Error("No accounts found in embedded wallet");
         }
         
-        const account = accounts[0] as `0x${string}`;
-        console.log("📍 Embedded wallet account:", account);
+        const embeddedAddress = accounts[0] as `0x${string}`;
+        console.log("📍 Embedded wallet account:", embeddedAddress);
+        
+        // Kiểm tra xem embedded wallet có khớp với owner của Lens account không
+        const lensOwner = currentAccount?.owner;
+        if (lensOwner && embeddedAddress.toLowerCase() !== lensOwner.toLowerCase()) {
+          console.error("❌ Wallet mismatch!");
+          console.error("   Embedded wallet:", embeddedAddress);
+          console.error("   Lens account owner:", lensOwner);
+          throw new Error(`Wallet mismatch: Your embedded wallet (${embeddedAddress.slice(0, 8)}...) doesn't match the Lens account owner (${lensOwner.slice(0, 8)}...). Please login again.`);
+        }
         
         return createWalletClient({
-          account,
+          account: embeddedAddress,
           chain: CHAIN,
           transport: custom(provider)
         });
