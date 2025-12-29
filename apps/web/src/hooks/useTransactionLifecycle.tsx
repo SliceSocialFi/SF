@@ -13,7 +13,6 @@ import { CHAIN } from "@slice/data/constants";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 import { walletService } from "@/lib/api/auth-api";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";
-import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 
 type AnyTransactionRequestFragment =
   | SelfFundedTransactionRequestFragment
@@ -26,17 +25,8 @@ const useTransactionLifecycle = () => {
   const { data: wagmiClient } = useWalletClient();
   const { provider: embeddedProvider, isEmbeddedWallet, web3AuthToken, setEmbeddedWallet } = useEmbeddedWalletStore();
   const handleWrongNetwork = useHandleWrongNetwork();
-  const { token: superAppToken } = useDNPAYSuperApp();
 
-  // Reconnect embedded wallet bằng cách lấy web3AuthToken mới từ SuperApp
   const reconnectEmbeddedWallet = async (): Promise<any> => {
-    if (!superAppToken) {
-      console.error("❌ No SuperApp token available for reconnect");
-      throw new Error("Your session has expired. Please login again to continue.");
-    }
-
-    console.log("🔄 Reconnecting embedded wallet...");
-    
     try {
       // Verify SuperApp token để lấy web3AuthToken mới
       const web3AuthToken = await walletService.getWeb3AuthToken();
@@ -50,9 +40,9 @@ const useTransactionLifecycle = () => {
       setEmbeddedWallet(address, provider, web3AuthToken);
       
       return provider;
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Failed to reconnect embedded wallet:", error);
-      throw new Error("Your session has expired. Please login again to continue.");
+      throw new Error("Failed to reconnect embedded wallet:" + error.message);
     }
   };
 
