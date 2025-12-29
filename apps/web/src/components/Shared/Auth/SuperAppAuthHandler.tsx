@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { useConnect, useDisconnect } from "wagmi";
 import { useDNPAYSuperAppAuth } from "@/hooks/useDNPAYSuperAppAuth";
 import { useWeb3AuthOnboarding } from "@/hooks/useWeb3AuthOnboarding";
@@ -11,6 +12,7 @@ import { walletService } from "@/lib/api/auth-api";
 import DNPayOnboardingModal from "./DNPayOnboardingModal";
 
 const SuperAppAuthHandler = () => {
+    const navigate = useNavigate();
     const [onboardingData, setOnboardingData] = useState<{
         onboardingToken: string;
         email: string;
@@ -28,7 +30,10 @@ const SuperAppAuthHandler = () => {
     const handleSuccess = (data: AuthLoginData) => {
         console.log("SuperApp Auth Success:", data);
         toast.success("Welcome back!");
-        // Data đã được xử lý trong hook, không cần làm gì thêm
+        // Navigate to home page sau khi login thành công
+        setTimeout(() => {
+            navigate("/");
+        }, 500);
     };
 
     const handleError = (error: string) => {

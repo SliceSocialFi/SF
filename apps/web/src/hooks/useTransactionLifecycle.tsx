@@ -42,27 +42,10 @@ const useTransactionLifecycle = () => {
         });
       }
       
-      // Nếu không có provider nhưng có token, tái tạo provider
-      if (web3AuthToken) {
-        console.log("🔄 Reconnecting to Web3Auth...");
-        try {
-          const { provider, address } = await walletService.connectWeb3Auth(web3AuthToken);
-          console.log("✅ Web3Auth reconnected:", address);
-          
-          // Lưu lại provider vào store
-          setEmbeddedWallet(address, provider, web3AuthToken);
-          
-          return createWalletClient({
-            chain: CHAIN,
-            transport: custom(provider)
-          });
-        } catch (error) {
-          console.error("❌ Failed to reconnect Web3Auth:", error);
-          throw new Error("Failed to reconnect embedded wallet. Please login again.");
-        }
-      }
-      
-      throw new Error("No embedded wallet provider or token available. Please login again.");
+      // Nếu không có provider (sau khi reload page)
+      // Web3Auth token là one-time use, không thể reconnect
+      console.error("❌ Embedded wallet provider not available after page reload");
+      throw new Error("Your session has expired. Please login again to continue.");
     }
     
     if (wagmiClient) {

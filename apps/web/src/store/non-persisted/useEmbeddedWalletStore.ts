@@ -30,10 +30,10 @@ export const useEmbeddedWalletStore = create<EmbeddedWalletState>()(
       name: "embedded-wallet-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        // Chỉ lưu những thông tin có thể serialize
+        // Chỉ lưu address và flag, KHÔNG lưu token vì nó one-time use
         address: state.address,
-        web3AuthToken: state.web3AuthToken,
         isEmbeddedWallet: state.isEmbeddedWallet
+        // KHÔNG lưu web3AuthToken vì nó chỉ dùng được một lần
         // KHÔNG lưu provider vì không serialize được
       }),
       onRehydrateStorage: () => (state) => {
@@ -41,7 +41,7 @@ export const useEmbeddedWalletStore = create<EmbeddedWalletState>()(
         if (state) {
           console.log("✅ Hydrated state:", {
             address: state.address,
-            hasToken: !!state.web3AuthToken,
+            hasToken: false, // Token không được lưu
             isEmbeddedWallet: state.isEmbeddedWallet
           });
         }

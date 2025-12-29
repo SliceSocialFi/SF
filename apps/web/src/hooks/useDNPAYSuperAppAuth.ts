@@ -206,13 +206,9 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     setAuthData(successData);
                     onSuccess?.(successData);
                     
-                    toast.success("Login successful! Redirecting...");
-                    // Đợi store persist xuống localStorage trước khi redirect
-                    console.log("⏳ Waiting for store to persist before redirect...");
-                    setTimeout(() => {
-                        console.log("✅ Redirecting to home page");
-                        window.location.href = "/";
-                    }, 1000);
+                    toast.success("Login successful!");
+                    // ⚠️ KHÔNG reload page để giữ embedded wallet provider trong memory
+                    console.log("✅ Login successful, provider kept in memory");
                 } catch (err) {
                     console.error("Web3Auth connection error:", err);
                     toast.error("Failed to connect embedded wallet");
@@ -260,13 +256,8 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     setAuthData(successData);
                     onSuccess?.(successData);
                     
-                    toast.success("Login successful! Redirecting...");
-                    // Đợi store persist xuống localStorage trước khi redirect
-                    console.log("⏳ Waiting for store to persist before redirect...");
-                    setTimeout(() => {
-                        console.log("✅ Redirecting to home page");
-                        window.location.href = "/";
-                    }, 1000);
+                    toast.success("Login successful!");
+                    console.log("✅ Login successful");
                 } catch (err: any) {
                     console.error("Lens authentication error:", err);
                     toast.error("Failed to authenticate with Lens Protocol");

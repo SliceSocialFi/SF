@@ -83,11 +83,9 @@ export const useEmbeddedWalletLogin = () => {
             });
             toast.success("Logged in successfully!");
             
-            // Đợi store persist xuống localStorage trước khi redirect
-            console.log("⏳ Waiting for store to persist before redirect...");
-            await new Promise(resolve => setTimeout(resolve, 500));
-            console.log("✅ Redirecting to home page");
-            window.location.href = "/";
+            // ⚠️ KHÔNG reload page để giữ embedded wallet provider trong memory
+            console.log("✅ Login successful, provider kept in memory");
+            // User sẽ được navigate bởi routing logic
         } catch (error: any) {
             console.error("❌ Embedded Wallet Login Error:", error);
             toast.error(error.message || "Failed to login with embedded wallet");
