@@ -22,6 +22,7 @@ import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useSignupStore } from "@/components/Shared/Auth/Signup";
 import { signIn } from "@/store/persisted/useAuthStore";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
+import { useRefreshSession } from "./useRefreshSession";
 
 interface OnboardingData {
     onboardingToken: string;
@@ -36,6 +37,7 @@ interface UseDNPAYSuperAppAuthOptions {
 }
 
 export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) => {
+    const refreshSession = useRefreshSession();
     const { isReady, token: superAppToken } = useDNPAYSuperApp();
     const { currentAccount } = useAccountStore();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -207,8 +209,8 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     onSuccess?.(successData);
                     
                     toast.success("Login successful!");
-                    // ⚠️ KHÔNG reload page để giữ embedded wallet provider trong memory
-                    console.log("✅ Login successful, provider kept in memory");
+                    // Refresh session WITHOUT reload to keep provider in memory
+                    await refreshSession();
                 } catch (err) {
                     console.error("Web3Auth connection error:", err);
                     toast.error("Failed to connect embedded wallet");
@@ -257,7 +259,8 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     onSuccess?.(successData);
                     
                     toast.success("Login successful!");
-                    console.log("✅ Login successful");
+                    // Refresh session to update UI
+                    await refreshSession();
                 } catch (err: any) {
                     console.error("Lens authentication error:", err);
                     toast.error("Failed to authenticate with Lens Protocol");
