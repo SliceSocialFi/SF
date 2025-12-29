@@ -101,20 +101,34 @@ const useTransactionLifecycle = () => {
     ) {
       return;
     }
+    
+    console.log("🚀 Starting sponsored transaction...");
     await handleWrongNetwork();
     
     const client = await getWalletClient();
+    console.log("📝 Got wallet client:", client);
+    console.log("📝 Client account:", client?.account);
+    
     if (!client || !client.account) {
       throw new Error("No wallet client or account available");
     }
     
-    return onCompleted(
-      await sendEip712Transaction(client as any, {
+    console.log("📤 Sending EIP712 transaction...");
+    const txData = getTransactionData(transactionData.raw, { sponsored: true });
+    console.log("📋 Transaction data:", txData);
+    
+    try {
+      const hash = await sendEip712Transaction(client as any, {
         account: client.account,
         chain: null,
-        ...getTransactionData(transactionData.raw, { sponsored: true })
-      })
-    );
+        ...txData
+      });
+      console.log("✅ Transaction hash:", hash);
+      return onCompleted(hash);
+    } catch (error) {
+      console.error("❌ sendEip712Transaction error:", error);
+      throw error;
+    }
   };
 
   const handleSelfFundedTransaction = async (
