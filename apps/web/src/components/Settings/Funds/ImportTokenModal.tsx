@@ -94,6 +94,10 @@ const ImportTokenModal = ({ show, onClose }: ImportTokenModalProps) => {
     };
 
     if (isChecking) {
+        setTimeout(() => {
+            setIsChecking(false);
+        }, 5000);
+
         return (
             <Modal show={show} onClose={onClose} title="Import Token">
                 <div className="flex flex-col items-center gap-4 p-10">
