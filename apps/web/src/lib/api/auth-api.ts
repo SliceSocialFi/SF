@@ -2,6 +2,7 @@ import axios from "axios";
 import { createWalletClient, custom } from "viem";
 import { web3authSfa, WEB3AUTH_CONNECTION_NAME } from "@/config/web3auth-sfa";
 import { PAYMENT_API_URL as API_BASE_URL, CHAIN } from "@slice/data/constants";
+import { hydrateAuthTokens } from "@/store/persisted/useAuthStore";
 
 const verifyDNPAYLogin = async (dnpayAccessToken: string) => {
     const res = await axios.post(
@@ -41,6 +42,28 @@ const mintWeb3AuthToken = async (onboardingToken: string) => {
     
     return data.data.token;
 }
+
+const getWeb3AuthToken = async (): Promise<string> => {
+    const accessToken = hydrateAuthTokens().accessToken;
+    if (!accessToken) {
+        throw new Error("No access token available for Web3Auth");
+    }
+
+    const res = await axios.get(
+        `${API_BASE_URL}api/auth/dnpay/get-web3-auth-token`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    );
+    const data = await res.data;
+    if (!data.success) {
+        throw new Error(data.message || "Failed to get Web3Auth token");
+    }
+
+    return data.data.token;
+};
 
 const connectWeb3Auth = async (web3AuthToken: string) => {
     const sfaInstance = web3authSfa as any;
@@ -122,6 +145,7 @@ export const walletService = {
     verifyDNPAYLogin,
     linkWalletToDNPAY,
     mintWeb3AuthToken,
+    getWeb3AuthToken,
     connectWeb3Auth,
     registerEmbeddedWallet
 };

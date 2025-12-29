@@ -13,6 +13,7 @@ import { CHAIN } from "@slice/data/constants";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 import { walletService } from "@/lib/api/auth-api";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";
+import { useDNPAYSuperApp } from "@/components/Common/Providers/DNPAYSuperAppProvider";
 
 type AnyTransactionRequestFragment =
   | SelfFundedTransactionRequestFragment
@@ -25,6 +26,35 @@ const useTransactionLifecycle = () => {
   const { data: wagmiClient } = useWalletClient();
   const { provider: embeddedProvider, isEmbeddedWallet, web3AuthToken, setEmbeddedWallet } = useEmbeddedWalletStore();
   const handleWrongNetwork = useHandleWrongNetwork();
+  const { token: superAppToken } = useDNPAYSuperApp();
+
+  // Reconnect embedded wallet bằng cách lấy web3AuthToken mới từ SuperApp
+  const reconnectEmbeddedWallet = async (): Promise<any> => {
+    if (!superAppToken) {
+      console.error("❌ No SuperApp token available for reconnect");
+      throw new Error("Your session has expired. Please login again to continue.");
+    }
+
+    console.log("🔄 Reconnecting embedded wallet...");
+    
+    try {
+      // Verify SuperApp token để lấy web3AuthToken mới
+      const web3AuthToken = await walletService.getWeb3AuthToken();
+      const { address, provider } = await walletService.connectWeb3Auth(web3AuthToken);
+      
+      if (!provider) {
+        throw new Error("Failed to reconnect embedded wallet");
+      }
+
+      console.log("✅ Embedded wallet reconnected:", address);
+      setEmbeddedWallet(address, provider, web3AuthToken);
+      
+      return provider;
+    } catch (error) {
+      console.error("❌ Failed to reconnect embedded wallet:", error);
+      throw new Error("Your session has expired. Please login again to continue.");
+    }
+  };
 
   // Tạo wallet client từ embedded provider hoặc dùng wagmi client
   const getWalletClient = async () => {
@@ -42,10 +72,14 @@ const useTransactionLifecycle = () => {
         });
       }
       
-      // Nếu không có provider (sau khi reload page)
-      // Web3Auth token là one-time use, không thể reconnect
-      console.error("❌ Embedded wallet provider not available after page reload");
-      throw new Error("Your session has expired. Please login again to continue.");
+      // Nếu không có provider (sau khi reload page), thử reconnect
+      console.log("⚠️ No provider in memory, attempting to reconnect...");
+      const newProvider = await reconnectEmbeddedWallet();
+      
+      return createWalletClient({
+        chain: CHAIN,
+        transport: custom(newProvider)
+      });
     }
     
     if (wagmiClient) {
