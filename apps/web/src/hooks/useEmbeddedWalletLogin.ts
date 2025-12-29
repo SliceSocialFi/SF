@@ -6,7 +6,6 @@ import { signIn } from "@/store/persisted/useAuthStore";
 import { useSignupStore } from "@/components/Shared/Auth/Signup";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
 import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
-import { useRefreshSession } from "./useRefreshSession";
 
 interface EmbeddedWalletLoginResult {
     success: boolean;
@@ -17,7 +16,6 @@ interface EmbeddedWalletLoginResult {
 }
 
 export const useEmbeddedWalletLogin = () => {
-    const refreshSession = useRefreshSession();
     const [isLoading, setIsLoading] = useState(false);
     const { login: web3AuthLogin } = useWeb3AuthLogin();
     const { setScreen, setEmbeddedWallet } = useSignupStore();
@@ -88,8 +86,10 @@ export const useEmbeddedWalletLogin = () => {
             // Close auth modal
             setShowAuthModal(false);
             
-            // Refresh session WITHOUT reload to keep provider in memory
-            await refreshSession();
+            // Reload page to complete login
+            setTimeout(() => {
+                window.location.reload();
+            }, 300);
         } catch (error: any) {
             console.error("❌ Embedded Wallet Login Error:", error);
             toast.error(error.message || "Failed to login with embedded wallet");

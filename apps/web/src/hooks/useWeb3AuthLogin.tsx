@@ -102,7 +102,6 @@ export const useWeb3AuthLogin = () => {
 
             const authData = authRes.data?.authenticate;
             if (authData?.__typename === "AuthenticationTokens") {
-                toast.success("Đăng nhập Lens thành công!");
                 return {
                     accessToken: authData.accessToken,
                     refreshToken: authData.refreshToken,
@@ -110,11 +109,11 @@ export const useWeb3AuthLogin = () => {
                 };
             } else {
                 toast.error(ERRORS.SomethingWentWrong);
-                throw new Error("Phản hồi xác thực không hợp lệ");
+                throw new Error("Authentication failed");
             }
         } catch (error: any) {
             console.error("Lens Login Error:", error);
-            toast.error(error.message || "Đăng nhập thất bại");
+            toast.error(error.message || "Failed to login with Lens Protocol");
             return null;
         }
     };

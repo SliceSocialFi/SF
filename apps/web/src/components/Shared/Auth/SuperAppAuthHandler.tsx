@@ -9,10 +9,8 @@ import { AuthLoginData } from "@/hooks/useDNPaySSO";
 import { Spinner } from "@/components/Shared/UI";
 import { walletService } from "@/lib/api/auth-api";
 import DNPayOnboardingModal from "./DNPayOnboardingModal";
-import { useRefreshSession } from "@/hooks/useRefreshSession";
 
 const SuperAppAuthHandler = () => {
-    const refreshSession = useRefreshSession();
     const [onboardingData, setOnboardingData] = useState<{
         onboardingToken: string;
         email: string;
@@ -27,15 +25,17 @@ const SuperAppAuthHandler = () => {
     const { connectAsync, connectors } = useConnect();
     const { disconnect } = useDisconnect();
 
-    const handleSuccess = async (data: AuthLoginData) => {
+    const handleSuccess = (data: AuthLoginData) => {
         console.log("SuperApp Auth Success:", data);
         toast.success("Welcome back!");
         
         // Close auth modal nếu đang mở
         setShowAuthModal(false);
         
-        // Refresh session WITHOUT reload để giữ provider trong memory
-        await refreshSession();
+        // Reload page to complete login
+        setTimeout(() => {
+            window.location.reload();
+        }, 300);
     };
 
     const handleError = (error: string) => {
@@ -98,8 +98,10 @@ const SuperAppAuthHandler = () => {
                 // User đã có Lens account, auto-login thành công
                 console.log("Auto-login successful with existing Lens account");
                 toast.success("Welcome back!");
-                // Refresh session WITHOUT reload
-                await refreshSession();
+                // Reload page to complete login
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300);
             }
         } catch (err: any) {
             console.error("Auto-create wallet error:", err);
