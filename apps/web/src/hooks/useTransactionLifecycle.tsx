@@ -27,6 +27,9 @@ const useTransactionLifecycle = () => {
 
   // Tạo wallet client từ embedded provider hoặc dùng wagmi client
   const getWalletClient = () => {
+    console.log("embeddedProvider:", embeddedProvider);
+    console.log("isEmbeddedWallet:", isEmbeddedWallet);
+
     if (isEmbeddedWallet && embeddedProvider) {
       console.log("🔑 Using embedded wallet provider for transaction");
       return createWalletClient({
