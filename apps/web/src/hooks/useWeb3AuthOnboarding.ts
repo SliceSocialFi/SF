@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { walletService } from '@/lib/api/auth-api';
 import { useWeb3AuthLogin } from './useWeb3AuthLogin';
+import { useEmbeddedWalletStore } from '@/store/non-persisted/useEmbeddedWalletStore';
 
 interface OnboardingResult {
     success: boolean;
@@ -17,6 +18,7 @@ interface OnboardingResult {
 export const useWeb3AuthOnboarding = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login: web3AuthLogin } = useWeb3AuthLogin();
+    const { setEmbeddedWallet: setGlobalEmbeddedWallet } = useEmbeddedWalletStore();
 
     const createEmbeddedWallet = async (onboardingToken: string): Promise<OnboardingResult> => {
         setIsLoading(true);
@@ -36,6 +38,10 @@ export const useWeb3AuthOnboarding = () => {
             }
 
             toast.success(`Wallet created: ${address.slice(0, 6)}...${address.slice(-4)}`);
+            
+            // ✅ Lưu embedded wallet provider vào global store
+            console.log("💾 Saving embedded wallet to global store (Onboarding):", address);
+            setGlobalEmbeddedWallet(address, provider, web3AuthToken);
 
             toast.info("Registering your wallet...");
             await walletService.registerEmbeddedWallet(onboardingToken, address);

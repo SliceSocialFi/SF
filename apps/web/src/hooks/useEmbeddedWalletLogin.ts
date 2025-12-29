@@ -43,8 +43,17 @@ export const useEmbeddedWalletLogin = () => {
             
             // ✅ Lưu embedded wallet provider vào global store
             console.log("💾 Saving embedded wallet to global store:", address);
+            console.log("📦 web3AuthToken:", web3AuthToken);
             setGlobalEmbeddedWallet(address, provider, web3AuthToken);
-            console.log("✅ Provider saved to store successfully");
+            
+            // Verify store was updated
+            const storeState = useEmbeddedWalletStore.getState();
+            console.log("✅ Store state after save:", {
+                address: storeState.address,
+                hasProvider: !!storeState.provider,
+                hasToken: !!storeState.web3AuthToken,
+                isEmbeddedWallet: storeState.isEmbeddedWallet
+            });
 
             toast.info("Authenticating with Lens Protocol...");
             const lensTokens = await web3AuthLogin(provider, address);
@@ -73,6 +82,11 @@ export const useEmbeddedWalletLogin = () => {
                 refreshToken: lensTokens.refreshToken
             });
             toast.success("Logged in successfully!");
+            
+            // Đợi store persist xuống localStorage trước khi redirect
+            console.log("⏳ Waiting for store to persist before redirect...");
+            await new Promise(resolve => setTimeout(resolve, 500));
+            console.log("✅ Redirecting to home page");
             window.location.href = "/";
         } catch (error: any) {
             console.error("❌ Embedded Wallet Login Error:", error);

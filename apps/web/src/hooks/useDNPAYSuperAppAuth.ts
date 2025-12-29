@@ -207,7 +207,10 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     onSuccess?.(successData);
                     
                     toast.success("Login successful! Redirecting...");
+                    // Đợi store persist xuống localStorage trước khi redirect
+                    console.log("⏳ Waiting for store to persist before redirect...");
                     setTimeout(() => {
+                        console.log("✅ Redirecting to home page");
                         window.location.href = "/";
                     }, 1000);
                 } catch (err) {
@@ -258,7 +261,10 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                     onSuccess?.(successData);
                     
                     toast.success("Login successful! Redirecting...");
+                    // Đợi store persist xuống localStorage trước khi redirect
+                    console.log("⏳ Waiting for store to persist before redirect...");
                     setTimeout(() => {
+                        console.log("✅ Redirecting to home page");
                         window.location.href = "/";
                     }, 1000);
                 } catch (err: any) {
