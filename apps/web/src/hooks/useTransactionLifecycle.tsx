@@ -53,23 +53,32 @@ const useTransactionLifecycle = () => {
     console.log("web3AuthToken:", web3AuthToken ? "Present" : "NULL");
 
     if (isEmbeddedWallet) {
-      // Nếu có provider sẵn, dùng luôn
-      if (embeddedProvider) {
-        console.log("🔑 Using cached embedded wallet provider for transaction");
-        return createWalletClient({
-          chain: CHAIN,
-          transport: custom(embeddedProvider)
-        });
-      }
+      let provider = embeddedProvider;
       
       // Nếu không có provider (sau khi reload page), thử reconnect
-      console.log("⚠️ No provider in memory, attempting to reconnect...");
-      const newProvider = await reconnectEmbeddedWallet();
+      if (!provider) {
+        console.log("⚠️ No provider in memory, attempting to reconnect...");
+        provider = await reconnectEmbeddedWallet();
+      }
       
-      return createWalletClient({
-        chain: CHAIN,
-        transport: custom(newProvider)
-      });
+      if (provider) {
+        console.log("🔑 Using embedded wallet provider for transaction");
+        
+        // Lấy accounts từ provider
+        const accounts = await provider.request({ method: "eth_accounts" }) as string[];
+        if (!accounts || accounts.length === 0) {
+          throw new Error("No accounts found in embedded wallet");
+        }
+        
+        const account = accounts[0] as `0x${string}`;
+        console.log("📍 Embedded wallet account:", account);
+        
+        return createWalletClient({
+          account,
+          chain: CHAIN,
+          transport: custom(provider)
+        });
+      }
     }
     
     if (wagmiClient) {
