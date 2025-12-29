@@ -120,7 +120,7 @@ const useTransactionLifecycle = () => {
     try {
       const hash = await sendEip712Transaction(client as any, {
         account: client.account,
-        chain: null,
+        chain: CHAIN,
         ...txData
       });
       console.log("✅ Transaction hash:", hash);
@@ -152,7 +152,7 @@ const useTransactionLifecycle = () => {
     return onCompleted(
       await sendTransaction(client as any, {
         account: client.account,
-        chain: null,
+        chain: CHAIN,
         ...getTransactionData(transactionData.raw)
       })
     );
