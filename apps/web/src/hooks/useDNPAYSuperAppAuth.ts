@@ -21,6 +21,7 @@ import { ERRORS } from "@slice/data/errors";
 import { useAccountStore } from "@/store/persisted/useAccountStore";
 import { useSignupStore } from "@/components/Shared/Auth/Signup";
 import { signIn } from "@/store/persisted/useAuthStore";
+import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 
 interface OnboardingData {
     onboardingToken: string;
@@ -48,6 +49,7 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
     const [loadChallenge] = useChallengeMutation();
     const [authenticate] = useAuthenticateMutation();
     const { setEmbeddedWallet } = useSignupStore();
+    const { setEmbeddedWallet: setGlobalEmbeddedWallet } = useEmbeddedWalletStore();
 
     const { refetch: refetchAccounts } = useAccountsAvailableQuery({
         skip: !walletAddress,
@@ -159,6 +161,10 @@ export const useDNPAYSuperAppAuth = (options: UseDNPAYSuperAppAuthOptions = {}) 
                         console.warn("Address mismatch! Using Web3Auth address:", actualWalletAddress);
                         setWalletAddress(actualWalletAddress);
                     }
+                    
+                    // ✅ Lưu embedded wallet provider vào global store
+                    console.log("💾 Saving embedded wallet to global store (SuperApp):", actualWalletAddress);
+                    setGlobalEmbeddedWallet(actualWalletAddress, provider);
                     
                     setEmbeddedWallet(actualWalletAddress, provider);
                     const accountsResult = await fetchAccountsLazy({

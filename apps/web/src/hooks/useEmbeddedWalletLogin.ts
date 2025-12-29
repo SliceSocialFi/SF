@@ -5,6 +5,7 @@ import { useWeb3AuthLogin } from './useWeb3AuthLogin';
 import { signIn } from "@/store/persisted/useAuthStore";
 import { useSignupStore } from "@/components/Shared/Auth/Signup";
 import { useAuthModalStore } from "@/store/non-persisted/modal/useAuthModalStore";
+import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 
 interface EmbeddedWalletLoginResult {
     success: boolean;
@@ -19,6 +20,7 @@ export const useEmbeddedWalletLogin = () => {
     const { login: web3AuthLogin } = useWeb3AuthLogin();
     const { setScreen, setEmbeddedWallet } = useSignupStore();
     const { setShowAuthModal } = useAuthModalStore();
+    const { setEmbeddedWallet: setGlobalEmbeddedWallet } = useEmbeddedWalletStore();
 
     const loginWithEmbeddedWallet = async (
         walletAddress: string,
@@ -34,6 +36,10 @@ export const useEmbeddedWalletLogin = () => {
             }
 
             toast.success("Embedded wallet connected!");
+            
+            // ✅ Lưu embedded wallet provider vào global store
+            console.log("💾 Saving embedded wallet to global store:", address);
+            setGlobalEmbeddedWallet(address, provider);
 
             toast.info("Authenticating with Lens Protocol...");
             const lensTokens = await web3AuthLogin(provider, address);

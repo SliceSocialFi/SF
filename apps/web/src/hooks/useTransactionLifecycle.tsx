@@ -6,8 +6,11 @@ import type {
   TransactionWillFailFragment
 } from "@slice/indexer";
 import type { ApolloClientError } from "@slice/types/errors";
+import { createWalletClient, custom } from "viem";
 import { sendEip712Transaction, sendTransaction } from "viem/zksync";
 import { useWalletClient } from "wagmi";
+import { CHAIN } from "@slice/data/constants";
+import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
 import useHandleWrongNetwork from "./useHandleWrongNetwork";
 
 type AnyTransactionRequestFragment =
@@ -18,8 +21,28 @@ type AnyTransactionRequestFragment =
   | ((...args: never[]) => unknown);
 
 const useTransactionLifecycle = () => {
-  const { data } = useWalletClient();
+  const { data: wagmiClient } = useWalletClient();
+  const { provider: embeddedProvider, isEmbeddedWallet } = useEmbeddedWalletStore();
   const handleWrongNetwork = useHandleWrongNetwork();
+
+  // Tạo wallet client từ embedded provider hoặc dùng wagmi client
+  const getWalletClient = () => {
+    if (isEmbeddedWallet && embeddedProvider) {
+      console.log("🔑 Using embedded wallet provider for transaction");
+      return createWalletClient({
+        chain: CHAIN,
+        transport: custom(embeddedProvider)
+      });
+    }
+    
+    if (wagmiClient) {
+      console.log("🔑 Using wagmi wallet client for transaction");
+      return wagmiClient;
+    }
+    
+    console.error("❌ No wallet client available");
+    return null;
+  };
 
   const handleSponsoredTransaction = async (
     transactionData: AnyTransactionRequestFragment,
@@ -33,10 +56,16 @@ const useTransactionLifecycle = () => {
       return;
     }
     await handleWrongNetwork();
-    if (!data) return;
+    
+    const client = getWalletClient();
+    if (!client || !client.account) {
+      throw new Error("No wallet client or account available");
+    }
+    
     return onCompleted(
-      await sendEip712Transaction(data, {
-        account: data.account,
+      await sendEip712Transaction(client as any, {
+        account: client.account,
+        chain: null,
         ...getTransactionData(transactionData.raw, { sponsored: true })
       })
     );
@@ -54,10 +83,16 @@ const useTransactionLifecycle = () => {
       return;
     }
     await handleWrongNetwork();
-    if (!data) return;
+    
+    const client = getWalletClient();
+    if (!client || !client.account) {
+      throw new Error("No wallet client or account available");
+    }
+    
     return onCompleted(
-      await sendTransaction(data, {
-        account: data.account,
+      await sendTransaction(client as any, {
+        account: client.account,
+        chain: null,
         ...getTransactionData(transactionData.raw)
       })
     );
