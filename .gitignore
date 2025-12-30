@@ -44,3 +44,16 @@ yarn-error.log*
 dist
 node-compile-cache/
 node_modules
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.local.yml
+.dockerignore
+.dockerignore.local
+*.log
+.docker/
+apps/web/Dockerfile
+
+# GitHub
+.github/

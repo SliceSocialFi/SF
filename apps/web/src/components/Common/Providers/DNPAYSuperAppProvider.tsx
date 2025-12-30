@@ -1,56 +1,63 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SUPER_APP_ORIGIN } from '@slice/data/constants';
+import { OrderData, PaymentData } from "@/types/payment-api";
+
+type CurrentOrderData = {
+  order: OrderData;
+  payment: PaymentData;
+}
 
 interface DNPAYSuperAppContextType {
-  apiKey: string | null;
+  appSessionId: string | null;
+  token: string | null;
   isReady: boolean; // Để biết khi nào đã nhận được key
+  currentOrder: CurrentOrderData | null;
+  isLoading: boolean;
+  setCurrentOrder: (order: CurrentOrderData | null) => void;
+  setIsLoading: (loading: boolean) => void;
 }
 
 const DNPAYSuperAppContext = createContext<DNPAYSuperAppContextType>({
-  apiKey: null,
+  appSessionId: null,
+  token: null,
   isReady: false,
+  currentOrder: null,
+  isLoading: false,
+  setCurrentOrder: () => {},
+  setIsLoading: () => {},
 });
 
 export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => {
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [appSessionId, setAppSessionId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== SUPER_APP_ORIGIN) {
-        console.warn('Nhận message từ nguồn không xác định:', event.origin);
         return;
       }
 
-      if (event.data?.type === 'IFRAME_RESPONSE') {
-        const apiKey = event.data;
-        console.log('Đã nhận API Key từ Super App:', apiKey);
-        setApiKey(event.data.apiKey);
+      if (event.data?.type === 'START_EVENT') {
+        const { app_session_id, token: newToken } = event.data.data;
+        console.log('Received API Key from Super App:', { app_session_id, token: newToken });
+        setAppSessionId(app_session_id);
+        setToken(newToken);
         setIsReady(true);
       }
     };
 
-    // Đăng ký lắng nghe
+    // Register listener
     window.addEventListener('message', handleMessage);
-
-    // Gửi tín hiệu "Handshake" lên Super App để xin Key
-    // Vì ta là Mini App (trong iframe) nên gửi lên window.parent
-    // if (window.parent) {
-    //    console.log('Gửi yêu cầu lấy Key lên Super App...');
-    //    window.parent.postMessage(
-    //      { type: 'IFRAME_RESPONSE' },
-    //      SUPER_APP_ORIGIN
-    //    );
-    // }
 
     const iframe = document.getElementById('depay-iframe') as HTMLIFrameElement | null;
     if (!iframe || !iframe.contentWindow) {
-      console.warn('Không tìm thấy iframe DePay để gửi yêu cầu lấy Key.');
+      console.warn('DePay iframe not found to request API Key.');
       return;
     }
 
     iframe.contentWindow.postMessage(
-      { type: 'IFRAME_RESPONSE' },
+      { type: 'START_EVENT' },
       SUPER_APP_ORIGIN
     );
 
@@ -59,12 +66,22 @@ export const DNPAYSuperAppProvider = ({ children }: { children: ReactNode }) => 
     };
   }, []);
 
+  const [currentOrder, setCurrentOrder] = useState<CurrentOrderData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
-    <DNPAYSuperAppContext.Provider value={{ apiKey, isReady }}>
+    <DNPAYSuperAppContext.Provider value={{
+      appSessionId,
+      token,
+      isReady,
+      currentOrder,
+      isLoading,
+      setCurrentOrder,
+      setIsLoading
+    }}>
       {children}
     </DNPAYSuperAppContext.Provider>
   );
 };
 
-// Custom hook để dùng trong các component con
 export const useDNPAYSuperApp = () => useContext(DNPAYSuperAppContext);

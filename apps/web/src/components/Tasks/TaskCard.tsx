@@ -65,14 +65,12 @@ const TaskCard = ({ task, showDelete = false, onDelete }: TaskCardProps) => {
         {/* Top row: Avatar + Name + Time + Delete Button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 font-bold text-sm text-white">
-              {task.employerAvatar && (
-                <img
-                  src={task.employerAvatar}
-                  alt={task.employerName}
-                  className="h-10 w-10 rounded-full"
-                />
-              )}
+            <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+              <img
+                src={task.employerAvatar || "/default-avatar.png"}
+                alt={task.employerName}
+                className="h-full w-full object-cover"
+              />
             </div>
             <div>
               <div className="font-medium text-gray-900 text-sm dark:text-white">

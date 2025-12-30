@@ -3,10 +3,12 @@ services:
     build:
       context: ./apps/web
       dockerfile: Dockerfile
-    container_name: hey-web
+    container_name: slice-web
     restart: always
     environment:
       - LENS_NETWORK=mainnet
       - SLICE_API_URL=https://slice-api-indol.vercel.app/
+      - BRIDGE_API_URL=https://slice-bridge-relayer-test.duckdns.org/
+      - PAYMENT_API_URL=https://dev-slice-payment-api.vercel.app/
     ports:
       - "3000:80"

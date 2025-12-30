@@ -110,6 +110,7 @@ const GlobalModals = () => {
         onClose={() => setShowFundModal({ showFundModal: false })}
         show={showFundModal}
         title="Top-up your account"
+        staticBackdrop
       >
         <TopUp />
       </Modal>
