@@ -23,6 +23,12 @@ export interface TaskApplicant {
   applicantProfileId?: string;
 }
 
+export interface TaskResource {
+  label: string;
+  url?: string;
+  description?: string;
+}
+
 export interface TaskItem {
   id: string;
   companyLogo: string;
@@ -46,6 +52,7 @@ export interface TaskItem {
   objective?: string;
   deliverables?: string;
   acceptanceCriteria?: string;
+  resources?: TaskResource[];
   status: "open" | "in_review" | "in_progress" | "completed" | "cancelled";
   assigneeId?: string;
   applicants: TaskApplicant[];
