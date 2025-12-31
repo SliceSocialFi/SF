@@ -6,16 +6,19 @@ const Minting = () => {
   const { chosenUsername, setAccountAddress, setScreen, transactionHash } =
     useSignupStore();
 
+  console.log("Minting component - chosenUsername:", chosenUsername);
+  console.log("Minting component - transactionHash:", transactionHash);
+
   useAccountQuery({
     notifyOnNetworkStatusChange: true,
     onCompleted: (data) => {
+      console.log("Account minting completed:", data);
       if (data.account) {
         setAccountAddress(data.account.address);
         setScreen("success");
       }
     },
     pollInterval: 1500,
-    skip: !transactionHash,
     variables: { request: { username: { localName: chosenUsername } } }
   });
 

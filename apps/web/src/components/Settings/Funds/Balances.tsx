@@ -25,6 +25,10 @@ const Balances = () => {
     }
   });
 
+  console.log("currentAccount:", currentAccount);
+  console.log("Balances data:", data);
+  console.log("Balances loading:", loading);
+
   interface TokenBalanceProps {
     value: string;
     symbol: string;

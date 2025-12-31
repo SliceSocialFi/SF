@@ -2,6 +2,8 @@ import { Localstorage } from "@slice/data/storage";
 import clearLocalStorage from "@/helpers/clearLocalStorage";
 import { createPersistedTrackedStore } from "@/store/createTrackedStore";
 import parseJwt from "@slice/helpers/parseJwt";
+import { useEmbeddedWalletStore } from "@/store/non-persisted/useEmbeddedWalletStore";
+import { resetSignOutGuard } from "@/helpers/tokenManager";
 
 interface Tokens {
   accessToken: null | string;
@@ -35,11 +37,17 @@ const { store } = createPersistedTrackedStore<State>(
         profileId = null;
       }
 
+      // Reset guard để cho phép signOut() được gọi lại trong tương lai
+      resetSignOutGuard();
+      
       set({ accessToken, refreshToken, profileId });
     },
     signOut: async () => {
       // Reset state immediately
       set({ accessToken: null, refreshToken: null, profileId: null });
+      
+      // Clear embedded wallet provider
+      useEmbeddedWalletStore.getState().clearEmbeddedWallet();
       
       // Clear localStorage
       clearLocalStorage();

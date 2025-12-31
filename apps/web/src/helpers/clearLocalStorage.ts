@@ -8,6 +8,9 @@ const clearLocalStorage = (): void => {
   for (const store of storesToClear) {
     localStorage.removeItem(store);
   }
+  
+  // KHÔNG xóa embedded-wallet-store vì nó không nằm trong Localstorage enum
+  // Nó được xóa riêng bởi clearEmbeddedWallet() trong signOut
 };
 
 export default clearLocalStorage;

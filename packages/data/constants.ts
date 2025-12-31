@@ -81,6 +81,11 @@ export const PERMISSIONS = {
 export const BRIDGE_API_URL = process.env.BRIDGE_API_URL || "http://localhost:8787/";
 export const PAYMENT_API_URL = process.env.PAYMENT_API_URL || "http://localhost:3000/";
 
+// DNPAY SSO Configuration
+export const DNPAY_CLIENT_ID = process.env.DNPAY_CLIENT_ID || "dnpay_1e3370f3dcdd40cb";
+export const DNPAY_REDIRECT_URI = process.env.DNPAY_REDIRECT_URI || "https://dev-slice-dnpay-miniapp.vercel.app/";
+export const DNPAY_AUTH_URL = "https://mvp-api-dev.depay.ai/oauth2/login";
+
 export const BSC_POOL_CONTRACT =
   IS_MAINNET
     ? MAINNET_CONTRACTS.bscPool
@@ -102,3 +107,7 @@ export const ERC20_TOKEN_ADDRESS =
     : TESTNET_CONTRACTS.defaultToken;
 
 export const SUPER_APP_ORIGIN = 'https://mvp.dnpay.ai';
+export const DNPAY_EVENT_TYPE = 'START_EVENT';
+
+export const WEB3AUTH_CLIENT_ID = process.env.WEB3AUTH_CLIENT_ID || "YOUR_WEB3AUTH_CLIENT_ID";
+export const WEB3AUTH_CONNECTION_NAME = "slice-backend-verifier";

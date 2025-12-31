@@ -17,6 +17,10 @@ const WALLETS = {
   walletConnect: {
     logo: `${STATIC_IMAGES_URL}/wallets/walletconnect.svg`,
     name: "Wallet Connect"
+  },
+  dnpay: {
+    logo: `${STATIC_IMAGES_URL}/wallets/dnpay-logo-darkmode.png`,
+    name: "DNPay"
   }
 } as const;
 

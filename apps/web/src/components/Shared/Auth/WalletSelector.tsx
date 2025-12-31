@@ -5,6 +5,7 @@ import type { Connector } from "wagmi";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import cn from "@/helpers/cn";
 import getWalletDetails from "@/helpers/getWalletDetails";
+import DNPayLoginButton from "./DNPayLoginButton";
 
 const WalletSelector: FC = () => {
   const { connectAsync, connectors, isPending } = useConnect();
@@ -43,6 +44,21 @@ const WalletSelector: FC = () => {
     </div>
   ) : (
     <div className="inline-block w-full space-y-3 overflow-hidden text-left align-middle">
+      <DNPayLoginButton
+        className="flex w-full items-center justify-between space-x-2.5 overflow-hidden rounded-xl border border-gray-200 px-4 py-3 outline-hidden dark:border-gray-700 button-animated dark:bg-[#121212]"
+        onSuccess={(data) => {
+        }}
+      />
+      
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-white dark:bg-black px-2 text-gray-500">Or continue with wallet</span>
+        </div>
+      </div>
+
       {filteredConnectors.map((connector: any) => {
         return (
           <button

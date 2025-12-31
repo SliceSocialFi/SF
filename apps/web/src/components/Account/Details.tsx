@@ -36,6 +36,7 @@ const Details = ({
   isBlockedByMe = false,
   hasBlockedMe = false,
   account,
+  professionalRoles: propProfessionalRoles
 }: DetailsProps) => {
   const navigate = useNavigate();
   const { currentAccount } = useAccountStore();

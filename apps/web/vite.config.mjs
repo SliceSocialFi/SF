@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import EnvironmentPlugin from "vite-plugin-environment";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 const dependenciesToChunk = {
   aws: ["@aws-sdk/client-s3", "@aws-sdk/lib-storage"],
@@ -51,6 +52,19 @@ const dependenciesToChunk = {
 };
 
 export default defineConfig({
+  define: {
+    // Fix for libraries that expect global to be defined
+    global: "globalThis",
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: "globalThis"
+      }
+    },
+    // Force include these to ensure proper polyfilling
+    include: ["buffer", "process"]
+  },
   build: {
     cssMinify: "lightningcss",
     rollupOptions: {
@@ -72,13 +86,22 @@ export default defineConfig({
     tsconfigPaths(),
     react(),
     tailwindcss(),
+    nodePolyfills({
+      // Polyfill Node.js globals
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
     // Expose env vars to client-side code (process.env.*)
     // Provide a safe default for SLICE_API_URL to avoid build-time errors.
     EnvironmentPlugin({
       SLICE_API_URL: process.env.SLICE_API_URL ?? "https://slice-api-indol.vercel.app/",
       LENS_NETWORK: process.env.LENS_NETWORK ?? "testnet",
       BRIDGE_API_URL: process.env.BRIDGE_API_URL ?? "http://localhost:8787/",
-      PAYMENT_API_URL: process.env.PAYMENT_API_URL ?? "http://localhost:3000/"
+      PAYMENT_API_URL: process.env.PAYMENT_API_URL ?? "http://localhost:3000/",
+      WEB3AUTH_CLIENT_ID: process.env.WEB3AUTH_CLIENT_ID ?? ""
     })
   ],
 server: {

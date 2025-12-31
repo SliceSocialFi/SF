@@ -19,6 +19,9 @@ const LoginButton = ({
   const handleClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
       event.stopPropagation();
+      const theme = localStorage.getItem("sf_theme_palette")
+      localStorage.clear()
+      localStorage.setItem("sf_theme_palette", theme || "system")
       return setShowAuthModal(true);
     },
     [setShowAuthModal]

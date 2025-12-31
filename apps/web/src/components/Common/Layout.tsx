@@ -20,6 +20,7 @@ import { useProStore } from "@/store/persisted/useProStore";
 import PageviewTracker from "./PageviewTracker";
 import ReloadTabsWatcher from "./ReloadTabsWatcher";
 
+
 const Layout = () => {
   useLocation();
   const { theme } = useTheme();
@@ -27,6 +28,36 @@ const Layout = () => {
   const { setProBannerDismissed } = useProStore();
   const isMounted = useIsClient();
   const { accessToken } = hydrateAuthTokens();
+
+  // Nhận access_token từ popup (postMessage) và lưu vào localStorage
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.access_token) {
+        console.log("📩 Received DNPAY token from popup");
+        localStorage.setItem("dnpayAccessToken", event.data.access_token);
+        console.log("✓ Token saved to localStorage with key: dnpayAccessToken");
+      }
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  // Nếu là popup, có access_token trên URL, lưu token và tự đóng
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = localStorage.getItem("dnpayAccessToken") || params.get("access_token");
+    if (accessToken) {
+      console.log("🔐 DNPAY token detected in popup URL");
+
+      localStorage.setItem("dnpayAccessToken", accessToken);
+      
+      // Đóng popup ngay lập tức
+      setTimeout(() => {
+        window.close();
+      }, 500);
+    }
+  }, []);
 
   // Disable scroll restoration on route change
   useEffect(() => {
